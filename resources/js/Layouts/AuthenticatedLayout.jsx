@@ -31,7 +31,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                     Dashboard
                                 </NavLink>
                                 <NavLink
-                                    href={route("pegawai")}
+                                    href={route("pegawai.index")}
                                     active={route().current("pegawai")}
                                 >
                                     Pegawai
