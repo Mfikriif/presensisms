@@ -5,7 +5,13 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+// Operator
 Route::get('/', function () {
+    return Inertia::render('User/Login');
+});
+
+// Admin
+Route::get('/admin', function () { 
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
