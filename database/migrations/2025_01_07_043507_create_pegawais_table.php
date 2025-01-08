@@ -13,10 +13,12 @@ return new class extends Migration
     {
         Schema::create('pegawais', function (Blueprint $table) {
             $table->id();
-            $table->char("Nama");
-            $table->char("Tempat Lahir")->nullable();
-            $table->date("Tanggal Lahir")->nullable();
-            $table->char("email");
+            $table->char("Nama_Lengkap");
+            $table->char("Email");
+            $table->char("Posisi")->default('Operator');
+            $table->char("No_Hp")->nullable();
+            $table->char("Tempat_Lahir")->nullable();
+            $table->date("Tanggal_Lahir")->nullable();
             $table->timestamps();
         });
     }

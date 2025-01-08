@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\pegawai;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -42,10 +43,15 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        event(new Registered($user));
+        $user = pegawai::create([
+            'Nama_Lengkap' => $request->name,
+            'Email' => $request->email,
+        ]);
 
-        Auth::login($user);
+        // event(new Registered($user));
 
-        return redirect(route('dashboard', absolute: false));
+        // Auth::login($user);
+
+        return redirect(route('register', absolute: false));
     }
 }
