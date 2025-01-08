@@ -50,20 +50,20 @@ export default function Login({ status, errors }) {
 
                     <div className="section mt-6">
                         {/* Status Message */}
-                        {status && (
+                        {/* {status && (
                             <div className="alert alert-outline-success bg-green-100 text-green-700 px-4 py-2 rounded">
                                 {status}
                             </div>
-                        )}
+                        )} */}
 
                         {/* Error Messages */}
-                        {errors && (
+                        {/* {errors && (
                             <div className="alert alert-outline-warning bg-red-100 text-red-700 px-4 py-2 rounded">
                                 {Object.keys(errors).map((key) => (
                                     <p key={key}>{errors[key]}</p>
                                 ))}
                             </div>
-                        )}
+                        )} */}
 
                         {/* Form */}
                         <form onSubmit={handleSubmit} className="space-y-4">
@@ -155,7 +155,7 @@ export default function Login({ status, errors }) {
                             <div className="form-button-group">
                                 <button
                                     type="submit"
-                                    className="btn btn-success w-full py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200"
+                                    className="btn btn-success w-full py-2 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-200"
                                 >
                                     Log in
                                 </button>

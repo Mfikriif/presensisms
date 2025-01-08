@@ -1,66 +1,68 @@
 import React from "react";
 
-export default function BottomNav({ activePage, isKaryawan, statusJamKerja }) {
+export default function BottomNav({ activePage }) {
     return (
-        <div className="appBottomMenu">
+        <div className="fixed bottom-0 left-0 right-0 bg-white shadow-md flex justify-between items-center p-3">
+            {/* Today */}
             <a
-                href="/dashboard"
-                className={`item ${activePage === "dashboard" ? "active" : ""}`}
-            >
-                <div className="col">
-                    <ion-icon name="home-outline"></ion-icon>
-                    <strong>Home</strong>
-                </div>
-            </a>
-            <a
-                href="/presensi/histori"
-                className={`item ${
-                    activePage === "presensi/histori" ? "active" : ""
+                href="#"
+                className={`flex flex-col items-center ${
+                    activePage === "today" ? "text-blue-500" : "text-gray-500"
                 }`}
             >
-                <div className="col">
-                    <ion-icon name="document-text-outline"></ion-icon>
-                    <strong>Histori</strong>
-                </div>
+                <ion-icon
+                    name="file-tray-full-outline"
+                    className="text-2xl"
+                ></ion-icon>
+                <strong className="text-xs mt-1">Today</strong>
             </a>
-            {isKaryawan && statusJamKerja === 1 ? (
-                <a href="/presensi/null/create" className="item">
-                    <div className="col">
-                        <div className="action-button large">
-                            <ion-icon name="camera-outline"></ion-icon>
-                        </div>
-                    </div>
-                </a>
-            ) : (
-                <a href="/presensi/pilihjamkerja" className="item">
-                    <div className="col">
-                        <div className="action-button large">
-                            <ion-icon name="camera-outline"></ion-icon>
-                        </div>
-                    </div>
-                </a>
-            )}
+
+            {/* Calendar */}
             <a
-                href="/presensi/izin"
-                className={`item ${
-                    activePage === "presensi/izin" ? "active" : ""
+                href="#"
+                className={`flex flex-col items-center ${
+                    activePage === "calendar"
+                        ? "text-blue-500"
+                        : "text-gray-500"
                 }`}
             >
-                <div className="col">
-                    <ion-icon name="calendar-outline"></ion-icon>
-                    <strong>Izin</strong>
+                <ion-icon
+                    name="calendar-outline"
+                    className="text-2xl"
+                ></ion-icon>
+                <strong className="text-xs mt-1">Calendar</strong>
+            </a>
+
+            {/* Camera */}
+            <a href="#" className="flex justify-center items-center">
+                <div className="w-12 h-12 bg-blue-500 text-white rounded-full flex justify-center items-center shadow-lg">
+                    <ion-icon name="camera" className="text-2xl"></ion-icon>
                 </div>
             </a>
+
+            {/* Docs */}
             <a
-                href="/editprofile"
-                className={`item ${
-                    activePage === "editprofile" ? "active" : ""
+                href="#"
+                className={`flex flex-col items-center ${
+                    activePage === "docs" ? "text-blue-500" : "text-gray-500"
                 }`}
             >
-                <div className="col">
-                    <ion-icon name="people-outline"></ion-icon>
-                    <strong>Profile</strong>
-                </div>
+                <ion-icon
+                    name="document-text-outline"
+                    className="text-2xl"
+                ></ion-icon>
+                <strong className="text-xs mt-1">Docs</strong>
+            </a>
+
+            {/* Profile */}
+            <a
+                href="#"
+                className={`flex flex-col items-center ${
+                    activePage === "profile" ? "text-blue-500" : "text-gray-500"
+                }`}
+            >
+                <ion-icon name="people-outline" className="text-2xl"></ion-icon>
+                <strong className="text-xs mt-1">Profile</strong>
             </a>
         </div>
     );

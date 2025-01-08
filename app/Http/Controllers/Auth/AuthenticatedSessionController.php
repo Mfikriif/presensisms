@@ -18,7 +18,7 @@ class AuthenticatedSessionController extends Controller
      */
     public function create(): Response
     {
-        return Inertia::render('Auth/Login', [
+        return Inertia::render('User/Login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => session('status'),
         ]);
@@ -27,13 +27,35 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
+    public function store(Request $request)
     {
-        $request->authenticate();
+        $credentials = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+    
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
+            $user = Auth::user();
+    
+            // Logika pengalihan berdasarkan peran
+            if ($user->role === 'admin') {
+                return redirect()->route('dashboard');
+            } elseif ($user->role === 'operator') {
+                return redirect()->route('dashboardop');
+            }
+    
+            // Logout jika role tidak dikenali
+            Auth::logout();
+            return back()->withErrors([
+                'login' => 'Role pengguna tidak dikenali.',
+            ]);
+        }
 
-        $request->session()->regenerate();
-
-        return redirect()->intended(route('dashboard', absolute: false));
+        // Menyimpan error di session jika autentikasi gagal
+        return back()->withErrors([
+            'login' => 'Email atau password tidak cocok dengan data kami.',
+        ]);
     }
 
     /**
@@ -41,12 +63,15 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+    
+        // Logout pengguna
         Auth::guard('web')->logout();
-
+    
+        // Invalidate session
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
-
-        return redirect('/admin');
+    
+        // Default redirect untuk operator atau lainnya
+        return redirect('/');
     }
 }
