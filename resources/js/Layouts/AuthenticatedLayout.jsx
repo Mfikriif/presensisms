@@ -6,7 +6,7 @@ import { Link, usePage } from "@inertiajs/react";
 import { useState } from "react";
 
 export default function AuthenticatedLayout({ header, children }) {
-    const user = usePage().props.auth.user;
+    const user = usePage().props.auth?.user || { name: "Guest" };
 
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
@@ -90,7 +90,9 @@ export default function AuthenticatedLayout({ header, children }) {
 
                 {/* Main Body Content */}
                 <main className="p-6 flex-1 overflow-y-auto bg-gray-100">
-                    <div>{children}</div>
+                    <div className="p-6 bg-white shadow-md rounded-lg">
+                        {children}
+                    </div>
                 </main>
             </div>
         </div>

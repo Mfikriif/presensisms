@@ -17,6 +17,7 @@ return new class extends Migration
             $table->char("Email");
             $table->char("Posisi")->default('Operator');
             $table->char("No_Hp")->nullable();
+            $table->char("Foto")->nullable();
             $table->char("Tempat_Lahir")->nullable();
             $table->date("Tanggal_Lahir")->nullable();
             $table->timestamps();

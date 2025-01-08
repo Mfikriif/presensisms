@@ -43,14 +43,14 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        $user = pegawai::create([
+        $pegawai = pegawai::create([
             'Nama_Lengkap' => $request->name,
             'Email' => $request->email,
         ]);
 
-        // event(new Registered($user));
+        event(new Registered($user));
 
-        // Auth::login($user);
+        Auth::login($user);
 
         return redirect(route('register', absolute: false));
     }
