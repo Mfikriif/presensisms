@@ -11,10 +11,12 @@ class pegawai extends Model
     use HasFactory;
 
     protected $fillable = [
-        'Nama',
-        'Tempat Lahir',
-        'Tanggal Lahir',
-        'email',
+        'Nama_Lengkap',
+        'Email',
+        'Posisi',
+        'No_Hp',
+        'Tempat_Lahir',
+        'Tanggal_Lahir',
     ];
     
 }

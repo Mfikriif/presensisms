@@ -13,8 +13,9 @@ class PegawaiController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-    {
-        return inertia('Admin/listPegawai');
+    {   
+        $pegawai = pegawai::latest()->paginate(10);
+        return inertia('Admin/listPegawai',['pegawai'=> $pegawai]);
     }
 
     /**

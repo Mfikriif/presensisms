@@ -17,7 +17,12 @@ class PegawaiFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'Nama_Lengkap' => fake()->name() ,
+            'Email' =>fake()->email(),
+            'Posisi' =>fake()->text(10),
+            'No_Hp' =>fake()->biasedNumberBetween(12,13),
+            'Tempat_Lahir' => fake()->text(7),
+            'Tanggal_Lahir' => fake()->date(),
         ];
     }
 }
