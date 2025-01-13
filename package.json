@@ -24,6 +24,8 @@
         "@amcharts/amcharts4": "^4.10.39",
         "@inertiajs/inertia": "^0.11.1",
         "ionicons": "^7.4.0",
+        "react-webcam": "^7.2.0",
+        "sweetalert2": "^11.15.10",
         "webcamjs": "^1.0.26",
         "webjs": "^0.6.1"
     }

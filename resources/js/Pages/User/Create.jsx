@@ -1,80 +1,160 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import BottomNav from "@/Layouts/BottomNav";
 import Script from "@/Layouts/Script";
-import Webcam from "webcamjs";
+import Webcam from "react-webcam";
+import axios from "axios";
+import Swal from "sweetalert2";
 
-export default function Create() {
+export default function Create({ cek }) {
     const [isLoading, setIsLoading] = useState(false);
+    const [location, setLocation] = useState(null);
+    const [errorMessage, setErrorMessage] = useState("");
+    const lokasiInputRef = useRef(null);
+    const webcamRef = useRef(null); // Reference untuk react-webcam
+    const [isAbsenMasuk, setIsAbsenMasuk] = useState(cek === 0); // Tentukan default berdasarkan cek
 
     useEffect(() => {
-        // Initialize WebcamJS
-        Webcam.set({
-            width: 250,
-            height: 250,
-            image_format: "jpeg",
-            jpeg_quality: 80,
-        });
-
-        Webcam.attach(".webcam-capture");
-
-        // Get Geolocation
-        const lokasi = document.getElementById("lokasi");
+        // Dapatkan Geolocation
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
-                successCallback,
-                errorCallback
+                (position) => {
+                    const coords = `${position.coords.latitude},${position.coords.longitude}`;
+                    setLocation(coords);
+                    if (lokasiInputRef.current) {
+                        lokasiInputRef.current.value = coords;
+                    }
+
+                    // Initialize Map
+                    const map = L.map("map").setView(
+                        [position.coords.latitude, position.coords.longitude],
+                        18
+                    );
+
+                    L.tileLayer(
+                        "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                        {
+                            maxZoom: 19,
+                            attribution:
+                                '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                        }
+                    ).addTo(map);
+
+                    L.marker([
+                        position.coords.latitude,
+                        position.coords.longitude,
+                    ]).addTo(map);
+
+                    L.circle(
+                        [position.coords.latitude, position.coords.longitude],
+                        {
+                            color: "red",
+                            fillColor: "#f03",
+                            fillOpacity: 0.5,
+                            radius: 100,
+                        }
+                    ).addTo(map);
+                },
+                (error) => {
+                    console.error("Error obtaining location:", error);
+                    setErrorMessage(
+                        "Gagal mendapatkan lokasi. Periksa izin lokasi Anda."
+                    );
+                }
             );
+        } else {
+            setErrorMessage("Browser tidak mendukung geolocation.");
         }
-
-        function successCallback(position) {
-            lokasi.value =
-                position.coords.latitude + "," + position.coords.longitude;
-
-            // Initialize map
-            const map = L.map("map").setView(
-                [position.coords.latitude, position.coords.longitude],
-                18
-            );
-
-            L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-                maxZoom: 19,
-                attribution:
-                    '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-            }).addTo(map);
-
-            L.marker([
-                position.coords.latitude,
-                position.coords.longitude,
-            ]).addTo(map);
-
-            L.circle([position.coords.latitude, position.coords.longitude], {
-                color: "red",
-                fillColor: "#f03",
-                fillOpacity: 0.5,
-                radius: 100,
-            }).addTo(map);
-        }
-
-        function errorCallback(error) {
-            console.error("Error obtaining location:", error);
-        }
-
-        // $("#takeabsen").click(function(e)){
-        //     Webcam.snap(function(uri){
-        //         image = uri;
-        //     });
-        //     alert(image);
-        // }
     }, []);
+
+    const handleTakeAbsen = async () => {
+        if (webcamRef.current) {
+            const imageSrc = webcamRef.current.getScreenshot();
+            if (!imageSrc) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Gagal",
+                    text: "Gagal menangkap gambar. Coba lagi.",
+                    showConfirmButton: false,
+                    timer: 3000,
+                });
+                return;
+            }
+
+            if (!location) {
+                Swal.fire({
+                    icon: "warning",
+                    title: "Lokasi Tidak Tersedia",
+                    text: "Ambil lokasi terlebih dahulu.",
+                    showConfirmButton: false,
+                    timer: 3000,
+                });
+                return;
+            }
+
+            setIsLoading(true);
+
+            try {
+                const response = await axios.post(
+                    "/presensi/store",
+                    {
+                        image: imageSrc,
+                        lokasi: location,
+                        tipeAbsen: isAbsenMasuk ? "masuk" : "pulang", // Kirim tipe absen ke backend
+                    },
+                    {
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-TOKEN": document
+                                .querySelector('meta[name="csrf-token"]')
+                                .getAttribute("content"),
+                        },
+                    }
+                );
+
+                if (response.status === 200) {
+                    Swal.fire({
+                        icon: "success",
+                        title: "Berhasil!",
+                        text: isAbsenMasuk
+                            ? "Terima kasih, Selamat Bekerja!"
+                            : "Terima kasih, Hati-Hati di Jalan!",
+                        showConfirmButton: false,
+                        timer: 3000,
+                        didClose: () => {
+                            // Redirect ke dashboard setelah selesai
+                            window.location.href = "/dashboard";
+                        },
+                    });
+
+                    if (isAbsenMasuk) setIsAbsenMasuk(false);
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Gagal!",
+                        text: "Maaf, Gagal Absen. Silahkan Hubungi IT.",
+                        showConfirmButton: false,
+                        timer: 3000,
+                    });
+                }
+            } catch (error) {
+                console.error("Error submitting presensi:", error);
+                Swal.fire({
+                    icon: "error",
+                    title: "Error!",
+                    text: "Terjadi kesalahan saat mengirim data presensi.",
+                    showConfirmButton: false,
+                    timer: 3000,
+                });
+            } finally {
+                setIsLoading(false);
+            }
+        }
+    };
 
     return (
         <div className="bg-gray-100 min-h-screen flex flex-col pb-20">
-            {/* Loader */}
             {isLoading && (
-                <div
-                    id="loader"
-                    className="fixed inset-0 bg-gray-100 flex items-center justify-center z-50"
-                >
+                <div className="fixed inset-0 bg-gray-100 flex items-center justify-center z-50">
                     <svg
                         className="animate-spin h-8 w-8 text-blue-500"
                         xmlns="http://www.w3.org/2000/svg"
@@ -97,9 +177,7 @@ export default function Create() {
                     </svg>
                 </div>
             )}
-            {/* End Loader */}
 
-            {/* App Header */}
             <div className="bg-blue-500 text-white flex items-center justify-between px-4 py-3 shadow-md">
                 <button
                     onClick={() => window.history.back()}
@@ -112,54 +190,54 @@ export default function Create() {
                     <span className="ml-2 text-sm">Back</span>
                 </button>
                 <h1 className="text-lg font-semibold">E-Presensi</h1>
-                <div></div>
             </div>
 
-            {/* Input Lokasi */}
-            <input type="hidden" id="lokasi" />
+            <input type="hidden" id="lokasi" ref={lokasiInputRef} />
 
-            {/* Main Content */}
             <div className="flex flex-col items-center gap-4 mt-4 px-4">
-                {/* Webcam Capture */}
                 <div className="flex flex-col items-center justify-center mt-4">
-                    <div className="bg-gray-200 rounded-lg overflow-hidden shadow-md">
-                        <div
-                            className="webcam-capture"
-                            style={{
-                                width: "100px", // Lebar kecil
-                                height: "100px", // Tinggi kecil
-                                borderRadius: "10px", // Membulatkan sudut
-                            }}
-                        ></div>
-                    </div>
+                    <Webcam
+                        audio={false}
+                        ref={webcamRef}
+                        screenshotFormat="image/jpeg"
+                        className="bg-gray-200 rounded-lg shadow-md"
+                        style={{
+                            width: "250px",
+                            height: "250px",
+                            borderRadius: "10px",
+                        }}
+                    />
                 </div>
-                {/* End Webcam Section */}
 
-                {/* Button Section */}
                 <button
-                    id="takeabsen"
-                    className="bg-blue-500 text-white rounded-lg px-6 py-3 flex items-center gap-2 hover:bg-blue-600 transition duration-200 ease-in-out shadow-md w-full max-w-xs text-center"
+                    onClick={handleTakeAbsen}
+                    className={`${
+                        isAbsenMasuk
+                            ? "bg-blue-500 hover:bg-blue-600"
+                            : "bg-red-500 hover:bg-red-600"
+                    } text-white rounded-lg px-6 py-3 flex items-center gap-2 transition duration-200 ease-in-out shadow-md w-full max-w-xs text-center`}
                 >
                     <ion-icon
                         name="camera-outline"
                         className="text-lg"
                     ></ion-icon>
-                    <span className="font-medium">Absen Masuk</span>
+                    <span className="font-medium">
+                        {isAbsenMasuk ? "Absen Masuk" : "Absen Pulang"}
+                    </span>
                 </button>
 
-                {/* Map Section */}
+                {errorMessage && (
+                    <p className="text-red-500 text-sm">{errorMessage}</p>
+                )}
+
                 <div className="w-full max-w-xs bg-gray-200 rounded-lg overflow-hidden shadow-md">
                     <div
                         id="map"
-                        style={{
-                            width: "100%",
-                            height: "150px", // Ukuran map disesuaikan
-                        }}
+                        style={{ width: "100%", height: "150px" }}
                     ></div>
                 </div>
             </div>
 
-            {/* Bottom Navigation */}
             <BottomNav />
             <Script />
         </div>
