@@ -29,10 +29,13 @@ export default function listPegawai({ pegawai }) {
                                             Email
                                         </th>
                                         <th className="px-4 py-2 border border-gray-300">
-                                            Tempat Lahir
+                                            Posisi
                                         </th>
                                         <th className="px-4 py-2 border border-gray-300">
-                                            Tanggal Lahir
+                                            No Hp
+                                        </th>
+                                        <th className="px-4 py-2 border border-gray-300">
+                                            Foto
                                         </th>
                                         <th className="px-4 py-2 border border-gray-300">
                                             Aksi
@@ -55,10 +58,16 @@ export default function listPegawai({ pegawai }) {
                                                 {pgw.Email}
                                             </td>
                                             <td className="px-4 py-2 border border-gray-300">
-                                                {pgw.Tempat_Lahir}
+                                                {pgw.Posisi}
                                             </td>
                                             <td className="px-4 py-2 border border-gray-300">
-                                                {pgw.Tanggal_Lahir}
+                                                {pgw.No_Hp}
+                                            </td>
+                                            <td className="px-4 py-2 border border-gray-300 text-center">
+                                                <img
+                                                    src="{{ asset(`storage/pegawai/ . $pgw->Foto`) }}"
+                                                    // alt="Foto Pegawai"
+                                                />
                                             </td>
                                             <td className="px-4 py-2 border border-gray-300 text-center">
                                                 <Link className="text-blue-500 underline hover:text-blue-700">

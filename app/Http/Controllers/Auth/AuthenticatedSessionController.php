@@ -40,7 +40,7 @@ class AuthenticatedSessionController extends Controller
     
             // Logika pengalihan berdasarkan peran
             if ($user->role === 'admin') {
-                return redirect()->route('dashboard');
+                return redirect()->route("dashboard");
             } elseif ($user->role === 'operator') {
                 return redirect()->route('dashboardop');
             }
