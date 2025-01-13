@@ -3,6 +3,7 @@
 use App\Http\Controllers\PegawaiController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PresensiController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -15,6 +16,9 @@ Route::middleware(['auth', 'operator'])->group(function () {
     Route::get('/dashboardop', function () {
         return Inertia::render('User/Dashboard');
     })->name('dashboardop');
+
+    // Presensi
+    Route::get('/presensi/create',[PresensiController::class, 'create']);
 });
 
 // Admin

@@ -3,18 +3,17 @@ import React from "react";
 export default function BottomNav({ activePage }) {
     return (
         <div className="fixed bottom-0 left-0 right-0 bg-white shadow-md flex justify-between items-center p-3">
-            {/* Today */}
+            {/* Home */}
             <a
-                href="#"
+                href="/dashboardop"
                 className={`flex flex-col items-center ${
-                    activePage === "today" ? "text-blue-500" : "text-gray-500"
+                    window.location.pathname === "/dashboardop"
+                        ? "text-blue-500"
+                        : "text-gray-500"
                 }`}
             >
-                <ion-icon
-                    name="file-tray-full-outline"
-                    className="text-2xl"
-                ></ion-icon>
-                <strong className="text-xs mt-1">Today</strong>
+                <ion-icon name="home-outline" className="text-2xl"></ion-icon>
+                <strong className="text-xs mt-1">Home</strong>
             </a>
 
             {/* Calendar */}
@@ -34,7 +33,10 @@ export default function BottomNav({ activePage }) {
             </a>
 
             {/* Camera */}
-            <a href="#" className="flex justify-center items-center">
+            <a
+                href="presensi/create"
+                className="flex justify-center items-center"
+            >
                 <div className="w-12 h-12 bg-blue-500 text-white rounded-full flex justify-center items-center shadow-lg">
                     <ion-icon name="camera" className="text-2xl"></ion-icon>
                 </div>
