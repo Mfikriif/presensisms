@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('role')->default('operator');
-            $table->string('password')->default('12345');
+            $table->string('password')->default(bcrypt('12345'));
             $table->rememberToken();
             $table->timestamps();
         });
