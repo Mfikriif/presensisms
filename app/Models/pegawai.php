@@ -15,8 +15,14 @@ class pegawai extends Model
         'Email',
         'Posisi',
         'No_Hp',
+        'Foto',
         'Tempat_Lahir',
         'Tanggal_Lahir',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class,'Email','email');
+    }
     
 }

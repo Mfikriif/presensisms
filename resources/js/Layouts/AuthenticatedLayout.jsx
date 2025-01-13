@@ -4,6 +4,9 @@ import NavLink from "@/Components/NavLink";
 import ResponsiveNavLink from "@/Components/ResponsiveNavLink";
 import { Link, usePage } from "@inertiajs/react";
 import { useState } from "react";
+import { CgHomeAlt } from "react-icons/cg";
+import { ImDatabase } from "react-icons/im";
+import { HiOutlinePresentationChartLine } from "react-icons/hi2";
 
 export default function AuthenticatedLayout({ header, children }) {
     const user = usePage().props.auth?.user || { name: "Guest" };
@@ -12,26 +15,35 @@ export default function AuthenticatedLayout({ header, children }) {
         useState(false);
 
     return (
-        <div className="min-h-screen flex bg-gray-50">
+        <div className="min-h-screen flex">
             {/* Sidebar */}
-            <aside className="w-64 bg-blue-950 shadow-lg">
+            <aside className="w-56 bg-blue-950">
                 <div className="h-16 flex items-center justify-center">
                     <Link href={route("dashboard")}>
                         <ApplicationLogo className="h-10 w-auto fill-current text-white" />
                     </Link>
                 </div>
-                <nav className="flex flex-col mt-4 space-y-2 px-2">
+                <nav className="flex flex-col mt-10 space-y-2 px-2">
                     <NavLink
                         href={route("dashboard")}
-                        className="block px-6 py-3 text-white hover:bg-white rounded-lg transition-all duration-200 ease-in-out"
+                        className="block px-6 py-3 text-lg text-white hover:bg-white rounded-lg transition-all duration-200 ease-in-out"
                     >
-                        Dashboard
+                        <CgHomeAlt className="mr-2" />
+                        Home
                     </NavLink>
                     <NavLink
                         href={route("pegawai.index")}
-                        className="block px-6 py-3 text-white hover:bg-white rounded-lg transition-all duration-200 ease-in-out"
+                        className="block px-6 py-3 text-lg text-white hover:bg-white rounded-lg transition-all duration-200 ease-in-out"
                     >
+                        <ImDatabase className=" mr-2" />
                         Pegawai
+                    </NavLink>
+                    <NavLink
+                        href={route("pegawai.index")}
+                        className="block px-5 py-3 text-lg text-white hover:bg-white rounded-lg transition-all duration-200 ease-in-out"
+                    >
+                        <HiOutlinePresentationChartLine className=" mr-2 w-6 h-6 " />
+                        Monitoring Presensi
                     </NavLink>
                 </nav>
             </aside>
@@ -90,9 +102,7 @@ export default function AuthenticatedLayout({ header, children }) {
 
                 {/* Main Body Content */}
                 <main className="p-6 flex-1 overflow-y-auto bg-gray-100">
-                    <div className="p-6 bg-white shadow-md rounded-lg">
-                        {children}
-                    </div>
+                    <div>{children}</div>
                 </main>
             </div>
         </div>
