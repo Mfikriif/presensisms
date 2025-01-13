@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import BottomNav from "@/Layouts/BottomNav"; // Pastikan komponen BottomNav sudah dibuat
-import Script from "@/Layouts/Script"; // Pastikan komponen Script sudah dibuat
+import BottomNav from "@/Layouts/BottomNav";
+import Script from "@/Layouts/Script";
 import { Inertia } from "@inertiajs/inertia";
 
 export default function Dashboard() {

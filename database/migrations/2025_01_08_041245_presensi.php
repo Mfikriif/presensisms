@@ -14,12 +14,14 @@ return new class extends Migration
         Schema::create('presensi', function (Blueprint $table) {
             $table->id();
             $table->char('Nama');
+            $table->string('email');
             $table->date('Tanggal_presensi');
             $table->time('jam_in');
-            $table->time('jam_out');
+            $table->time('jam_out')->nullable();
             $table->char('foto_in');
-            $table->char('foto_out');
-            $table->text('location');
+            $table->char('foto_out')->nullable();
+            $table->text('lokasi_in');
+            $table->text('lokasi_out')->nullable();
         });
 
     }

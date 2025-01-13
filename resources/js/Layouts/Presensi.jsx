@@ -2,7 +2,7 @@ import React from "react";
 import BottomNav from "./BottomNav";
 import Script from "./Script";
 
-export default function Presensi({ children }) {
+export default function Presensi({ children, header }) {
     return (
         <>
             <head>
@@ -77,6 +77,9 @@ export default function Presensi({ children }) {
                     </svg>
                 </div>
                 {/* End Loader */}
+
+                {/* Header */}
+                {header && <div className="header">{header}</div>}
 
                 {/* App Capsule */}
                 <div id="appCapsule" className="flex-grow p-4">
