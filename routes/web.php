@@ -13,10 +13,7 @@ Route::get('/', function () {
     return Inertia::render('User/Login');
 });
 Route::middleware(['auth', 'operator'])->group(function () {
-    Route::get('/dashboardop', function () {
-        return Inertia::render('User/Dashboard');
-    })->name('dashboardop');
-
+    Route::get('/dashboardop',[DashboardController::class, 'index'])->name("dashboardop");
     // Presensi
     Route::get('/presensi/create',[PresensiController::class, 'create']);
     Route::post('/presensi/store',[PresensiController::class, 'store']);

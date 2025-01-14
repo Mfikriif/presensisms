@@ -3,9 +3,8 @@ import BottomNav from "@/Layouts/BottomNav";
 import Script from "@/Layouts/Script";
 import { Inertia } from "@inertiajs/inertia";
 
-export default function Dashboard() {
+export default function Dashboard({ presensihariini }) {
     const [user, setUser] = useState({});
-    const [presensiHariIni, setPresensiHariIni] = useState({});
     const [rekapPresensi, setRekapPresensi] = useState({});
     const [historibulanini, setHistoribulanini] = useState([]);
     const [leaderboard, setLeaderboard] = useState([]);
@@ -18,13 +17,6 @@ export default function Dashboard() {
             foto: null,
             cabang: "Cabang 1",
             departemen: "IT",
-        });
-
-        setPresensiHariIni({
-            jamIn: "08:00",
-            jamOut: null,
-            fotoIn: null,
-            fotoOut: null,
         });
 
         setRekapPresensi({
@@ -102,7 +94,6 @@ export default function Dashboard() {
                     <ion-icon name="exit-outline"></ion-icon>
                 </a>
             </div>
-
             {/* Menu Section */}
             <div className="grid grid-cols-2 gap-4 p-4">
                 {[
@@ -144,7 +135,61 @@ export default function Dashboard() {
                     </a>
                 ))}
             </div>
+            {/* Today Presence Section */}
+            <div className="p-4">
+                <h3 className="text-lg font-semibold mb-4">
+                    Presensi Hari Ini
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                    {/* Masuk Card */}
+                    <div className="bg-green-500 text-white rounded-lg shadow-lg p-4 flex items-center">
+                        <div className="flex-shrink-0">
+                            {presensihariini?.foto_in ? (
+                                <img
+                                    src={`/storage/uploads/absensi/${presensihariini.foto_in}`}
+                                    alt="Absen Masuk"
+                                    className="w-12 h-12 rounded-full"
+                                />
+                            ) : (
+                                <ion-icon
+                                    name="camera-outline"
+                                    className="text-4xl"
+                                ></ion-icon>
+                            )}
+                        </div>
+                        <div className="ml-4">
+                            <h4 className="text-sm font-medium">Masuk</h4>
+                            <span className="text-xs">
+                                {presensihariini?.jam_in || "Belum Absen"}
+                            </span>
+                        </div>
+                    </div>
 
+                    {/* Pulang Card */}
+                    <div className="bg-red-500 text-white rounded-lg shadow-lg p-4 flex items-center">
+                        <div className="flex-shrink-0">
+                            {presensihariini?.foto_out ? (
+                                <img
+                                    src={`/storage/uploads/absensi/${presensihariini.foto_out}`}
+                                    alt="Absen Pulang"
+                                    className="w-12 h-12 rounded-full"
+                                />
+                            ) : (
+                                <ion-icon
+                                    name="camera-outline"
+                                    className="text-4xl"
+                                ></ion-icon>
+                            )}
+                        </div>
+                        <div className="ml-4">
+                            <h4 className="text-sm font-medium">Pulang</h4>
+                            <span className="text-xs">
+                                {presensihariini?.jam_out || "Belum Absen"}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
             {/* Rekap Presensi */}
             <div className="p-4">
                 <h3 className="text-lg font-semibold mb-4">
@@ -164,7 +209,6 @@ export default function Dashboard() {
                     ))}
                 </div>
             </div>
-
             {/* History */}
             <div className="p-4">
                 <h4 className="text-lg font-semibold mb-4">
@@ -190,7 +234,6 @@ export default function Dashboard() {
                     </div>
                 ))}
             </div>
-
             {/* Leaderboard */}
             <div className="p-4">
                 <h4 className="text-lg font-semibold mb-4">Leaderboard</h4>
@@ -224,10 +267,8 @@ export default function Dashboard() {
                     </div>
                 ))}
             </div>
-
             {/* Bottom Navigation */}
             <BottomNav />
-
             {/* Scripts */}
             <Script />
         </div>
