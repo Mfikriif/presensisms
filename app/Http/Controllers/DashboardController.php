@@ -11,4 +11,11 @@ class DashboardController extends Controller
     public function index(){
         return Inertia::render('User/Dashboard');
     }
+
+
+    // Dashboard Admin
+    public function dashboardAdmin()
+    {
+        $hariIni = now();
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\presensi;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
@@ -101,6 +102,8 @@ class PresensiController extends Controller
                     'jam_in' => $jam,
                     'foto_in' => $fileName,
                     'lokasi_in' => $lokasi,
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ];
                 $simpan = DB::table('presensi')->insert($data);
 
@@ -118,5 +121,15 @@ class PresensiController extends Controller
         }
 
         return response()->json(['error' => 'Tipe absen tidak valid.'], 400);
+    }
+
+
+    // presensi monitoring
+    public function presensiMonitoring()
+    {   
+        $tanggalTahunHariIni = now()->toDateString();
+
+        $presensi = presensi::whereDate('created_at', $tanggalTahunHariIni)->latest()->get();
+        return Inertia::render('Admin/MonitoringPresensi',['presensi' => $presensi]);
     }
 }
