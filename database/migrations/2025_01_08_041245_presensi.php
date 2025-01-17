@@ -22,6 +22,7 @@ return new class extends Migration
             $table->char('foto_out')->nullable();
             $table->text('lokasi_in');
             $table->text('lokasi_out')->nullable();
+            $table->timestamps();
         });
 
     }

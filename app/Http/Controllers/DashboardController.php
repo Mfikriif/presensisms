@@ -43,4 +43,11 @@ class DashboardController extends Controller
             'rekapPresensi' => $rekappresensi,
         ]);
     }
+
+
+    // Dashboard Admin
+    public function dashboardAdmin()
+    {
+        $hariIni = now();
+    }
 }

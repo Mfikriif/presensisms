@@ -1,12 +1,12 @@
 import ApplicationLogo from "@/Components/ApplicationLogo";
 import Dropdown from "@/Components/Dropdown";
 import NavLink from "@/Components/NavLink";
-import ResponsiveNavLink from "@/Components/ResponsiveNavLink";
 import { Link, usePage } from "@inertiajs/react";
 import { useState } from "react";
 import { CgHomeAlt } from "react-icons/cg";
 import { ImDatabase } from "react-icons/im";
 import { HiOutlinePresentationChartLine } from "react-icons/hi2";
+import { IoIosSettings } from "react-icons/io";
 
 export default function AuthenticatedLayout({ header, children }) {
     const user = usePage().props.auth?.user || { name: "Guest" };
@@ -28,7 +28,7 @@ export default function AuthenticatedLayout({ header, children }) {
                         href={route("dashboard")}
                         className="block px-6 py-3 text-lg text-white hover:bg-white rounded-lg transition-all duration-200 ease-in-out"
                     >
-                        <CgHomeAlt className="mr-2" />
+                        <CgHomeAlt className="mr-2 h-5 w-5" />
                         Home
                     </NavLink>
                     <NavLink
@@ -39,11 +39,18 @@ export default function AuthenticatedLayout({ header, children }) {
                         Pegawai
                     </NavLink>
                     <NavLink
-                        href={route("pegawai.index")}
+                        href={route("pegawai.presensi")}
                         className="block px-5 py-3 text-lg text-white hover:bg-white rounded-lg transition-all duration-200 ease-in-out"
                     >
                         <HiOutlinePresentationChartLine className=" mr-2 w-6 h-6 " />
                         Monitoring Presensi
+                    </NavLink>
+                    <NavLink
+                        href={route("konfigurasi.index")}
+                        className="block px-5 py-3 text-lg text-white hover:bg-white rounded-lg transition-all duration-200 ease-in-out"
+                    >
+                        <IoIosSettings className=" mr-2 w-6 h-6 " />
+                        Konfigurasi Jam Kerja
                     </NavLink>
                 </nav>
             </aside>

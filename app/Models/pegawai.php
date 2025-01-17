@@ -10,6 +10,8 @@ class pegawai extends Model
     /** @use HasFactory<\Database\Factories\PegawaiFactory> */
     use HasFactory;
 
+
+
     protected $fillable = [
         'Nama_Lengkap',
         'Email',
