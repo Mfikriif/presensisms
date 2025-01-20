@@ -16,6 +16,10 @@ class DashboardController extends Controller
         $bulanini = date("m") * 1;
         $tahunini = date("Y");
         $email = Auth::user()->email;
+
+        // Ambil data user dari tabel pegawais
+        $user = DB::table('pegawais')->where('email', $email)->first();
+
         $presensihariini = DB::table('presensi')
             ->where('email', $email)
             ->where('Tanggal_presensi', $hariini)
@@ -32,6 +36,11 @@ class DashboardController extends Controller
             ->whereRaw('MONTH(Tanggal_presensi)="'.$bulanini.'"')
             ->whereRaw('YEAR(Tanggal_presensi)="'.$tahunini.'"')
             ->first();
+
+        $leaderboard = DB::table('presensi')
+            ->join('pegawais', 'presensi.email', '=', 'pegawais.email')
+            ->where('Tanggal_presensi', $hariini)
+            ->get();
         $namabulan = ["","Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
 
         return Inertia::render('User/Dashboard', [
@@ -41,6 +50,8 @@ class DashboardController extends Controller
             'bulanini' => $bulanini,
             'tahunini' => $tahunini,
             'rekapPresensi' => $rekappresensi,
+            'leaderboard' => $leaderboard,
+            'user' => $user
         ]);
     }
 

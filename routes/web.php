@@ -18,6 +18,8 @@ Route::middleware(['auth', 'operator'])->group(function () {
     // Presensi
     Route::get('/presensi/create',[PresensiController::class, 'create']);
     Route::post('/presensi/store',[PresensiController::class, 'store']);
+    // Edit Profile
+    Route::get('/editprofile', [PresensiController::class, 'editprofile']);
 });
 
 // Admin
@@ -44,10 +46,12 @@ Route::middleware(['auth', 'admin'])->group(function () {
     // Konfigurasi Jam Kerja
     Route::get('/Admin/konfigurasi-jam_kerja',[KonfigurasiShiftKerjaController::class,'index'])->name('konfigurasi.index');
     Route::post('/Admin/konfigurasi-jam_kerja/set_jam_kerja',[KonfigurasiShiftKerjaController::class, 'store'])->name('konfigurasi.store');
+
     // Route::resource('/Admin/konfigurasi', KonfigurasiShiftKerjaController::class);
     Route::get('/Admin/konfigurasi-shift-kerja/{konfigurasi}/edit', [KonfigurasiShiftKerjaController::class, 'edit'])->name('konfigurasi.edit');
     Route::put('/Admin/konfigurasi-shift-kerja/{konfigurasi}/update', [KonfigurasiShiftKerjaController::class, 'update'])->name('konfigurasi.update');
     Route::delete('/Admin/konfigurasi-shift-kerja/{id}', [KonfigurasiShiftKerjaController::class, 'destroy'])->name('konfigurasi.destroy');
+
 
 });
 

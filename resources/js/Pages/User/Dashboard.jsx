@@ -9,25 +9,21 @@ export default function Dashboard({
     namabulan,
     bulanini,
     rekapPresensi,
+    leaderboard,
+    user,
 }) {
     const [activeTab, setActiveTab] = useState("bulanIni");
-    const [user, setUser] = useState({});
-    const [leaderboard, setLeaderboard] = useState([]);
+    // const [user, setUser] = useState({});
 
     useEffect(() => {
         // Simulasi data
-        setUser({
-            namaLengkap: "John Doe",
-            jabatan: "Staff",
-            foto: null,
-            cabang: "Cabang 1",
-            departemen: "IT",
-        });
-
-        setLeaderboard([
-            { namaLengkap: "Jane Doe", jabatan: "Manager", jam_in: "06:45" },
-            { namaLengkap: "John Smith", jabatan: "Staff", jam_in: "08:10" },
-        ]);
+        // setUser({
+        //     namaLengkap: "John Doe",
+        //     jabatan: "Staff",
+        //     foto: null,
+        //     cabang: "Cabang 1",
+        //     departemen: "IT",
+        // });
     }, []);
 
     return (
@@ -47,14 +43,14 @@ export default function Dashboard({
                     </div>
                     <div className="ml-4">
                         <h3 className="text-lg font-semibold">
-                            {user.namaLengkap}
+                            {user.Nama_Lengkap}
                         </h3>
                         <p className="text-sm text-gray-500">
-                            {user.jabatan} ({user.cabang})
+                            {user.Posisi} {user.cabang}
                         </p>
-                        <p className="text-xs text-gray-400">
+                        {/* <p className="text-xs text-gray-400">
                             ({user.departemen})
-                        </p>
+                        </p> */}
                     </div>
                 </div>
                 <a
@@ -69,43 +65,43 @@ export default function Dashboard({
                 </a>
             </div>
             {/* Menu Section */}
-            <div className="grid grid-cols-2 gap-4 p-4">
+            <div className="grid grid-cols-2 gap-3 p-4">
                 {[
                     {
                         href: "/editprofile",
                         icon: "person-sharp",
                         label: "Profil",
-                        color: "text-green-500",
                     },
                     {
                         href: "/presensi/izin",
                         icon: "calendar-number",
                         label: "Cuti",
-                        color: "text-red-500",
                     },
                     {
                         href: "/presensi/histori",
                         icon: "document-text",
                         label: "Histori",
-                        color: "text-yellow-500",
                     },
                     {
                         href: "/presensi/lokasi",
                         icon: "location",
                         label: "Lokasi",
-                        color: "text-orange-500",
                     },
                 ].map((menu, index) => (
                     <a
                         key={index}
                         href={menu.href}
-                        className="flex flex-col items-center bg-white shadow rounded-lg p-4"
+                        className="flex flex-col items-center justify-center bg-white shadow-sm rounded-lg p-2 transform hover:scale-105 transition-transform"
                     >
-                        <ion-icon
-                            name={menu.icon}
-                            className={`${menu.color} text-3xl`}
-                        ></ion-icon>
-                        <p className="mt-2 text-sm font-medium">{menu.label}</p>
+                        <div className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100">
+                            <ion-icon
+                                name={menu.icon}
+                                className="text-gray-500 text-xl"
+                            ></ion-icon>
+                        </div>
+                        <p className="mt-1 text-xs font-medium text-gray-700">
+                            {menu.label}
+                        </p>
                     </a>
                 ))}
             </div>
@@ -333,10 +329,10 @@ export default function Dashboard({
                             />
                             <div className="ml-4">
                                 <h5 className="text-sm font-medium">
-                                    {user.namaLengkap}
+                                    {user.Nama_Lengkap}
                                 </h5>
                                 <p className="text-xs text-gray-500">
-                                    {user.jabatan}
+                                    {user.Posisi}
                                 </p>
                                 <span
                                     className={`text-xs font-semibold ${

@@ -159,8 +159,14 @@ class PresensiController extends Controller
         return compact('meters');
 
     }
-  
-      // presensi monitoring
+
+    // 
+    public function editprofile()
+    {
+        return Inertia::render('User/Profile');
+    }
+
+    // Presensi Monitoring
     public function presensiMonitoring()
     {   
         $tanggalTahunHariIni = now()->toDateString();
