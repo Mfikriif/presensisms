@@ -44,15 +44,12 @@ export default function Create({ cek }) {
                         position.coords.longitude,
                     ]).addTo(map);
 
-                    L.circle(
-                        [position.coords.latitude, position.coords.longitude],
-                        {
-                            color: "red",
-                            fillColor: "#f03",
-                            fillOpacity: 0.5,
-                            radius: 100,
-                        }
-                    ).addTo(map);
+                    L.circle([-7.023765967616574, 110.50692516838049], {
+                        color: "red",
+                        fillColor: "#f03",
+                        fillOpacity: 0.5,
+                        radius: 25,
+                    }).addTo(map);
                 },
                 (error) => {
                     console.error("Error obtaining location:", error);
@@ -99,7 +96,7 @@ export default function Create({ cek }) {
                     {
                         image: imageSrc,
                         lokasi: location,
-                        tipeAbsen: isAbsenMasuk ? "masuk" : "pulang", // Kirim tipe absen ke backend
+                        tipeAbsen: isAbsenMasuk ? "masuk" : "pulang",
                     },
                     {
                         headers: {
@@ -121,7 +118,6 @@ export default function Create({ cek }) {
                         showConfirmButton: false,
                         timer: 3000,
                         didClose: () => {
-                            // Redirect ke dashboard setelah selesai
                             window.location.href = "/dashboard";
                         },
                     });
@@ -137,14 +133,27 @@ export default function Create({ cek }) {
                     });
                 }
             } catch (error) {
-                console.error("Error submitting presensi:", error);
-                Swal.fire({
-                    icon: "error",
-                    title: "Error!",
-                    text: "Terjadi kesalahan saat mengirim data presensi.",
-                    showConfirmButton: false,
-                    timer: 3000,
-                });
+                if (error.response && error.response.status === 403) {
+                    // Tangani error radius
+                    Swal.fire({
+                        icon: "error",
+                        title: "Diluar Radius!",
+                        text:
+                            error.response.data.message ||
+                            "Anda berada di luar radius kantor!",
+                        showConfirmButton: false,
+                        timer: 3000,
+                    });
+                } else {
+                    console.error("Error submitting presensi:", error);
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error!",
+                        text: "Terjadi kesalahan saat mengirim data presensi.",
+                        showConfirmButton: false,
+                        timer: 3000,
+                    });
+                }
             } finally {
                 setIsLoading(false);
             }

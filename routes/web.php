@@ -14,13 +14,12 @@ Route::get('/', function () {
     return Inertia::render('User/Login');
 });
 Route::middleware(['auth', 'operator'])->group(function () {
-    Route::get('/dashboardop', function () {
-        return Inertia::render('User/Dashboard');
-    })->name('dashboardop');
-
+    Route::get('/dashboardop',[DashboardController::class, 'index'])->name("dashboardop");
     // Presensi
     Route::get('/presensi/create',[PresensiController::class, 'create']);
     Route::post('/presensi/store',[PresensiController::class, 'store']);
+    // Edit Profile
+    Route::get('/editprofile', [PresensiController::class, 'editprofile']);
 });
 
 // Admin
@@ -45,13 +44,18 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/presensi-monitoring', [PresensiController::class,'presensiMonitoring'])->name('pegawai.presensi');
 
     // Konfigurasi Jam Kerja
+
     Route::get('/Admin/konfigurasi-shift_kerja',[KonfigurasiShiftKerjaController::class,'index'])->name('konfigurasi.index');
     Route::post('/Admin/konfigurasi-shift_kerja/set_jam_kerja',[KonfigurasiShiftKerjaController::class, 'store'])->name('konfigurasi.store');
+    Route::get('/Admin/konfigurasi-jam_kerja',[KonfigurasiShiftKerjaController::class,'index'])->name('konfigurasi.index');
+    Route::post('/Admin/konfigurasi-jam_kerja/set_jam_kerja',[KonfigurasiShiftKerjaController::class, 'store'])->name('konfigurasi.store');
+
     Route::get('/Admin/konfigurasi-shift-kerja/{konfigurasi}/edit', [KonfigurasiShiftKerjaController::class, 'edit'])->name('konfigurasi.edit');
     Route::put('/Admin/konfigurasi-shift-kerja/{konfigurasi}/update', [KonfigurasiShiftKerjaController::class, 'update'])->name('konfigurasi.update');
     Route::delete('/Admin/konfigurasi-shift-kerja/{id}', [KonfigurasiShiftKerjaController::class, 'destroy'])->name('konfigurasi.destroy');
     Route::get('/Admin/konfigurasi-shift-kerja/{pegawai}',[PegawaiController::class, 'showSetSchedule'])->name('konfigurasi.show');
     Route::post('/Admin/konfigurasi-shift-kerja',[KonfigurasiShiftKerjaController::class,'setJamkerja'])->name('setShift.store');
+
 
 });
 
