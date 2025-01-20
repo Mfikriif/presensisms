@@ -2,9 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\konfigurasi_shift_kerja;
 use App\Models\pegawai;
-use App\Models\set_jam_kerja;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -21,8 +19,18 @@ class PegawaiController extends Controller
     }
 
     /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        //
+    }
+
+    /**
      * Store a newly created resource in storage.
      */
+
+
     public function store(Request $request)
     {
         sleep(2); // Simulasi delay (boleh dihapus jika tidak diperlukan)
@@ -70,6 +78,15 @@ class PegawaiController extends Controller
         
         
         return redirect()->route('pegawai.index')->with('success', 'Data pegawai berhasil ditambahkan');
+    }
+
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(pegawai $pegawai)
+    {
+        //
     }
 
     /**
@@ -120,6 +137,7 @@ class PegawaiController extends Controller
 
         return redirect()->route('pegawai.edit', ['pegawai' => $pegawai->id])->with('success', 'Data pegawai berhasil diperbarui');
     
+        // dd($request->all());
     }
 
     /**
@@ -133,16 +151,5 @@ class PegawaiController extends Controller
         return redirect()->route('pegawai.index')->with('success', 'Data pegawai dan akun user pegawai berhasil di hapus');
 
         dd($pegawai);
-    }
-
-    // function untuk set Shift jam kerja pegawai
-    public function showSetSchedule(pegawai $pegawai){
-
-        $jadwalShift = konfigurasi_shift_kerja::all();
-        $cekShift = set_jam_kerja::where('id', $pegawai->id)->count();
-        
-        dd($cekShift);
-
-        return Inertia::render('Admin/setShiftKerja',['pegawai' => $pegawai, 'jadwalShift' => $jadwalShift,'cekShift' => $cekShift]);
     }
 }

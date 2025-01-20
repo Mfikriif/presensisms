@@ -416,7 +416,7 @@ export default function listPegawai({ pegawai }) {
                                                             />
                                                         </td>
                                                         <td className=" border border-gray-300 text-center">
-                                                            <div className="flex justify-center text-slate-500">
+                                                            <div className="flex justify-center">
                                                                 <Link
                                                                     href={route(
                                                                         "pegawai.edit",
@@ -425,12 +425,7 @@ export default function listPegawai({ pegawai }) {
                                                                 >
                                                                     <FaEdit className="h-5 w-5 hover:text-blue-500" />
                                                                 </Link>
-                                                                <Link
-                                                                    href={route(
-                                                                        "konfigurasi.show",
-                                                                        pgw
-                                                                    )}
-                                                                >
+                                                                <Link>
                                                                     <IoIosSettings className="h-5 w-5 ml-1 hover:text-blue-500" />
                                                                 </Link>
                                                             </div>
