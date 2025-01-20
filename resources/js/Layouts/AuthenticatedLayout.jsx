@@ -17,7 +17,7 @@ export default function AuthenticatedLayout({ header, children }) {
     return (
         <div className="min-h-screen flex">
             {/* Sidebar */}
-            <aside className="w-56 bg-blue-950">
+            <aside className="w-56 bg-blue-950 h-screen sticky top-0">
                 <div className="h-16 flex items-center justify-center">
                     <Link href={route("dashboard")}>
                         <ApplicationLogo className="h-10 w-auto fill-current text-white" />
@@ -58,7 +58,7 @@ export default function AuthenticatedLayout({ header, children }) {
             {/* Main Content */}
             <div className="flex-1 flex flex-col">
                 {/* Header (Informasi Akun dan Pengaturan) */}
-                <header className="bg-white shadow-md">
+                <header className="bg-white shadow-md sticky top-0 z-10">
                     <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
                         {header && (
                             <header className="text-2xl font-bold text-blue-950">
