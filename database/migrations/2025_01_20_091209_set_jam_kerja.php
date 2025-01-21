@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('set_jam_kerja', function (Blueprint $table) {
-            $table->char('kode_pegawai');
+            $table->unsignedBigInteger('id');
             $table->char('nama');
             $table->char('hari');
             $table->char('kode_jamkerja');

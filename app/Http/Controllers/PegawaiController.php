@@ -7,6 +7,7 @@ use App\Models\pegawai;
 use App\Models\set_jam_kerja;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class PegawaiController extends Controller
@@ -29,18 +30,18 @@ class PegawaiController extends Controller
 
         // store ke table pegawai
         $inputPegawai = $request->validate([
-            'Nama_Lengkap' => 'required|string|max:255',
-            'Email' => 'required|email|max:255',
-            'Posisi' => 'required|string|max:100',
-            'No_Hp' => 'required|string|max:15',
-            'Foto' => 'required|image|mimes:jpeg,png,jpg|max:2048',
-            'Tempat_Lahir' => 'required|string|max:100',
-            'Tanggal_Lahir' => 'required|date',
+            'nama_lengkap' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'posisi' => 'required|string|max:100',
+            'no_Hp' => 'required|string|max:15',
+            'foto' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'tempat_lahir' => 'required|string|max:100',
+            'tanggal_lahir' => 'required|date',
         ]); 
 
-        if ($request->hasFile('Foto')) {
+        if ($request->hasFile('foto')) {
             // Generate nama unik untuk file 
-            $fileName = time() . '_' . $request->file('Foto')->getClientOriginalName();
+            $fileName = time() . '_' . $request->file('foto')->getClientOriginalName();
             
             // Folder tujuan
             $destinationPath = storage_path('app/public/pegawai');
@@ -50,10 +51,10 @@ class PegawaiController extends Controller
             }
 
             // Pindahkan file dari folder temp ke folder tujuan
-            $request->file('Foto')->move($destinationPath, $fileName);
+            $request->file('foto')->move($destinationPath, $fileName);
 
             // Simpan path ke database tanpa 'public/'
-            $inputPegawai['Foto'] = 'pegawai/' . $fileName;
+            $inputPegawai['foto'] = 'pegawai/' . $fileName;
         }
 
         // Simpan data pegawai ke database
@@ -61,8 +62,8 @@ class PegawaiController extends Controller
         
         // logic store ke table users
         User::create([
-            'name' => $inputPegawai['Nama_Lengkap'],
-            'email' => $inputPegawai['Email'],
+            'name' => $inputPegawai['nama_lengkap'],
+            'email' => $inputPegawai['email'],
             'password' => bcrypt('12345'),
             'role' => 'operator',
         ]);
@@ -88,13 +89,13 @@ class PegawaiController extends Controller
          sleep(2); // Simulasi delay (boleh dihapus jika tidak diperlukan)
 
         $inputPegawai = $request->validate([
-            'Nama_Lengkap' => 'string|max:255',
-            'Email' => 'email|max:255',
-            'Posisi' => 'string|max:100',
-            'No_Hp' => 'string|max:15',
-            'Foto' => 'image|mimes:jpeg,png,jpg|max:2048',
-            'Tempat_Lahir' => 'string|max:100',
-            'Tanggal_Lahir' => 'date',
+            'nama_lengkap' => 'string|max:255',
+            'email' => 'email|max:255',
+            'posisi' => 'string|max:100',
+            'no_Hp' => 'string|max:15',
+            'foto' => 'image|mimes:jpeg,png,jpg|max:2048',
+            'tempat_lahir' => 'string|max:100',
+            'tanggal_lahir' => 'date',
         ]); 
 
         if ($request->hasFile('Foto')) {
@@ -132,7 +133,7 @@ class PegawaiController extends Controller
 
         return redirect()->route('pegawai.index')->with('success', 'Data pegawai dan akun user pegawai berhasil di hapus');
 
-        dd($pegawai);
+        // dd($pegawai);
     }
 
     // function untuk set Shift jam kerja pegawai
@@ -140,9 +141,15 @@ class PegawaiController extends Controller
 
         $jadwalShift = konfigurasi_shift_kerja::all();
         $cekShift = set_jam_kerja::where('id', $pegawai->id)->count();
-        
-        dd($cekShift);
+        $shift = set_jam_kerja::where('id', $pegawai->id)->get();
 
-        return Inertia::render('Admin/setShiftKerja',['pegawai' => $pegawai, 'jadwalShift' => $jadwalShift,'cekShift' => $cekShift]);
+        if($cekShift > 0){
+        
+            return Inertia::render('Admin/UpdateShiftKerja',['pegawai' => $pegawai, 'jadwalShift' => $jadwalShift,'cekShift' => $cekShift,'shift' => $shift]);
+        } else {
+
+            return Inertia::render('Admin/setShiftKerja',['pegawai' => $pegawai, 'jadwalShift' => $jadwalShift,'cekShift' => $cekShift,]);
+        }
+        
     }
 }

@@ -131,13 +131,39 @@ class KonfigurasiShiftKerjaController extends Controller
         return redirect()->back()->with('success', 'Shift berhasil disimpan!');
     }
 
-    public function cekShiftKerja($id)
+    public function updateJamkerja(Request $request, $id)
     {   
+        // dd($request->all());
 
-        $idPegawai = pegawai::where('id', $id);
-        $cekshift = set_jam_kerja::where('id', $idPegawai)->count();
+        $validated = $request->validate([
+            'id' => 'required',
+            'nama' => 'required|string|max:255',
+            'shift' => 'required|array',
+            'shift.*' => 'nullable|string|max:255'
+        ]);
 
-        
+        $id = $validated['id'];
+        $nama = $validated['nama'];
+        $shiftData = $validated['shift'];
+
+        // Hapus shift lama untuk ID tertentu
+        set_jam_kerja::where('id', $id)->delete();
+
+        // Loop untuk menyimpan data shift baru
+        foreach ($shiftData as $day => $kodeJamKerja) {
+            if ($kodeJamKerja) {
+                set_jam_kerja::create([
+                    'id' => $id,
+                    'nama' => $nama,
+                    'hari' => ucfirst($day),
+                    'kode_jamkerja' => $kodeJamKerja,
+                ]);
+            }
+        }
+
+        // Kembalikan response
+        return redirect()->back()->with('success', 'Shift berhasil diperbarui!');
     }
+
     
 }

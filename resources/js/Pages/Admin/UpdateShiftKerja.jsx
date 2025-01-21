@@ -1,33 +1,52 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, useForm } from "@inertiajs/react";
 
-export default function setShiftJamKerja({ pegawai, jadwalShift }) {
-    const { data, setData, post, errors, processing } = useForm({
+export default function UpdateShiftKerja({ pegawai, jadwalShift, shift }) {
+    const { data, setData, put, errors, processing } = useForm({
         id: pegawai.id,
         nama: pegawai.nama_lengkap,
         shift: {
-            senin: "",
-            selasa: "",
-            rabu: "",
-            kamis: "",
-            jumat: "",
-            sabtu: "",
-            minggu: "",
+            senin:
+                shift.find((sht) => sht.hari.toLowerCase() === "senin")
+                    ?.kode_jamkerja || "",
+            selasa:
+                shift.find((sht) => sht.hari.toLowerCase() === "selasa")
+                    ?.kode_jamkerja || "",
+            rabu:
+                shift.find((sht) => sht.hari.toLowerCase() === "rabu")
+                    ?.kode_jamkerja || "",
+            kamis:
+                shift.find((sht) => sht.hari.toLowerCase() === "kamis")
+                    ?.kode_jamkerja || "",
+            jumat:
+                shift.find((sht) => sht.hari.toLowerCase() === "jumat")
+                    ?.kode_jamkerja || "",
+            sabtu:
+                shift.find((sht) => sht.hari.toLowerCase() === "sabtu")
+                    ?.kode_jamkerja || "",
+            minggu:
+                shift.find((sht) => sht.hari.toLowerCase() === "minggu")
+                    ?.kode_jamkerja || "",
         },
     });
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
+        const { name, value } = e.target; // Ambil nama (key) dan nilai (value)
         setData("shift", {
-            ...data.shift,
-            [name]: value,
+            ...data.shift, // Salin data shift sebelumnya
+            [name]: value, // Update shift berdasarkan hari
         });
     };
 
-    const handleSubmit = (e) => {
+    const handleEdit = (e) => {
         e.preventDefault();
-        post(route("setShift.store")); // Pastikan route ini sesuai dengan Laravel route Anda
+        console.log(data); // Debug data sebelum pengiriman
+        put(route("setShift.edit", { id: pegawai.id }));
     };
+
+    console.log("shift data from backend", shift);
+
+    // console.log(shiftForDay);
 
     return (
         <>
@@ -80,8 +99,9 @@ export default function setShiftJamKerja({ pegawai, jadwalShift }) {
                                 {/* Set Shift jam kerja pegawai */}
                                 <div className="flex justify-evenly w-full mt-6">
                                     <form
+                                        action=""
+                                        onSubmit={handleEdit}
                                         className="w-full mr-2"
-                                        onSubmit={handleSubmit}
                                     >
                                         <table className="table-auto w-full border-collapse border border-gray-300 mr-3">
                                             <thead className="bg-gray-100">
@@ -96,72 +116,91 @@ export default function setShiftJamKerja({ pegawai, jadwalShift }) {
                                             </thead>
                                             <tbody>
                                                 {[
-                                                    "senin",
-                                                    "selasa",
-                                                    "rabu",
-                                                    "kamis",
-                                                    "jumat",
-                                                    "sabtu",
-                                                    "minggu",
-                                                ].map((day) => (
-                                                    <tr
-                                                        key={day}
-                                                        className="hover:bg-gray-50 border-b border-gray-300"
-                                                    >
-                                                        <th className="text-left px-6 py-4 font-medium text-gray-600">
-                                                            {day
-                                                                .charAt(0)
-                                                                .toUpperCase() +
-                                                                day.slice(1)}
-                                                        </th>
-                                                        <td className="px-6 py-4 text-gray-800">
-                                                            <select
-                                                                name={day}
-                                                                value={
-                                                                    data.shift[
-                                                                        day
-                                                                    ]
-                                                                }
-                                                                onChange={
-                                                                    handleChange
-                                                                }
-                                                                className="w-full border border-gray-300 rounded-md"
-                                                            >
-                                                                <option value="">
-                                                                    Pilih jam
-                                                                    kerja
-                                                                </option>
-                                                                {jadwalShift.map(
-                                                                    (shft) => (
-                                                                        <option
-                                                                            key={
-                                                                                shft.kode_jamkerja
-                                                                            }
-                                                                            value={
-                                                                                shft.kode_jamkerja
-                                                                            }
-                                                                        >
-                                                                            {
-                                                                                shft.nama_jamkerja
-                                                                            }
-                                                                        </option>
-                                                                    )
-                                                                )}
-                                                            </select>
-                                                            {errors[
-                                                                `shift.${day}`
-                                                            ] && (
-                                                                <p className="text-red-600 text-sm">
-                                                                    {
-                                                                        errors[
-                                                                            `shift.${day}`
-                                                                        ]
+                                                    "Senin",
+                                                    "Selasa",
+                                                    "Rabu",
+                                                    "Kamis",
+                                                    "Jumat",
+                                                    "Sabtu",
+                                                    "Minggu",
+                                                ].map((day) => {
+                                                    // Cari data shift untuk hari tertentu
+                                                    const shiftForDay =
+                                                        shift.find(
+                                                            (sht) =>
+                                                                sht.hari.toLowerCase() ===
+                                                                day.toLowerCase()
+                                                        );
+
+                                                    return (
+                                                        <tr
+                                                            key={day}
+                                                            className="hover:bg-gray-50 border-b border-gray-300"
+                                                        >
+                                                            <th className="text-left px-6 py-4 font-medium text-gray-600">
+                                                                {day}
+                                                            </th>
+                                                            <td className="px-6 py-4 text-gray-800">
+                                                                <select
+                                                                    name={day.toLowerCase()} // Nama hari sebagai key
+                                                                    value={
+                                                                        data
+                                                                            .shift[
+                                                                            day.toLowerCase()
+                                                                        ] !==
+                                                                        undefined
+                                                                            ? data
+                                                                                  .shift[
+                                                                                  day.toLowerCase()
+                                                                              ]
+                                                                            : shiftForDay?.kode_jamkerja ||
+                                                                              ""
                                                                     }
-                                                                </p>
-                                                            )}
-                                                        </td>
-                                                    </tr>
-                                                ))}
+                                                                    // Nilai default
+                                                                    onChange={
+                                                                        handleChange
+                                                                    } // Tetap bisa dipilih pengguna
+                                                                    className="w-full border border-gray-300 rounded-md"
+                                                                >
+                                                                    <option value="">
+                                                                        Pilih
+                                                                        jam
+                                                                        kerja
+                                                                    </option>
+                                                                    {jadwalShift.map(
+                                                                        (
+                                                                            shft
+                                                                        ) => (
+                                                                            <option
+                                                                                key={
+                                                                                    shft.kode_jamkerja
+                                                                                }
+                                                                                value={
+                                                                                    shft.kode_jamkerja
+                                                                                }
+                                                                            >
+                                                                                {
+                                                                                    shft.kode_jamkerja
+                                                                                }
+                                                                            </option>
+                                                                        )
+                                                                    )}
+                                                                </select>
+                                                                {errors[
+                                                                    `shift.${day.toLowerCase()}`
+                                                                ] && (
+                                                                    <p className="text-red-600 text-sm">
+                                                                        {
+                                                                            errors[
+                                                                                `shift.${day.toLowerCase()}`
+                                                                            ]
+                                                                        }
+                                                                    </p>
+                                                                )}
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                })}
                                             </tbody>
                                         </table>
                                         <button
@@ -171,10 +210,9 @@ export default function setShiftJamKerja({ pegawai, jadwalShift }) {
                                         >
                                             {processing
                                                 ? "Saving..."
-                                                : "Simpan Jadwal"}
+                                                : "Simpan Perubahan Jadwal"}
                                         </button>
                                     </form>
-
                                     {/* data master shift */}
                                     <table className="table-auto w-2/5 h-52 border-collapse border border-gray-300 text-sm whitespace-nowrap">
                                         <thead className="bg-gray-100">

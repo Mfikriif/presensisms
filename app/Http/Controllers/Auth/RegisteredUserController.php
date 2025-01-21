@@ -44,8 +44,8 @@ class RegisteredUserController extends Controller
         ]);
 
         $pegawai = pegawai::create([
-            'Nama_Lengkap' => $request->name,
-            'Email' => $request->email,
+            'nama_lengkap' => $request->name,
+            'email' => $request->email,
         ]);
 
         event(new Registered($user));

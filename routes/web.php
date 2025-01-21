@@ -55,6 +55,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::delete('/Admin/konfigurasi-shift-kerja/{id}', [KonfigurasiShiftKerjaController::class, 'destroy'])->name('konfigurasi.destroy');
     Route::get('/Admin/konfigurasi-shift-kerja/{pegawai}',[PegawaiController::class, 'showSetSchedule'])->name('konfigurasi.show');
     Route::post('/Admin/konfigurasi-shift-kerja',[KonfigurasiShiftKerjaController::class,'setJamkerja'])->name('setShift.store');
+    Route::put('/Admin/konfigurasi-shift-kerja/{id}',[KonfigurasiShiftKerjaController::class,'updateJamkerja'])->name('setShift.edit');
 
 
 });

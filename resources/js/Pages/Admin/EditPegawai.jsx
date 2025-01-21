@@ -31,12 +31,12 @@ export default function EditPegawai({ pegawai }) {
         errors,
         processing,
     } = useForm({
-        Nama_Lengkap: pegawai.Nama_Lengkap,
-        Posisi: pegawai.Posisi,
-        Email: pegawai.Email,
-        Tempat_Lahir: pegawai.Tempat_Lahir,
-        Tanggal_Lahir: pegawai.Tanggal_Lahir,
-        No_Hp: pegawai.No_Hp,
+        nama_lengkap: pegawai.nama_lengkap,
+        posisi: pegawai.posisi,
+        email: pegawai.email,
+        tempat_lahir: pegawai.tempat_lahir,
+        tanggal_lahir: pegawai.tanggal_lahir,
+        no_Hp: pegawai.no_Hp,
     });
 
     function handleUpdate(e) {
@@ -44,13 +44,13 @@ export default function EditPegawai({ pegawai }) {
         put(route("pegawai.update", { pegawai: pegawai.id }), {
             onSuccess: () => {
                 setData({
-                    Nama_Lengkap: "",
-                    Email: "",
-                    Posisi: "",
+                    nama_lengkap: "",
+                    email: "",
+                    posisi: "",
                     No_Hp: "",
-                    Foto: null,
-                    Tempat_Lahir: "",
-                    Tanggal_Lahir: "",
+                    foto: null,
+                    tempat_lahir: "",
+                    tanggal_lahir: "",
                 });
             },
         });
@@ -91,7 +91,7 @@ export default function EditPegawai({ pegawai }) {
                             <div className="max-w-5xl p-10">
                                 <div className="w-20 h-20 rounded-full overflow-hidden ml-10">
                                     <img
-                                        src={`/storage/${pegawai.Foto}`}
+                                        src={`/storage/${pegawai.foto}`}
                                         alt="foto-pegawai"
                                     />
                                 </div>
@@ -112,23 +112,23 @@ export default function EditPegawai({ pegawai }) {
                                                     Nama
                                                 </th>
                                                 <td className="px-6 py-4 text-gray-800">
-                                                    {pegawai.Nama_Lengkap}
+                                                    {pegawai.nama_lengkap}
                                                 </td>
                                             </tr>
                                             <tr className="hover:bg-gray-50 border-b">
                                                 <th className="text-left px-6 py-4 font-medium text-gray-600">
-                                                    Posisi
+                                                    posisi
                                                 </th>
                                                 <td className="px-6 py-4 text-gray-800">
-                                                    {pegawai.Posisi}
+                                                    {pegawai.posisi}
                                                 </td>
                                             </tr>
                                             <tr className="hover:bg-gray-50 border-b">
                                                 <th className="text-left px-6 py-4 font-medium text-gray-600">
-                                                    Email
+                                                    email
                                                 </th>
                                                 <td className="px-6 py-4 text-gray-800">
-                                                    {pegawai.Email}
+                                                    {pegawai.email}
                                                 </td>
                                             </tr>
                                             <tr className="hover:bg-gray-50 border-b">
@@ -136,7 +136,7 @@ export default function EditPegawai({ pegawai }) {
                                                     Tempat Lahir
                                                 </th>
                                                 <td className="px-6 py-4 text-gray-800">
-                                                    {pegawai.Tempat_Lahir}
+                                                    {pegawai.tempat_lahir}
                                                 </td>
                                             </tr>
                                             <tr className="hover:bg-gray-50 border-b">
@@ -144,7 +144,7 @@ export default function EditPegawai({ pegawai }) {
                                                     Tanggal Lahir
                                                 </th>
                                                 <td className="px-6 py-4 text-gray-800">
-                                                    {pegawai.Tanggal_Lahir}
+                                                    {pegawai.tanggal_lahir}
                                                 </td>
                                             </tr>
                                             <tr className="hover:bg-gray-50">
@@ -192,63 +192,63 @@ export default function EditPegawai({ pegawai }) {
                                                         type="text"
                                                         placeholder="Nama Lengkap"
                                                         value={
-                                                            data.Nama_Lengkap
+                                                            data.nama_lengkap
                                                         }
                                                         onChange={(e) =>
                                                             setData(
-                                                                "Nama_Lengkap",
+                                                                "nama_lengkap",
                                                                 e.target.value
                                                             )
                                                         }
                                                     />
                                                 </div>
-                                                {errors.Nama_Lengkap && (
+                                                {errors.nama_lengkap && (
                                                     <p className="error ml-12">
-                                                        {errors.Nama_Lengkap}
+                                                        {errors.nama_lengkap}
                                                     </p>
                                                 )}
                                                 <div className="flex">
                                                     <span className="my-auto">
-                                                        Email:
+                                                        email:
                                                     </span>
                                                     <input
                                                         className="ml-2 block w-full mt-3 rounded-md border-0 p-2 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-500 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm bg-white"
                                                         type="text"
-                                                        placeholder="Email"
-                                                        value={data.Email}
+                                                        placeholder="email"
+                                                        value={data.email}
                                                         onChange={(e) =>
                                                             setData(
-                                                                "Email",
+                                                                "email",
                                                                 e.target.value
                                                             )
                                                         }
                                                     />
                                                 </div>
-                                                {errors.Email && (
+                                                {errors.email && (
                                                     <p className="error ml-12">
-                                                        {errors.Email}
+                                                        {errors.email}
                                                     </p>
                                                 )}
                                                 <div className="flex">
                                                     <span className="my-auto">
-                                                        Posisi:
+                                                        posisi:
                                                     </span>
                                                     <input
                                                         className="ml-2 block w-full mt-3 rounded-md border-0 p-2 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-500 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm bg-white"
                                                         type="text"
-                                                        placeholder="Posisi"
-                                                        value={data.Posisi}
+                                                        placeholder="posisi"
+                                                        value={data.posisi}
                                                         onChange={(e) =>
                                                             setData(
-                                                                "Posisi",
+                                                                "posisi",
                                                                 e.target.value
                                                             )
                                                         }
                                                     />
                                                 </div>
-                                                {errors.Posisi && (
+                                                {errors.posisi && (
                                                     <p className="error ml-12">
-                                                        {errors.Posisi}
+                                                        {errors.posisi}
                                                     </p>
                                                 )}
                                                 <div className="flex">
@@ -304,19 +304,19 @@ export default function EditPegawai({ pegawai }) {
                                                         type="text"
                                                         placeholder="Tempat Lahir"
                                                         value={
-                                                            data.Tempat_Lahir
+                                                            data.tempat_lahir
                                                         }
                                                         onChange={(e) =>
                                                             setData(
-                                                                "Tempat_Lahir",
+                                                                "tempat_lahir",
                                                                 e.target.value
                                                             )
                                                         }
                                                     />
                                                 </div>
-                                                {errors.Tempat_Lahir && (
+                                                {errors.tempat_lahir && (
                                                     <p className="error ml-24">
-                                                        {errors.Tempat_Lahir}
+                                                        {errors.tempat_lahir}
                                                     </p>
                                                 )}
                                                 <div className="flex">
@@ -328,19 +328,19 @@ export default function EditPegawai({ pegawai }) {
                                                         type="text"
                                                         placeholder="Tahun-Bulan-Tanggal"
                                                         value={
-                                                            data.Tanggal_Lahir
+                                                            data.tanggal_lahir
                                                         }
                                                         onChange={(e) =>
                                                             setData(
-                                                                "Tanggal_Lahir",
+                                                                "tanggal_lahir",
                                                                 e.target.value
                                                             )
                                                         }
                                                     />
                                                 </div>
-                                                {errors.Tanggal_Lahir && (
+                                                {errors.tanggal_lahir && (
                                                     <p className="error ml-24">
-                                                        {errors.Tanggal_Lahir}
+                                                        {errors.tanggal_lahir}
                                                     </p>
                                                 )}
 
