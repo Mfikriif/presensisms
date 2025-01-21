@@ -425,7 +425,12 @@ export default function listPegawai({ pegawai }) {
                                                                 >
                                                                     <FaEdit className="h-5 w-5 hover:text-blue-500" />
                                                                 </Link>
-                                                                <Link>
+                                                                <Link
+                                                                    href={route(
+                                                                        "konfigurasi.show",
+                                                                        pgw
+                                                                    )}
+                                                                >
                                                                     <IoIosSettings className="h-5 w-5 ml-1 hover:text-blue-500" />
                                                                 </Link>
                                                             </div>

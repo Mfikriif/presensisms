@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\konfigurasi_shift_kerja;
+use App\Models\set_jam_kerja;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
