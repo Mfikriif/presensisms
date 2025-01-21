@@ -16,9 +16,6 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        // pegawai::factory(20)->create();
-        $this->call([
-            adminSeeder::class
-        ]);
+        pegawai::factory(20)->create();
     }
 }

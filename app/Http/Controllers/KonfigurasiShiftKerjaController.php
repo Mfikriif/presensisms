@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\konfigurasi_shift_kerja;
-use App\Models\pegawai;
-use App\Models\set_jam_kerja;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -104,6 +102,7 @@ class KonfigurasiShiftKerjaController extends Controller
         return redirect()->route('konfigurasi.index')->with('success', 'Data berhasil dihapus.');
     }
 
+
     public function setJamkerja(Request $request)
     {
         $validated = $request->validate([
@@ -166,4 +165,5 @@ class KonfigurasiShiftKerjaController extends Controller
     }
 
     
+
 }
