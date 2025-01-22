@@ -13,9 +13,10 @@ return new class extends Migration
     {
         Schema::create('presensi', function (Blueprint $table) {
             $table->id();
-            $table->char('Nama');
+            $table->unsignedBigInteger('kode_pegawai');
+            $table->char('nama');
             $table->string('email');
-            $table->date('Tanggal_presensi');
+            $table->date('tanggal_presensi');
             $table->time('jam_in');
             $table->time('jam_out')->nullable();
             $table->char('foto_in');

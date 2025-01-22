@@ -34,8 +34,9 @@ export default function Dashboard({
                     <div className="rounded-full overflow-hidden w-16 h-16">
                         <img
                             src={
-                                user.foto ||
-                                "/assets/img/sample/avatar/avatar1.jpg"
+                                user.foto
+                                    ? `/storage/${user.foto}`
+                                    : "/assets/img/sample/avatar/avatar1.jpg"
                             }
                             alt="avatar"
                             className="w-full h-full object-cover"

@@ -8,7 +8,7 @@ export default function BottomNav({ activePage }) {
                 href="/dashboardop"
                 className={`flex flex-col items-center ${
                     window.location.pathname === "/dashboardop"
-                        ? "text-blue-500"
+                        ? "text-red-500"
                         : "text-gray-500"
                 }`}
             >
@@ -16,28 +16,28 @@ export default function BottomNav({ activePage }) {
                 <strong className="text-xs mt-1">Home</strong>
             </a>
 
-            {/* Calendar */}
+            {/* Histori */}
             <a
-                href="#"
+                href="/histori"
                 className={`flex flex-col items-center ${
-                    activePage === "calendar"
-                        ? "text-blue-500"
+                    window.location.pathname === "/histori"
+                        ? "text-red-500"
                         : "text-gray-500"
                 }`}
             >
                 <ion-icon
-                    name="calendar-outline"
+                    name="document-text-outline"
                     className="text-2xl"
                 ></ion-icon>
-                <strong className="text-xs mt-1">Calendar</strong>
+                <strong className="text-xs mt-1">Histori</strong>
             </a>
 
             {/* Camera */}
             <a
-                href="presensi/create"
+                href="/presensi/create"
                 className="flex justify-center items-center"
             >
-                <div className="w-12 h-12 bg-blue-500 text-white rounded-full flex justify-center items-center shadow-lg">
+                <div className="w-12 h-12 bg-red-500 text-white rounded-full flex justify-center items-center shadow-lg">
                     <ion-icon name="camera" className="text-2xl"></ion-icon>
                 </div>
             </a>
