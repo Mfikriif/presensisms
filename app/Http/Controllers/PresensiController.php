@@ -6,6 +6,7 @@ use App\Models\presensi;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -161,9 +162,54 @@ class PresensiController extends Controller
     }
 
     // 
-    public function editprofile()
+    public function editprofile(){
+        $user = Auth::user();
+        $email = $user->email;
+        $pegawai = DB::table('pegawais')->where('email', $email)->first();
+        return Inertia::render('User/Profile',[
+            'pegawai' => $pegawai,
+            'successMessage' => session('success'),
+            'errorMessage' => session('error'),
+    ]);
+    }
+
+
+
+    public function updateprofile(Request $request)
     {
-        return Inertia::render('User/Profile');
+        $user = Auth::user(); // Mendapatkan data user yang sedang login
+    
+        // Validasi input
+        $validated = $request->validate([
+            'nama_lengkap' => 'required|string|max:255', // Nama lengkap wajib
+            'no_hp' => 'required|string|max:20',        // Nomor HP wajib
+            'password' => 'nullable|string|min:6',      // Password opsional, minimal 6 karakter
+        ]);
+    
+        // Update data di tabel pegawais
+        $updatePegawai = DB::table('pegawais')
+            ->where('email', $user->email)
+            ->update([
+                'Nama_Lengkap' => $request->nama_lengkap,
+                'No_Hp' => $request->no_hp,
+            ]);
+    
+        // Update data di tabel users
+        $user->name = $request->nama_lengkap; // Update nama lengkap di tabel `users`
+    
+        // Jika password diisi, hash dan simpan
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
+        }
+    
+        $updateUser = $user->save(); // Simpan perubahan di tabel `users`
+    
+        // Redirect dengan pesan sukses atau error
+        if ($updatePegawai || $updateUser) {
+            return redirect()->back()->with('success', 'Profil berhasil diperbarui.');
+        } else {
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat memperbarui profil.');
+        }
     }
 
     // Presensi Monitoring

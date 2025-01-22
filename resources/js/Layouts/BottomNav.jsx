@@ -58,7 +58,7 @@ export default function BottomNav({ activePage }) {
 
             {/* Profile */}
             <a
-                href="#"
+                href="/editprofile"
                 className={`flex flex-col items-center ${
                     activePage === "profile" ? "text-blue-500" : "text-gray-500"
                 }`}
