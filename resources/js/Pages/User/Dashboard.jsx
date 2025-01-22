@@ -43,10 +43,10 @@ export default function Dashboard({
                     </div>
                     <div className="ml-4">
                         <h3 className="text-lg font-semibold">
-                            {user.Nama_Lengkap}
+                            {user.nama_lengkap}
                         </h3>
                         <p className="text-sm text-gray-500">
-                            {user.Posisi} {user.cabang}
+                            {user.posisi} {user.cabang}
                         </p>
                         {/* <p className="text-xs text-gray-400">
                             ({user.departemen})
@@ -329,10 +329,10 @@ export default function Dashboard({
                             />
                             <div className="ml-4">
                                 <h5 className="text-sm font-medium">
-                                    {user.Nama_Lengkap}
+                                    {user.nama_lengkap}
                                 </h5>
                                 <p className="text-xs text-gray-500">
-                                    {user.Posisi}
+                                    {user.posisi}
                                 </p>
                                 <span
                                     className={`text-xs font-semibold ${

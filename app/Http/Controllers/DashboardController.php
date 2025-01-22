@@ -22,24 +22,24 @@ class DashboardController extends Controller
 
         $presensihariini = DB::table('presensi')
             ->where('email', $email)
-            ->where('Tanggal_presensi', $hariini)
+            ->where('tanggal_presensi', $hariini)
             ->first();
         $historibulanini = DB::table('presensi')
             ->where('email',$email)
-            ->whereRaw('MONTH(Tanggal_presensi)="'.$bulanini.'"')
-            ->whereRaw('YEAR(Tanggal_presensi)="'.$tahunini.'"')
-            ->orderBy('Tanggal_presensi')
+            ->whereRaw('MONTH(tanggal_presensi)="'.$bulanini.'"')
+            ->whereRaw('YEAR(tanggal_presensi)="'.$tahunini.'"')
+            ->orderBy('tanggal_presensi')
             ->get();
         $rekappresensi = DB::table('presensi')
             ->selectRaw('COUNT(email) as hadir, SUM(IF(jam_in > "07:00",1,0)) as terlambat')
             ->where('email',$email)
-            ->whereRaw('MONTH(Tanggal_presensi)="'.$bulanini.'"')
-            ->whereRaw('YEAR(Tanggal_presensi)="'.$tahunini.'"')
+            ->whereRaw('MONTH(tanggal_presensi)="'.$bulanini.'"')
+            ->whereRaw('YEAR(tanggal_presensi)="'.$tahunini.'"')
             ->first();
 
         $leaderboard = DB::table('presensi')
             ->join('pegawais', 'presensi.email', '=', 'pegawais.email')
-            ->where('Tanggal_presensi', $hariini)
+            ->where('tanggal_presensi', $hariini)
             ->get();
         $namabulan = ["","Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
 
