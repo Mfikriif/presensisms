@@ -152,7 +152,7 @@ export default function EditPegawai({ pegawai }) {
                                                     No Telepon
                                                 </th>
                                                 <td className="px-6 py-4 text-gray-800">
-                                                    {pegawai.No_Hp}
+                                                    {pegawai.no_Hp}
                                                 </td>
                                             </tr>
                                         </tbody>
