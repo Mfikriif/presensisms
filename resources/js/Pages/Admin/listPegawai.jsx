@@ -12,13 +12,13 @@ export default function listPegawai({ pegawai }) {
     const itemsPerPage = 10; // Jumlah data per halaman
     const { data, setData, post, errors, processing } = useForm({
         //useForm untuk store ke database
-        Nama_Lengkap: "",
-        Email: "",
-        Posisi: "",
-        No_Hp: "",
-        Foto: null,
-        Tempat_Lahir: "",
-        Tanggal_Lahir: "",
+        nama_lengkap: "",
+        email: "",
+        posisi: "",
+        no_Hp: "",
+        foto: null,
+        tempat_lahir: "",
+        tanggal_lahir: "",
     });
 
     // modal
@@ -45,9 +45,9 @@ export default function listPegawai({ pegawai }) {
     // Filter data berdasarkan kata kunci pencarian
     const filteredPegawai = pegawai.filter(
         (pgw) =>
-            pgw.Nama_Lengkap.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            pgw.Email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            pgw.Posisi.toLowerCase().includes(searchTerm.toLowerCase())
+            pgw.nama_lengkap.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            pgw.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            pgw.posisi.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     // Data pegawai untuk halaman yang sedang ditampilkan
@@ -68,13 +68,13 @@ export default function listPegawai({ pegawai }) {
         post(route("pegawai.store"), {
             onSuccess: () => {
                 setData({
-                    Nama_Lengkap: "",
-                    Email: "",
-                    Posisi: "",
-                    No_Hp: "",
-                    Foto: null,
-                    Tempat_Lahir: "",
-                    Tanggal_Lahir: "",
+                    nama_lengkap: "",
+                    email: "",
+                    posisi: "",
+                    no_Hp: "",
+                    foto: null,
+                    tempat_lahir: "",
+                    tanggal_lahir: "",
                 });
             },
         });
@@ -156,68 +156,68 @@ export default function listPegawai({ pegawai }) {
                                                             type="text"
                                                             placeholder="Nama Lengkap"
                                                             value={
-                                                                data.Nama_Lengkap
+                                                                data.nama_lengkap
                                                             }
                                                             onChange={(e) =>
                                                                 setData(
-                                                                    "Nama_Lengkap",
+                                                                    "nama_lengkap",
                                                                     e.target
                                                                         .value
                                                                 )
                                                             }
                                                         />
                                                     </div>
-                                                    {errors.Nama_Lengkap && (
+                                                    {errors.nama_lengkap && (
                                                         <p className="error ml-12">
                                                             {
-                                                                errors.Nama_Lengkap
+                                                                errors.nama_lengkap
                                                             }
                                                         </p>
                                                     )}
                                                     <div className="flex">
                                                         <span className="my-auto">
-                                                            Email:
+                                                            email:
                                                         </span>
                                                         <input
                                                             className="ml-2 block w-full mt-3 rounded-md border-0 p-2 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-500 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm bg-white"
                                                             type="text"
-                                                            placeholder="Email"
-                                                            value={data.Email}
+                                                            placeholder="email"
+                                                            value={data.email}
                                                             onChange={(e) =>
                                                                 setData(
-                                                                    "Email",
+                                                                    "email",
                                                                     e.target
                                                                         .value
                                                                 )
                                                             }
                                                         />
                                                     </div>
-                                                    {errors.Email && (
+                                                    {errors.email && (
                                                         <p className="error ml-12">
-                                                            {errors.Email}
+                                                            {errors.email}
                                                         </p>
                                                     )}
                                                     <div className="flex">
                                                         <span className="my-auto">
-                                                            Posisi:
+                                                            posisi:
                                                         </span>
                                                         <input
                                                             className="ml-2 block w-full mt-3 rounded-md border-0 p-2 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-500 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm bg-white"
                                                             type="text"
-                                                            placeholder="Posisi"
-                                                            value={data.Posisi}
+                                                            placeholder="posisi"
+                                                            value={data.posisi}
                                                             onChange={(e) =>
                                                                 setData(
-                                                                    "Posisi",
+                                                                    "posisi",
                                                                     e.target
                                                                         .value
                                                                 )
                                                             }
                                                         />
                                                     </div>
-                                                    {errors.Posisi && (
+                                                    {errors.posisi && (
                                                         <p className="error ml-12">
-                                                            {errors.Posisi}
+                                                            {errors.posisi}
                                                         </p>
                                                     )}
                                                     <div className="flex">
@@ -228,24 +228,24 @@ export default function listPegawai({ pegawai }) {
                                                             className="ml-2 block w-full mt-3 rounded-md border-0 p-2 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-500 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm bg-white"
                                                             type="text"
                                                             placeholder="Nomor Hand Phone"
-                                                            value={data.No_Hp}
+                                                            value={data.no_Hp}
                                                             onChange={(e) =>
                                                                 setData(
-                                                                    "No_Hp",
+                                                                    "no_Hp",
                                                                     e.target
                                                                         .value
                                                                 )
                                                             }
                                                         />
                                                     </div>
-                                                    {errors.No_Hp && (
+                                                    {errors.no_Hp && (
                                                         <p className="error ml-12">
-                                                            {errors.No_Hp}
+                                                            {errors.no_Hp}
                                                         </p>
                                                     )}
                                                     <div className="flex">
                                                         <span className="my-auto">
-                                                            Foto:
+                                                            foto:
                                                         </span>
 
                                                         <input
@@ -253,16 +253,16 @@ export default function listPegawai({ pegawai }) {
                                                             type="file"
                                                             onChange={(e) =>
                                                                 setData(
-                                                                    "Foto",
+                                                                    "foto",
                                                                     e.target
                                                                         .files[0]
                                                                 )
                                                             }
                                                         />
                                                     </div>
-                                                    {errors.Foto && (
+                                                    {errors.foto && (
                                                         <p className="error ml-12">
-                                                            {errors.Foto}
+                                                            {errors.foto}
                                                         </p>
                                                     )}
                                                     <div className="flex">
@@ -274,21 +274,21 @@ export default function listPegawai({ pegawai }) {
                                                             type="text"
                                                             placeholder="Tempat Lahir"
                                                             value={
-                                                                data.Tempat_Lahir
+                                                                data.tempat_lahir
                                                             }
                                                             onChange={(e) =>
                                                                 setData(
-                                                                    "Tempat_Lahir",
+                                                                    "tempat_lahir",
                                                                     e.target
                                                                         .value
                                                                 )
                                                             }
                                                         />
                                                     </div>
-                                                    {errors.Tempat_Lahir && (
+                                                    {errors.tempat_lahir && (
                                                         <p className="error ml-24">
                                                             {
-                                                                errors.Tempat_Lahir
+                                                                errors.tempat_lahir
                                                             }
                                                         </p>
                                                     )}
@@ -301,21 +301,21 @@ export default function listPegawai({ pegawai }) {
                                                             type="text"
                                                             placeholder="Tahun-Bulan-Tanggal"
                                                             value={
-                                                                data.Tanggal_Lahir
+                                                                data.tanggal_lahir
                                                             }
                                                             onChange={(e) =>
                                                                 setData(
-                                                                    "Tanggal_Lahir",
+                                                                    "tanggal_lahir",
                                                                     e.target
                                                                         .value
                                                                 )
                                                             }
                                                         />
                                                     </div>
-                                                    {errors.Tanggal_Lahir && (
+                                                    {errors.tanggal_lahir && (
                                                         <p className="error ml-24">
                                                             {
-                                                                errors.Tanggal_Lahir
+                                                                errors.tanggal_lahir
                                                             }
                                                         </p>
                                                     )}
@@ -362,16 +362,16 @@ export default function listPegawai({ pegawai }) {
                                                 Nama
                                             </th>
                                             <th className="px-4 py-2 border border-gray-300">
-                                                Email
+                                                email
                                             </th>
                                             <th className="px-4 py-2 border border-gray-300">
-                                                Posisi
+                                                posisi
                                             </th>
                                             <th className="px-4 py-2 border border-gray-300">
                                                 No Hp
                                             </th>
                                             <th className="px-4 py-2 border border-gray-300">
-                                                Foto
+                                                foto
                                             </th>
                                             <th className="px-4 py-2 border border-gray-300">
                                                 Aksi
@@ -393,25 +393,25 @@ export default function listPegawai({ pegawai }) {
                                                                 1}
                                                         </td>
                                                         <td className="px-4 py-2 border border-gray-300">
-                                                            {pgw.Nama_Lengkap}
+                                                            {pgw.nama_lengkap}
                                                         </td>
                                                         <td className="px-4 py-2 border border-gray-300">
-                                                            {pgw.Email}
+                                                            {pgw.email}
                                                         </td>
                                                         <td className="px-4 py-2 border border-gray-300">
-                                                            {pgw.Posisi}
+                                                            {pgw.posisi}
                                                         </td>
                                                         <td className="px-4 py-2 border border-gray-300">
-                                                            {pgw.No_Hp}
+                                                            {pgw.no_Hp}
                                                         </td>
                                                         <td className="px-4 py-2 border border-gray-300 text-center">
                                                             <img
                                                                 src={
-                                                                    pgw.Foto
-                                                                        ? `/storage/${pgw.Foto}`
+                                                                    pgw.foto
+                                                                        ? `/storage/${pgw.foto}`
                                                                         : "/assets/img/nophoto.png"
                                                                 }
-                                                                alt="Foto Pegawai"
+                                                                alt="foto Pegawai"
                                                                 className="w-12 h-12 object-cover rounded-md"
                                                             />
                                                         </td>
@@ -425,7 +425,12 @@ export default function listPegawai({ pegawai }) {
                                                                 >
                                                                     <FaEdit className="h-5 w-5 hover:text-blue-500" />
                                                                 </Link>
-                                                                <Link>
+                                                                <Link
+                                                                    href={route(
+                                                                        "konfigurasi.show",
+                                                                        pgw
+                                                                    )}
+                                                                >
                                                                     <IoIosSettings className="h-5 w-5 ml-1 hover:text-blue-500" />
                                                                 </Link>
                                                             </div>

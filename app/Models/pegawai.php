@@ -13,18 +13,24 @@ class pegawai extends Model
 
 
     protected $fillable = [
-        'Nama_Lengkap',
-        'Email',
-        'Posisi',
-        'No_Hp',
-        'Foto',
-        'Tempat_Lahir',
-        'Tanggal_Lahir',
+        'nama_lengkap',
+        'email',
+        'posisi',
+        'no_Hp',
+        'foto',
+        'tempat_lahir',
+        'tanggal_lahir',
     ];
 
     public function user()
     {
-        return $this->belongsTo(User::class,'Email','email');
+        return $this->belongsTo(User::class,'email','email');
     }
+
+    public function jamKerja()
+    {
+        return $this->hasOne(set_jam_kerja::class, 'id', 'id');
+    }
+
     
 }

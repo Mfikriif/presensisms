@@ -45,13 +45,18 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/presensi-monitoring', [PresensiController::class,'presensiMonitoring'])->name('pegawai.presensi');
 
     // Konfigurasi Jam Kerja
+
+    Route::get('/Admin/konfigurasi-shift_kerja',[KonfigurasiShiftKerjaController::class,'index'])->name('konfigurasi.index');
+    Route::post('/Admin/konfigurasi-shift_kerja/set_jam_kerja',[KonfigurasiShiftKerjaController::class, 'store'])->name('konfigurasi.store');
     Route::get('/Admin/konfigurasi-jam_kerja',[KonfigurasiShiftKerjaController::class,'index'])->name('konfigurasi.index');
     Route::post('/Admin/konfigurasi-jam_kerja/set_jam_kerja',[KonfigurasiShiftKerjaController::class, 'store'])->name('konfigurasi.store');
 
-    // Route::resource('/Admin/konfigurasi', KonfigurasiShiftKerjaController::class);
     Route::get('/Admin/konfigurasi-shift-kerja/{konfigurasi}/edit', [KonfigurasiShiftKerjaController::class, 'edit'])->name('konfigurasi.edit');
     Route::put('/Admin/konfigurasi-shift-kerja/{konfigurasi}/update', [KonfigurasiShiftKerjaController::class, 'update'])->name('konfigurasi.update');
     Route::delete('/Admin/konfigurasi-shift-kerja/{id}', [KonfigurasiShiftKerjaController::class, 'destroy'])->name('konfigurasi.destroy');
+    Route::get('/Admin/konfigurasi-shift-kerja/{pegawai}',[PegawaiController::class, 'showSetSchedule'])->name('konfigurasi.show');
+    Route::post('/Admin/konfigurasi-shift-kerja',[KonfigurasiShiftKerjaController::class,'setJamkerja'])->name('setShift.store');
+    Route::put('/Admin/konfigurasi-shift-kerja/{id}',[KonfigurasiShiftKerjaController::class,'updateJamkerja'])->name('setShift.edit');
 
 
 });
