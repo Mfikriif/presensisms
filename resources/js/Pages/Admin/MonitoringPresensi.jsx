@@ -4,7 +4,7 @@ import { FiSearch } from "react-icons/fi";
 import { useState } from "react";
 import ReactPaginate from "react-paginate";
 
-export default function MonitoringPresensi({ presensi }) {
+export default function MonitoringPresensi({ presensi, statusPresensi }) {
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(0);
     const itemsPerPage = 10; // Jumlah item per halaman
@@ -27,6 +27,8 @@ export default function MonitoringPresensi({ presensi }) {
     const handlePageChange = ({ selected }) => {
         setCurrentPage(selected);
     };
+
+    console.log(statusPresensi);
 
     return (
         <>
@@ -79,11 +81,8 @@ export default function MonitoringPresensi({ presensi }) {
                                                 <th className="px-7 py-2 border border-gray-300 whitespace-nowrap">
                                                     Foto Keluar
                                                 </th>
-                                                <th className="px-7 py-2 border border-gray-300">
-                                                    Lokasi Masuk
-                                                </th>
-                                                <th className="px-7 py-2 border border-gray-300">
-                                                    Lokasi Keluar
+                                                <th className="px-7 py-2 border border-gray-300 whitespace-nowrap">
+                                                    Keterangan
                                                 </th>
                                             </tr>
                                         </thead>
@@ -91,73 +90,94 @@ export default function MonitoringPresensi({ presensi }) {
                                         <tbody>
                                             {paginatedPresensi.length > 0 ? (
                                                 paginatedPresensi.map(
-                                                    (psn, index) => (
-                                                        <tr
-                                                            key={
-                                                                psn.id || index
-                                                            }
-                                                            className="even:bg-gray-50"
-                                                        >
-                                                            <td className="px-7 py-2 border border-gray-300 text-center">
-                                                                {currentPage *
-                                                                    itemsPerPage +
-                                                                    index +
-                                                                    1}
-                                                            </td>
-                                                            <td className="px-7 py-2 border border-gray-300 whitespace-nowrap">
-                                                                {psn.Nama}
-                                                            </td>
-                                                            <td className="px-2 py-2 border border-gray-300">
-                                                                {psn.email}
-                                                            </td>
-                                                            <td className="px-7 py-2 border border-gray-300 whitespace-nowrap">
-                                                                {
-                                                                    psn.Tanggal_presensi
+                                                    (psn, index) => {
+                                                        // Logika menentukan apakah terlambat
+                                                        const isTerlambat =
+                                                            statusPresensi.find(
+                                                                (status) =>
+                                                                    status.Nama ===
+                                                                        psn.Nama &&
+                                                                    status.Tanggal_presensi ===
+                                                                        psn.Tanggal_presensi
+                                                            )
+                                                                ?.status_terlambat ===
+                                                            "Terlambat";
+
+                                                        return (
+                                                            <tr
+                                                                key={
+                                                                    psn.id ||
+                                                                    index
                                                                 }
-                                                            </td>
-                                                            <td className="px-7 py-2 border border-gray-300">
-                                                                {psn.jam_in}
-                                                            </td>
-                                                            <td className="px-7 py-2 border border-gray-300">
-                                                                {psn.jam_out ? (
-                                                                    psn.jam_out
-                                                                ) : (
-                                                                    <span className="bg-red-600 text-white rounded px-3 text-center py-1 whitespace-nowrap">
-                                                                        Belum
-                                                                        Absen
-                                                                    </span>
-                                                                )}
-                                                            </td>
-                                                            <td className="px-7 py-2 border border-gray-300">
-                                                                <img
-                                                                    src={
-                                                                        psn.foto_in
-                                                                            ? `/storage/uploads/absensi/${psn.foto_in}`
-                                                                            : "assets/img/nophoto.png"
+                                                                className="even:bg-gray-50"
+                                                            >
+                                                                <td className="px-7 py-2 border border-gray-300 text-center">
+                                                                    {currentPage *
+                                                                        itemsPerPage +
+                                                                        index +
+                                                                        1}
+                                                                </td>
+                                                                <td className="px-7 py-2 border border-gray-300 whitespace-nowrap">
+                                                                    {psn.Nama}
+                                                                </td>
+                                                                <td className="px-2 py-2 border border-gray-300">
+                                                                    {psn.email}
+                                                                </td>
+                                                                <td className="px-7 py-2 border border-gray-300 whitespace-nowrap">
+                                                                    {
+                                                                        psn.Tanggal_presensi
                                                                     }
-                                                                    alt="Foto Masuk"
-                                                                    className="h-12 w-12 object-cover"
-                                                                />
-                                                            </td>
-                                                            <td className="px-7 py-2 border border-gray-300">
-                                                                <img
-                                                                    src={
-                                                                        psn.foto_out
-                                                                            ? `/storage/uploads/absensi/${psn.foto_out}`
-                                                                            : "/assets/img/nophoto.png"
-                                                                    }
-                                                                    alt="Foto Keluar"
-                                                                    className="h-12 w-12 object-cover"
-                                                                />
-                                                            </td>
-                                                            <td className="px-7 py-2 border border-gray-300">
-                                                                {psn.lokasi_in}
-                                                            </td>
-                                                            <td className="px-7 py-2 border border-gray-300">
-                                                                {psn.lokasi_out}
-                                                            </td>
-                                                        </tr>
-                                                    )
+                                                                </td>
+                                                                <td className="px-7 py-2 border border-gray-300">
+                                                                    {psn.jam_in}
+                                                                </td>
+                                                                <td className="px-7 py-2 border border-gray-300">
+                                                                    {psn.jam_out ? (
+                                                                        psn.jam_out
+                                                                    ) : (
+                                                                        <span className="bg-red-600 text-white rounded px-3 text-center py-1 whitespace-nowrap">
+                                                                            Belum
+                                                                            Absen
+                                                                        </span>
+                                                                    )}
+                                                                </td>
+                                                                <td className="px-7 py-2 border border-gray-300">
+                                                                    <img
+                                                                        src={
+                                                                            psn.foto_in
+                                                                                ? `/storage/uploads/absensi/${psn.foto_in}`
+                                                                                : "assets/img/nophoto.png"
+                                                                        }
+                                                                        alt="Foto Masuk"
+                                                                        className="h-12 w-12 object-cover"
+                                                                    />
+                                                                </td>
+                                                                <td className="px-7 py-2 border border-gray-300">
+                                                                    <img
+                                                                        src={
+                                                                            psn.foto_out
+                                                                                ? `/storage/uploads/absensi/${psn.foto_out}`
+                                                                                : "/assets/img/nophoto.png"
+                                                                        }
+                                                                        alt="Foto Keluar"
+                                                                        className="h-12 w-12 object-cover"
+                                                                    />
+                                                                </td>
+                                                                <td className="px-7 py-2 border border-gray-300 whitespace-nowrap">
+                                                                    {isTerlambat ? (
+                                                                        <span className="bg-red-600 text-white px-2 py-1 rounded">
+                                                                            Terlambat
+                                                                        </span>
+                                                                    ) : (
+                                                                        <span className="bg-green-600 text-white px-2 py-1 rounded">
+                                                                            Tepat
+                                                                            Waktu
+                                                                        </span>
+                                                                    )}
+                                                                </td>
+                                                            </tr>
+                                                        );
+                                                    }
                                                 )
                                             ) : (
                                                 <tr>

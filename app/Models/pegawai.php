@@ -16,7 +16,7 @@ class pegawai extends Model
         'nama_lengkap',
         'email',
         'posisi',
-        'no_Hp',
+        'no_hp',
         'foto',
         'tempat_lahir',
         'tanggal_lahir',
