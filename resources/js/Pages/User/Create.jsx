@@ -187,7 +187,7 @@ export default function Create({ cek }) {
                 </div>
             )}
 
-            <div className="bg-blue-500 text-white flex items-center justify-between px-4 py-3 shadow-md">
+            <div className="bg-red-500 text-white flex items-center justify-between px-4 py-3 shadow-md">
                 <button
                     onClick={() => window.history.back()}
                     className="flex items-center text-white hover:text-gray-200"

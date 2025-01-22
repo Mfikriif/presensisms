@@ -51,7 +51,7 @@ class DashboardController extends Controller
             'tahunini' => $tahunini,
             'rekapPresensi' => $rekappresensi,
             'leaderboard' => $leaderboard,
-            'user' => $user
+            'user' => $user 
         ]);
     }
 

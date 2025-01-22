@@ -31,6 +31,7 @@ class PresensiController extends Controller
     {
         $user = Auth::user();
         $nama = $user->name;
+        $kode_pegawai = $user->id;
         $email = $user->email;
         $tanggal_presensi = date("Y-m-d");
         $jam = date("H:i:s");
@@ -119,6 +120,7 @@ class PresensiController extends Controller
             if ($tipeAbsen === 'masuk') {
                 $data = [
                     'nama' => $nama,
+                    'kode_pegawai' => $kode_pegawai,
                     'email' => $email,
                     'tanggal_presensi' => $tanggal_presensi,
                     'jam_in' => $jam,
@@ -210,6 +212,14 @@ class PresensiController extends Controller
         } else {
             return redirect()->back()->with('error', 'Terjadi kesalahan saat memperbarui profil.');
         }
+    }
+
+    // Histori Absensi
+    public function histori(){
+        $namabulan = ["","Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+        return Inertia::render('User/Histori',[
+            'namabulan' => $namabulan,
+    ]);
     }
 
     // Presensi Monitoring

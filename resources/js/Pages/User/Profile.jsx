@@ -3,9 +3,8 @@ import BottomNav from "@/Layouts/BottomNav";
 import Script from "@/Layouts/Script";
 
 export default function Profile({ pegawai, successMessage, errorMessage }) {
-    const [namaLengkap, setNamaLengkap] = useState(pegawai.Nama_Lengkap || "");
-    const [noHp, setNoHp] = useState(pegawai.No_Hp || "");
-    const [foto, setFoto] = useState(null);
+    const [namaLengkap, setNamaLengkap] = useState(pegawai.nama_lengkap || "");
+    const [noHp, setNoHp] = useState(pegawai.no_hp || "");
 
     const handleFileChange = (e) => {
         setFoto(e.target.files[0]);
@@ -139,36 +138,6 @@ export default function Profile({ pegawai, successMessage, errorMessage }) {
                         placeholder="Password"
                         autoComplete="off"
                     />
-                </div>
-
-                {/* Upload Foto */}
-                <div className="mb-4">
-                    <label
-                        htmlFor="foto"
-                        className="block text-sm font-medium text-gray-700"
-                    >
-                        Upload Foto
-                    </label>
-                    <div className="mt-2 flex items-center justify-center w-full h-24 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 cursor-pointer">
-                        <input
-                            type="file"
-                            id="foto"
-                            name="foto"
-                            className="hidden"
-                            accept=".png, .jpg, .jpeg"
-                            onChange={handleFileChange}
-                        />
-                        <label
-                            htmlFor="foto"
-                            className="text-blue-500 flex items-center space-x-2 cursor-pointer"
-                        >
-                            <ion-icon
-                                name="cloud-upload-outline"
-                                className="text-2xl"
-                            ></ion-icon>
-                            <span>{foto ? foto.name : "Tap to Upload"}</span>
-                        </label>
-                    </div>
                 </div>
 
                 {/* Submit Button */}
