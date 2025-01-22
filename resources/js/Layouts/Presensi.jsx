@@ -6,7 +6,6 @@ export default function Presensi({ children, header }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Simulasikan proses loading
         const timer = setTimeout(() => {
             setLoading(false);
         }, 1000); // Hilangkan loader setelah 1 detik
@@ -41,10 +40,6 @@ export default function Presensi({ children, header }) {
                     name="description"
                     content="Mobilekit HTML Mobile UI Kit"
                 />
-                <meta
-                    name="keywords"
-                    content="bootstrap 4, mobile template, cordova, phonegap, mobile, html"
-                />
                 <link
                     rel="icon"
                     type="image/png"
@@ -59,13 +54,10 @@ export default function Presensi({ children, header }) {
                 <link rel="manifest" href="__manifest.json" />
             </head>
 
-            <div className="bg-gray-100 min-h-screen flex flex-col">
+            <div className="bg-gray-100 flex flex-col min-h-screen">
                 {/* Loader */}
                 {loading && (
-                    <div
-                        id="loader"
-                        className="fixed inset-0 bg-gray-100 flex items-center justify-center z-50"
-                    >
+                    <div className="fixed inset-0 bg-gray-100 flex items-center justify-center z-50">
                         <svg
                             className="animate-spin h-8 w-8 text-blue-500"
                             xmlns="http://www.w3.org/2000/svg"
@@ -100,7 +92,9 @@ export default function Presensi({ children, header }) {
                 {/* End App Capsule */}
 
                 {/* Bottom Navigation */}
-                <BottomNav />
+                <div className="fixed inset-x-0 bottom-0">
+                    <BottomNav />
+                </div>
 
                 {/* Scripts */}
                 <Script />
