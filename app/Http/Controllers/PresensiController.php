@@ -18,7 +18,7 @@ class PresensiController extends Controller
         $hariini = date("Y-m-d");
         $email = Auth::user()->email;
         $cek = DB::table('presensi')
-            ->where('Tanggal_presensi', $hariini)
+            ->where('tanggal_presensi', $hariini)
             ->where('email', $email)
             ->count();
     
@@ -32,7 +32,7 @@ class PresensiController extends Controller
         $user = Auth::user();
         $nama = $user->name;
         $email = $user->email;
-        $Tanggal_presensi = date("Y-m-d");
+        $tanggal_presensi = date("Y-m-d");
         $jam = date("H:i:s");
         
         // Lokasi Kantor
@@ -69,7 +69,7 @@ class PresensiController extends Controller
         // Memastikan folder untuk menyimpan absensi
         $folderPath = "uploads/absensi/";
         $emailName = explode('@', $email)[0]; // Mengambil bagian sebelum @
-        $formatName = $emailName . "-" . $Tanggal_presensi . "-" . $tipeAbsen;
+        $formatName = $emailName . "-" . $tanggal_presensi . "-" . $tipeAbsen;
         $fileName = $formatName . ".png";
         $filePath = $folderPath . $fileName;
     
@@ -86,7 +86,7 @@ class PresensiController extends Controller
     
         // Cek apakah data presensi sudah ada untuk hari ini
         $cek = DB::table('presensi')
-            ->where('Tanggal_presensi', $Tanggal_presensi)
+            ->where('tanggal_presensi', $tanggal_presensi)
             ->where('email', $email)
             ->first();
     
@@ -99,7 +99,7 @@ class PresensiController extends Controller
                     'lokasi_out' => $lokasi,
                 ];
                 $update = DB::table('presensi')
-                    ->where('Tanggal_presensi', $Tanggal_presensi)
+                    ->where('tanggal_presensi', $tanggal_presensi)
                     ->where('email', $email)
                     ->update($data_pulang);
     
@@ -120,7 +120,7 @@ class PresensiController extends Controller
                 $data = [
                     'nama' => $nama,
                     'email' => $email,
-                    'Tanggal_presensi' => $Tanggal_presensi,
+                    'tanggal_presensi' => $tanggal_presensi,
                     'jam_in' => $jam,
                     'foto_in' => $fileName,
                     'lokasi_in' => $lokasi,
@@ -190,8 +190,8 @@ class PresensiController extends Controller
         $updatePegawai = DB::table('pegawais')
             ->where('email', $user->email)
             ->update([
-                'Nama_Lengkap' => $request->nama_lengkap,
-                'No_Hp' => $request->no_hp,
+                'nama_lengkap' => $request->nama_lengkap,
+                'no_hp' => $request->no_hp,
             ]);
     
         // Update data di tabel users
