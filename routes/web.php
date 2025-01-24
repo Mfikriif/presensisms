@@ -32,9 +32,11 @@ Route::get('/admin', function () {
 
 // Rute untuk Admin
 Route::middleware(['auth', 'admin'])->group(function () {
-    Route::get('/dashboard', function () {
-        return Inertia::render('Dashboard');
-    })->name('dashboard');
+    // Route::get('/dashboard', function () {
+    //     return Inertia::render('Dashboard');
+    // })->name('dashboard');
+
+    Route::get('/dashboard', [DashboardController::class,'dashboardAdmin'])->name('dashboard');
 
     // Pegawai
     Route::get('/Admin/Daftar-pegawai',[PegawaiController::class,'index'])->name("pegawai.index");

@@ -5,7 +5,7 @@ import { IoPeopleSharp } from "react-icons/io5";
 import { IoIosPaper } from "react-icons/io";
 import { BiSolidTimeFive } from "react-icons/bi";
 
-export default function Dashboard() {
+export default function Dashboard({ rekappresensi, totalPegawai }) {
     return (
         <>
             <AuthenticatedLayout
@@ -22,7 +22,7 @@ export default function Dashboard() {
                                         </span>
                                     </div>
                                     <div className="text-slate-500 my-auto">
-                                        <h2>142</h2>
+                                        <h2>{rekappresensi.total_hadir}</h2>
                                         <p>Karyawan Hadir</p>
                                     </div>
                                 </div>
@@ -33,7 +33,7 @@ export default function Dashboard() {
                                         </span>
                                     </div>
                                     <div className="text-slate-500 my-auto">
-                                        <h2>142</h2>
+                                        <h2>{totalPegawai}</h2>
                                         <p>Jumlah Karyawan</p>
                                     </div>
                                 </div>
@@ -66,7 +66,7 @@ export default function Dashboard() {
                                         </span>
                                     </div>
                                     <div className="text-slate-500 my-auto">
-                                        <h2>142</h2>
+                                        <h2>{rekappresensi.terlambat}</h2>
                                         <p>Karyawan Terlambat</p>
                                     </div>
                                 </div>
