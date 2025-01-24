@@ -161,7 +161,8 @@ export default function Create({ cek }) {
     };
 
     return (
-        <div className="bg-gray-100 min-h-screen flex flex-col pb-20">
+        <div className="bg-gray-100 min-h-screen flex flex-col pb-20 relative">
+            {/* Loader */}
             {isLoading && (
                 <div className="fixed inset-0 bg-gray-100 flex items-center justify-center z-50">
                     <svg
@@ -187,7 +188,8 @@ export default function Create({ cek }) {
                 </div>
             )}
 
-            <div className="bg-red-500 text-white flex items-center justify-between px-4 py-3 shadow-md">
+            {/* Header */}
+            <div className="bg-blue-950 text-white flex items-center justify-between px-4 py-3 shadow-md">
                 <button
                     onClick={() => window.history.back()}
                     className="flex items-center text-white hover:text-gray-200"
@@ -201,53 +203,69 @@ export default function Create({ cek }) {
                 <h1 className="text-lg font-semibold">E-Presensi</h1>
             </div>
 
-            <input type="hidden" id="lokasi" ref={lokasiInputRef} />
-
-            <div className="flex flex-col items-center gap-4 mt-4 px-4">
-                <div className="flex flex-col items-center justify-center mt-4">
+            {/* Form Section */}
+            <div className="flex-grow flex flex-col items-center gap-6 mt-6 px-4">
+                {/* Webcam Section */}
+                <div className="flex flex-col items-center justify-center">
                     <Webcam
                         audio={false}
                         ref={webcamRef}
                         screenshotFormat="image/jpeg"
-                        className="bg-gray-200 rounded-lg shadow-md"
+                        className="rounded-lg shadow-lg border-4 border-blue-500"
                         style={{
-                            width: "250px",
-                            height: "250px",
-                            borderRadius: "10px",
+                            width: "300px",
+                            height: "300px",
                         }}
                     />
+                    <p className="text-sm text-gray-500 mt-2">
+                        Pastikan wajah Anda terlihat jelas.
+                    </p>
                 </div>
 
+                {/* Absen Button */}
                 <button
                     onClick={handleTakeAbsen}
                     className={`${
                         isAbsenMasuk
-                            ? "bg-blue-500 hover:bg-blue-600"
-                            : "bg-red-500 hover:bg-red-600"
-                    } text-white rounded-lg px-6 py-3 flex items-center gap-2 transition duration-200 ease-in-out shadow-md w-full max-w-xs text-center`}
+                            ? "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+                            : "bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700"
+                    } text-white rounded-full px-8 py-4 flex items-center gap-2 transition duration-300 ease-in-out shadow-lg transform hover:scale-105 focus:outline-none`}
                 >
                     <ion-icon
                         name="camera-outline"
-                        className="text-lg"
+                        className="text-2xl"
                     ></ion-icon>
-                    <span className="font-medium">
+                    <span className="font-semibold text-lg">
                         {isAbsenMasuk ? "Absen Masuk" : "Absen Pulang"}
                     </span>
                 </button>
 
+                {/* Error Message */}
                 {errorMessage && (
-                    <p className="text-red-500 text-sm">{errorMessage}</p>
+                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg shadow-md w-full max-w-xs">
+                        <p className="text-sm">{errorMessage}</p>
+                    </div>
                 )}
 
-                <div className="w-full max-w-xs bg-gray-200 rounded-lg overflow-hidden shadow-md">
+                {/* Map Section */}
+                <div className="w-full max-w-xs bg-white rounded-lg overflow-hidden shadow-lg">
                     <div
                         id="map"
-                        style={{ width: "100%", height: "150px" }}
+                        className="bg-gray-100 relative z-0"
+                        style={{
+                            width: "100%",
+                            height: "200px",
+                            borderRadius: "10px",
+                        }}
                     ></div>
+                    <p className="text-xs text-gray-500 text-center py-2">
+                        Lokasi Anda saat ini.
+                    </p>
                 </div>
             </div>
 
-            <BottomNav />
+            {/* Bottom Navigation */}
+            <BottomNav className="z-50" />
             <Script />
         </div>
     );

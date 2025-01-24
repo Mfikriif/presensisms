@@ -13,25 +13,14 @@ export default function Dashboard({
     user,
 }) {
     const [activeTab, setActiveTab] = useState("bulanIni");
-    // const [user, setUser] = useState({});
-
-    useEffect(() => {
-        // Simulasi data
-        // setUser({
-        //     namaLengkap: "John Doe",
-        //     jabatan: "Staff",
-        //     foto: null,
-        //     cabang: "Cabang 1",
-        //     departemen: "IT",
-        // });
-    }, []);
 
     return (
         <div className="bg-gray-100 min-h-screen overflow-y-auto pb-16">
             {/* User Section */}
-            <div className="bg-white shadow p-4 flex items-center justify-between">
+            <div className="bg-blue-950 shadow-md rounded-b-lg p-4 flex items-center justify-between overflow-hidden">
                 <div className="flex items-center">
-                    <div className="rounded-full overflow-hidden w-16 h-16">
+                    {/* Avatar */}
+                    <div className="rounded-full overflow-hidden w-16 h-16 border-4 border-blue-500">
                         <img
                             src={
                                 user.foto
@@ -42,31 +31,41 @@ export default function Dashboard({
                             className="w-full h-full object-cover"
                         />
                     </div>
+
+                    {/* User Info */}
                     <div className="ml-4">
-                        <h3 className="text-lg font-semibold">
+                        <h3 className="text-lg text-white font-semibold">
                             {user.nama_lengkap}
                         </h3>
-                        <p className="text-sm text-gray-500">
-                            {user.posisi} {user.cabang}
+                        <p className="text-white text-sm mt-1">
+                            {user.posisi === "operator"
+                                ? "Operator"
+                                : user.posisi}{" "}
+                            -{" "}
+                            <span className="font-medium text-blue-300">
+                                Bandungrejo
+                            </span>
                         </p>
-                        {/* <p className="text-xs text-gray-400">
-                            ({user.departemen})
-                        </p> */}
                     </div>
                 </div>
+
+                {/* Logout Button */}
                 <a
                     href="#"
-                    className="text-red-500 text-xl"
+                    className="text-red-400 hover:text-red-500 transition duration-300"
                     onClick={(e) => {
                         e.preventDefault();
                         Inertia.post(route("logout"));
                     }}
                 >
-                    <ion-icon name="exit-outline"></ion-icon>
+                    <ion-icon
+                        name="exit-outline"
+                        className="text-3xl"
+                    ></ion-icon>
                 </a>
             </div>
             {/* Menu Section */}
-            <div className="grid grid-cols-2 gap-3 p-4">
+            {/* <div className="grid grid-cols-2 gap-3 p-4">
                 {[
                     {
                         href: "/editprofile",
@@ -105,58 +104,62 @@ export default function Dashboard({
                         </p>
                     </a>
                 ))}
-            </div>
+            </div> */}
             {/* Today Presence Section */}
             <div className="p-4">
-                <h3 className="text-lg font-semibold mb-4">
+                <h3 className="text-lg font-semibold mb-4 text-gray-800">
                     Presensi Hari Ini
                 </h3>
                 <div className="grid grid-cols-2 gap-4">
                     {/* Masuk Card */}
-                    <div className="bg-green-500 text-white rounded-lg shadow-lg p-4 flex items-center">
-                        <div className="flex-shrink-0">
-                            {presensihariini?.foto_in ? (
-                                <img
-                                    src={`/storage/uploads/absensi/${presensihariini.foto_in}`}
-                                    alt="Absen Masuk"
-                                    className="w-12 h-12 rounded-full"
-                                />
-                            ) : (
-                                <ion-icon
-                                    name="camera-outline"
-                                    className="text-4xl"
-                                ></ion-icon>
-                            )}
-                        </div>
-                        <div className="ml-4">
-                            <h4 className="text-sm font-medium">Masuk</h4>
-                            <span className="text-xs">
-                                {presensihariini?.jam_in || "Belum Absen"}
-                            </span>
+                    <div className="rounded-lg shadow-lg p-4 flex items-center justify-between bg-gradient-to-r from-green-400 to-green-500 text-white">
+                        <div className="flex items-center">
+                            <div className="flex-shrink-0">
+                                {presensihariini?.foto_in ? (
+                                    <img
+                                        src={`/storage/uploads/absensi/${presensihariini.foto_in}`}
+                                        alt="Absen Masuk"
+                                        className="w-12 h-12 rounded-full border-2 border-white"
+                                    />
+                                ) : (
+                                    <ion-icon
+                                        name="camera-outline"
+                                        className="text-4xl text-white"
+                                    ></ion-icon>
+                                )}
+                            </div>
+                            <div className="ml-4">
+                                <h4 className="text-sm font-bold">Masuk</h4>
+                                <span className="text-xs">
+                                    {presensihariini?.jam_in || "Belum Absen"}
+                                </span>
+                            </div>
                         </div>
                     </div>
 
                     {/* Pulang Card */}
-                    <div className="bg-red-500 text-white rounded-lg shadow-lg p-4 flex items-center">
-                        <div className="flex-shrink-0">
-                            {presensihariini?.foto_out ? (
-                                <img
-                                    src={`/storage/uploads/absensi/${presensihariini.foto_out}`}
-                                    alt="Absen Pulang"
-                                    className="w-12 h-12 rounded-full"
-                                />
-                            ) : (
-                                <ion-icon
-                                    name="camera-outline"
-                                    className="text-4xl"
-                                ></ion-icon>
-                            )}
-                        </div>
-                        <div className="ml-4">
-                            <h4 className="text-sm font-medium">Pulang</h4>
-                            <span className="text-xs">
-                                {presensihariini?.jam_out || "Belum Absen"}
-                            </span>
+                    <div className="rounded-lg shadow-lg p-4 flex items-center justify-between bg-gradient-to-r from-red-400 to-red-500 text-white">
+                        <div className="flex items-center">
+                            <div className="flex-shrink-0">
+                                {presensihariini?.foto_out ? (
+                                    <img
+                                        src={`/storage/uploads/absensi/${presensihariini.foto_out}`}
+                                        alt="Absen Pulang"
+                                        className="w-12 h-12 rounded-full border-2 border-white"
+                                    />
+                                ) : (
+                                    <ion-icon
+                                        name="camera-outline"
+                                        className="text-4xl text-white"
+                                    ></ion-icon>
+                                )}
+                            </div>
+                            <div className="ml-4">
+                                <h4 className="text-sm font-bold">Pulang</h4>
+                                <span className="text-xs">
+                                    {presensihariini?.jam_out || "Belum Absen"}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
