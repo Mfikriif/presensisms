@@ -23,6 +23,7 @@ Route::middleware(['auth', 'operator'])->group(function () {
     Route::post('/presensi/{id}/updateprofile',[PresensiController::class,'updateprofile']);
     // Histori
     Route::get('/histori',[PresensiController::class,'histori']);
+    Route::post('/gethistori',[PresensiController::class,'getHistori']);
 });
 
 // Admin

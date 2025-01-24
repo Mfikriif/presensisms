@@ -1,23 +1,43 @@
 import React, { useState } from "react";
 import BottomNav from "@/Layouts/BottomNav";
 import Script from "@/Layouts/Script";
+import axios from "axios";
+import GetHistori from "@/Pages/User/GetHistori";
 
-export default function Histori({ namabulan, tahun_awal }) {
+export default function Histori({ namabulan = [], tahun_awal = 2022 }) {
     const [bulan, setBulan] = useState("");
     const [tahun, setTahun] = useState("");
     const [showHistori, setShowHistori] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const tahunSekarang = new Date().getFullYear();
 
-    const handleCariData = () => {
-        // Logika untuk mengambil data histori berdasarkan bulan dan tahun
-        setShowHistori(`Menampilkan data untuk bulan ${bulan} tahun ${tahun}`);
+    const handleCariData = async () => {
+        if (!bulan || !tahun) {
+            setShowHistori("Pilih bulan dan tahun terlebih dahulu.");
+            return;
+        }
+
+        setLoading(true); // Mulai loading
+        try {
+            const response = await axios.post("/gethistori", { bulan, tahun });
+            if (response.data.length === 0) {
+                setShowHistori("Tidak ada data untuk bulan dan tahun ini.");
+            } else {
+                setShowHistori(response.data);
+            }
+        } catch (error) {
+            console.error("Error saat mengambil data:", error);
+            setShowHistori("Terjadi kesalahan saat mengambil data.");
+        } finally {
+            setLoading(false); // Selesai loading
+        }
     };
 
     return (
         <div className="bg-gray-100 min-h-screen overflow-y-auto">
             {/* Header */}
-            <div className="bg-red-500 text-white flex items-center justify-between px-4 py-3 shadow-md">
+            <div className="bg-blue-950 text-white flex items-center justify-between px-4 py-3 shadow-md">
                 <button
                     onClick={() => window.history.back()}
                     className="flex items-center text-white hover:text-gray-200"
@@ -44,7 +64,7 @@ export default function Histori({ namabulan, tahun_awal }) {
                         </label>
                         <select
                             id="bulan"
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring focus:ring-red-200 focus:ring-opacity-50"
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                             value={bulan}
                             onChange={(e) => setBulan(e.target.value)}
                         >
@@ -67,7 +87,7 @@ export default function Histori({ namabulan, tahun_awal }) {
                         </label>
                         <select
                             id="tahun"
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring focus:ring-red-200 focus:ring-opacity-50"
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                             value={tahun}
                             onChange={(e) => setTahun(e.target.value)}
                         >
@@ -87,19 +107,30 @@ export default function Histori({ namabulan, tahun_awal }) {
                 {/* Tombol Cari */}
                 <button
                     onClick={handleCariData}
-                    className="mt-4 w-full px-4 py-2 bg-red-500 text-white text-sm font-medium rounded-md shadow hover:bg-red-600 focus:ring focus:ring-red-200 focus:ring-opacity-50"
+                    disabled={loading}
+                    className={`mt-4 w-full px-4 py-2 ${
+                        loading
+                            ? "bg-gray-400"
+                            : "bg-blue-950 hover:bg-blue-900"
+                    } text-white text-sm font-medium rounded-md shadow focus:ring focus:ring-blue-200 focus:ring-opacity-50`}
                 >
-                    Cari Data
+                    {loading ? "Memuat..." : "Cari Data"}
                 </button>
             </div>
 
             {/* Hasil Data */}
             <div className="mt-4 p-4 overflow-y-auto h-80 bg-white shadow rounded-lg">
-                {showHistori ? (
-                    <p className="text-gray-700 text-sm">{showHistori}</p>
+                {loading ? (
+                    <p className="text-gray-500 text-sm italic">
+                        Memuat data...
+                    </p>
+                ) : Array.isArray(showHistori) && showHistori.length > 0 ? (
+                    <GetHistori histori={showHistori} />
                 ) : (
                     <p className="text-gray-500 text-sm italic">
-                        Tidak ada data yang ditampilkan.
+                        {typeof showHistori === "string"
+                            ? showHistori
+                            : "Tidak ada data yang ditampilkan."}
                     </p>
                 )}
             </div>

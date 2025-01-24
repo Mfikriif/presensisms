@@ -42,7 +42,7 @@ export default function BottomNav({ activePage }) {
                 </div>
             </a>
 
-            {/* Docs */}
+            {/* Izin */}
             <a
                 href="#"
                 className={`flex flex-col items-center ${
@@ -50,10 +50,10 @@ export default function BottomNav({ activePage }) {
                 } transition duration-200 ease-in-out hover:text-blue-950`}
             >
                 <ion-icon
-                    name="document-text-outline"
+                    name="calendar-outline"
                     className="text-2xl"
                 ></ion-icon>
-                <strong className="text-xs mt-1">Docs</strong>
+                <strong className="text-xs mt-1">Izin</strong>
             </a>
 
             {/* Profile */}

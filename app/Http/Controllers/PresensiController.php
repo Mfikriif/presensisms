@@ -41,8 +41,8 @@ class PresensiController extends Controller
         $longitudekantor = 110.50692516838049;
         
         // Lokasi rumah fikri -6.333679799378126, 106.97344148219695
-        $latituderumahfikri = -6.333679799378126;
-        $longituderumahfikri = 106.97344148219695;
+        $latituderumahfikri = -6.990947540698521;
+        $longituderumahfikri = 110.46104120534046;
         
         // Lokasi User
         $lokasi = $request->lokasi;
@@ -79,7 +79,7 @@ class PresensiController extends Controller
         $filePath = $folderPath . $fileName;
     
         // Cek radius
-        if ($radius > 25) {
+        if ($radius > 90) {
             return response()->json([
                 'error' => 'Anda berada di luar radius kantor!',
                 'message' => 'Maaf, Anda tidak dapat melakukan presensi karena berada di luar radius yang diizinkan. (' . $radius . ' meter)',
@@ -220,10 +220,34 @@ class PresensiController extends Controller
 
     // Histori Absensi
     public function histori(){
-        $namabulan = ["","Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+        $namabulan = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
         return Inertia::render('User/Histori',[
             'namabulan' => $namabulan,
     ]);
+    }
+
+    public function getHistori(Request $request)
+    {
+        try {
+            $bulan = $request->bulan;
+            $tahun = $request->tahun;
+            $user = Auth::user();
+            $kode_pegawai = $user->id;
+    
+            $histori = DB::table('presensi')
+                ->whereRaw('MONTH(tanggal_presensi) = ?', [$bulan])
+                ->whereRaw('YEAR(tanggal_presensi) = ?', [$tahun])
+                ->where('kode_pegawai', $kode_pegawai)
+                ->orderBy('tanggal_presensi')
+                ->get();
+    
+            return response()->json($histori);
+        } catch (\Exception $e) {
+            // Debug error
+            return response()->json([
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     // Presensi Monitoring
