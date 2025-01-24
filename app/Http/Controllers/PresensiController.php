@@ -40,12 +40,16 @@ class PresensiController extends Controller
         $latitudekantor = -7.023765967616574;
         $longitudekantor = 110.50692516838049;
         
+        // Lokasi rumah fikri -6.333679799378126, 106.97344148219695
+        $latituderumahfikri = -6.333679799378126;
+        $longituderumahfikri = 106.97344148219695;
+        
         // Lokasi User
         $lokasi = $request->lokasi;
         $lokasiuser = explode(",", $lokasi);
         $latitudeuser = $lokasiuser[0];
         $longitudeuser = $lokasiuser[1];
-        $jarak = $this->distance($latitudekantor, $longitudekantor, $latitudeuser, $longitudeuser);
+        $jarak = $this->distance($latituderumahfikri, $longituderumahfikri, $latitudeuser, $longitudeuser);
         $radius = round($jarak["meters"]);
     
         $image = $request->image;
@@ -226,9 +230,25 @@ class PresensiController extends Controller
     public function presensiMonitoring()
     {   
         $tanggalTahunHariIni = now()->toDateString();
-
         $presensi = presensi::whereDate('created_at', $tanggalTahunHariIni)->latest()->get();
-        return Inertia::render('Admin/MonitoringPresensi',['presensi' => $presensi]);
+
+        $hariIni = now()->locale('id')->translatedFormat('l'); // Nama hari dalam bahasa Indonesia
+
+        $statusPresensi = DB::table('presensi as p')
+            ->join('set_jam_kerja as s', 'p.kode_pegawai', '=', 's.id')
+            ->join('konfigurasi_shift_kerja as k', 's.kode_jamkerja', '=', 'k.kode_jamkerja')
+            ->select(
+                'p.nama',
+                'p.jam_in',
+                'p.tanggal_presensi',
+                'k.akhir_jam_masuk'
+            )
+            ->whereDate('p.tanggal_presensi', $tanggalTahunHariIni)
+            ->where('s.hari', '=', $hariIni) // Filter hari sesuai nama hari
+            ->get();
+
+
+        return Inertia::render('Admin/MonitoringPresensi',['presensi' => $presensi,'statusPresensi' => $statusPresensi]);
     }
 
 }

@@ -21,4 +21,13 @@ class presensi extends Model
     ];
 
     public $timestamps = true;
+
+    /**
+     * Relasi ke tabel `set_jam_kerja`
+     */
+    public function set_jam_kerja()
+    {
+        return $this->hasOne(set_jam_kerja::class, 'nama', 'Nama');
+    }
 }
+
