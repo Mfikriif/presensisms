@@ -44,7 +44,7 @@ export default function Create({ cek }) {
                         position.coords.longitude,
                     ]).addTo(map);
 
-                    L.circle([-7.023765967616574, 110.50692516838049], {
+                    L.circle([-6.333679799378126, 106.97344148219695], {
                         color: "red",
                         fillColor: "#f03",
                         fillOpacity: 0.5,

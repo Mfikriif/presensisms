@@ -16,4 +16,9 @@ class set_jam_kerja extends Model
         'hari',
         'kode_jamkerja',
     ];
+
+     public function konfigurasi_shift_kerja()
+    {
+        return $this->belongsTo(konfigurasi_shift_kerja::class, 'kode_jamkerja', 'kode_jamkerja');
+    }
 }
