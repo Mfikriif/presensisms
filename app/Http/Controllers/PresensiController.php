@@ -41,8 +41,8 @@ class PresensiController extends Controller
         $longitudekantor = 110.50692516838049;
         
         // Lokasi rumah fikri -6.333679799378126, 106.97344148219695
-        $latituderumahfikri = -6.990947540698521;
-        $longituderumahfikri = 110.46104120534046;
+        $latituderumahfikri = -6.996710406504407;
+        $longituderumahfikri = 110.45101361405058;
         
         // Lokasi User
         $lokasi = $request->lokasi;
@@ -247,6 +247,46 @@ class PresensiController extends Controller
             return response()->json([
                 'error' => $e->getMessage(),
             ], 500);
+        }
+    }
+
+    public function izin(){
+        return Inertia::render('User/Izin',[
+            'successMessage' => session('successMessage'),
+            'errorMessage' => session('errorMessage'),
+    ]);
+    }
+
+    public function buatizin(){
+        return Inertia::render('User/BuatIzin',[
+    ]);
+    }
+
+    public function storeizin(Request $request)
+    {
+        // Mendapatkan Kode Pegawai
+        $user = Auth::user();
+        $kode_pegawai = $user->id;
+    
+        $tanggal_izin = $request->tanggal_izin;
+        $status = $request->status;
+        $keterangan = $request->keterangan;
+    
+        $data = [
+            'kode_pegawai' => $kode_pegawai,
+            'tanggal_izin' => $tanggal_izin,
+            'status' => $status,
+            'keterangan' => $keterangan,
+            'created_at' => now()
+        ];
+    
+        $simpan = DB::table('pengajuan_izin')->insert($data);
+    
+        // Redirect dengan flash message
+        if ($simpan) {
+            return redirect('/presensi/izin')->with(['successMessage' => 'Data Berhasil Disimpan']);
+        } else {
+            return redirect('/presensi/izin')->with(['errorMessage' => 'Data Gagal Disimpan']);
         }
     }
 

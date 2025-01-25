@@ -18,9 +18,9 @@ export default function BottomNav({ activePage }) {
 
             {/* Histori */}
             <a
-                href="/histori"
+                href="/presensi/histori"
                 className={`flex flex-col items-center ${
-                    window.location.pathname === "/histori"
+                    window.location.pathname === "/presensi/histori"
                         ? "text-blue-950"
                         : "text-gray-500"
                 } transition duration-200 ease-in-out hover:text-blue-950`}
@@ -44,7 +44,7 @@ export default function BottomNav({ activePage }) {
 
             {/* Izin */}
             <a
-                href="#"
+                href="/presensi/izin"
                 className={`flex flex-col items-center ${
                     activePage === "docs" ? "text-blue-950" : "text-gray-500"
                 } transition duration-200 ease-in-out hover:text-blue-950`}

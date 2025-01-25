@@ -1,7 +1,7 @@
 import React from "react";
 
 export default function GetHistori({ histori }) {
-    const basePath = "storage/uploads/absensi/";
+    const basePath = "/storage/uploads/absensi/";
     const defaultImage = "/assets/img/sample/avatar/avatar1.jpg"; // Gambar default jika foto tidak ditemukan
 
     return (

@@ -22,8 +22,12 @@ Route::middleware(['auth', 'operator'])->group(function () {
     Route::get('/editprofile', [PresensiController::class, 'editprofile']);
     Route::post('/presensi/{id}/updateprofile',[PresensiController::class,'updateprofile']);
     // Histori
-    Route::get('/histori',[PresensiController::class,'histori']);
+    Route::get('presensi/histori',[PresensiController::class,'histori']);
     Route::post('/gethistori',[PresensiController::class,'getHistori']);
+    // Izin
+    Route::get('/presensi/izin',[PresensiController::class,'izin']);
+    Route::get('/presensi/buatizin',[PresensiController::class,'buatizin']);
+    Route::post('/presensi/storeizin',[PresensiController::class,'storeizin']);
 });
 
 // Admin

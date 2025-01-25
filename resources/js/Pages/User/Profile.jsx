@@ -13,7 +13,7 @@ export default function Profile({ pegawai, successMessage, errorMessage }) {
     return (
         <div className="bg-gray-100 min-h-screen overflow-y-auto">
             {/* Header */}
-            <div className="bg-blue-500 text-white flex items-center justify-between px-4 py-3 shadow-md">
+            <div className="bg-blue-950 text-white flex items-center justify-between px-4 py-3 shadow-md">
                 <button
                     onClick={() => window.history.back()}
                     className="flex items-center text-white hover:text-gray-200"
@@ -144,7 +144,7 @@ export default function Profile({ pegawai, successMessage, errorMessage }) {
                 <div>
                     <button
                         type="submit"
-                        className="w-full px-4 py-2 text-white bg-blue-500 rounded-lg shadow hover:bg-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                        className="w-full px-4 py-2 text-white bg-blue-950 rounded-lg shadow hover:bg-blue-900 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                     >
                         <ion-icon
                             name="refresh-outline"
