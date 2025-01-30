@@ -7,17 +7,18 @@ import { CgHomeAlt } from "react-icons/cg";
 import { ImDatabase } from "react-icons/im";
 import { HiOutlinePresentationChartLine } from "react-icons/hi2";
 import { IoIosSettings } from "react-icons/io";
+import { RiArrowDropDownLine } from "react-icons/ri";
+import { TbReportSearch } from "react-icons/tb";
 
 export default function AuthenticatedLayout({ header, children }) {
     const user = usePage().props.auth?.user || { name: "Guest" };
 
-    const [showingNavigationDropdown, setShowingNavigationDropdown] =
-        useState(false);
+    const [showDropdown, setShowDropdown] = useState(false);
 
     return (
         <div className="min-h-screen flex">
             {/* Sidebar */}
-            <aside className="w-56 bg-blue-950">
+            <aside className="w-56 bg-blue-950 sticky top-0 h-screen">
                 <div className="h-16 flex items-center justify-center">
                     <Link href={route("dashboard")}>
                         <ApplicationLogo className="h-10 w-auto fill-current text-white" />
@@ -52,13 +53,46 @@ export default function AuthenticatedLayout({ header, children }) {
                         <IoIosSettings className=" mr-2 w-6 h-6 " />
                         Konfigurasi Jam Kerja
                     </NavLink>
+                    {/* Dropdown */}
+                    <div className="relative">
+                        <button
+                            className="flex items-center px-6 py-3 text-white hover:bg-white hover:text-blue-950 rounded-lg transition-all duration-200 ease-in-out w-full"
+                            onClick={() => setShowDropdown(!showDropdown)}
+                        >
+                            <TbReportSearch className="text-2xl mr-1" />
+                            Laporan
+                            <RiArrowDropDownLine className="ml-10 text-2xl" />
+                        </button>
+                        <div
+                            className={`absolute left-0 mt-2 ml-4 bg-blue-950 rounded-lg text-white z-10 transition-all duration-300 ease-in-out transform ${
+                                showDropdown
+                                    ? "opacity-100 translate-y-0"
+                                    : "opacity-0 -translate-y-5 pointer-events-none"
+                            }`}
+                        >
+                            <NavLink
+                                href={route("laporan.index")}
+                                className="block px-5 w-full py-3 text-lg text-white hover:bg-white rounded-lg transition-all duration-200 ease-in-out"
+                            >
+                                <IoIosSettings className="mr-2 w-6 h-6" />
+                                Presensi
+                            </NavLink>
+                            <NavLink
+                                href={route("laporan.rekap")}
+                                className="block px-5 w-full py-3 text-lg text-white hover:bg-white rounded-lg transition-all duration-200 ease-in-out"
+                            >
+                                <IoIosSettings className="mr-2 w-6 h-6" />
+                                Rekap Presensi
+                            </NavLink>
+                        </div>
+                    </div>
                 </nav>
             </aside>
 
             {/* Main Content */}
             <div className="flex-1 flex flex-col">
                 {/* Header (Informasi Akun dan Pengaturan) */}
-                <header className="bg-white shadow-md">
+                <header className="bg-white shadow-md sticky top-0 z-20">
                     <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
                         {header && (
                             <header className="text-2xl font-bold text-blue-950">
@@ -75,18 +109,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                             className="inline-flex items-center rounded-md px-4 py-2 text-sm font-medium"
                                         >
                                             {user.name}
-                                            <svg
-                                                className="-me-0.5 ms-2 h-4 w-4 text-white"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                viewBox="0 0 20 20"
-                                                fill="currentColor"
-                                            >
-                                                <path
-                                                    fillRule="evenodd"
-                                                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                    clipRule="evenodd"
-                                                />
-                                            </svg>
+                                            <RiArrowDropDownLine className="text-2xl" />
                                         </button>
                                     </span>
                                 </Dropdown.Trigger>

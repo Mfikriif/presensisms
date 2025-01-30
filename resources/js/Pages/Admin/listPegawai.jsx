@@ -3,8 +3,8 @@ import { Head, Link, useForm, usePage } from "@inertiajs/react";
 import React, { useEffect, useState } from "react";
 import ReactPaginate from "react-paginate";
 import Modal from "@/Components/Modal";
-import { FaEdit } from "react-icons/fa";
 import { IoIosSettings } from "react-icons/io";
+import { FaEdit, FaPlus } from "react-icons/fa";
 
 export default function listPegawai({ pegawai }) {
     const [searchTerm, setSearchTerm] = useState(""); // State untuk kata kunci pencarian
@@ -83,11 +83,7 @@ export default function listPegawai({ pegawai }) {
     return (
         <>
             <AuthenticatedLayout
-                header={
-                    <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                        Daftar Pegawai
-                    </h2>
-                }
+                header={<>Daftar Pegawai</>}
                 children={
                     <>
                         <div className="p-6 bg-white shadow-md rounded-lg">
@@ -102,34 +98,11 @@ export default function listPegawai({ pegawai }) {
 
                                 <div className="mb-6 flex justify-between">
                                     <button
-                                        className="bg-blue-950 text-white w-44 rounded-lg flex text-sm"
+                                        className="bg-blue-950 text-white my-auto py-2 px-4 rounded-lg flex text-sm"
                                         onClick={openModal}
                                     >
-                                        <div className="mx-2 my-auto">
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                width="18"
-                                                height="18"
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                stroke-width="2"
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                                class="icon icon-tabler icons-tabler-outline icon-tabler-plus"
-                                            >
-                                                <path
-                                                    stroke="none"
-                                                    d="M0 0h24v24H0z"
-                                                    fill="none"
-                                                />
-                                                <path d="M12 5l0 14" />
-                                                <path d="M5 12l14 0" />
-                                            </svg>
-                                        </div>
-                                        <span className="my-auto">
-                                            Tambah Pegawai
-                                        </span>
+                                        <FaPlus className="my-auto mr-2" />
+                                        Tambah Pegawai
                                     </button>
                                     {/* Modal */}
                                     <Modal

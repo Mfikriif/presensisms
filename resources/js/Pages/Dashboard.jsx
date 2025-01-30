@@ -9,7 +9,7 @@ export default function Dashboard({ rekappresensi, totalPegawai }) {
     return (
         <>
             <AuthenticatedLayout
-                header={<h1> Dashboard Admin</h1>}
+                header={<> Dashboard Admin</>}
                 children={
                     <>
                         <Head title="Dashboard Admin" />

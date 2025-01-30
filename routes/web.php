@@ -67,6 +67,13 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/Admin/konfigurasi-shift-kerja',[KonfigurasiShiftKerjaController::class,'setJamkerja'])->name('setShift.store');
     Route::put('/Admin/konfigurasi-shift-kerja/{id}',[KonfigurasiShiftKerjaController::class,'updateJamkerja'])->name('setShift.edit');
 
+    // Laporan presensi
+    Route::get('/Admin/Laporan-Presensi',[PresensiController::class, 'laporan'])->name('laporan.index');
+    Route::get('/cetaklaporanpegawai', [PresensiController::class, 'cetakLaporanPegawai'])->name('laporan.cetakPegawai');
+    Route::get('/laporan/export-excel', [PresensiController::class, 'exportExcel'])->name('laporan.exportExcel');
+    Route::get('/Admin/Rekap-Presensi', [PresensiController::class, 'showPageRekap'])->name('laporan.rekap');
+    Route::get('/cetak-laporan-presensi', [PresensiController::class, 'getRekapPresensi'])->name('laporan.cetakPresensi');
+
 
 });
 

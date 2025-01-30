@@ -18,9 +18,6 @@ export default function MonitoringPresensi({ presensi, statusPresensi }) {
         nama: "",
     });
 
-    const openModal = () => setShowModal(true);
-    const closeModal = () => setShowModal(false);
-
     // Fungsi untuk memfilter data berdasarkan input pencarian
     const filteredPresensi = presensi.filter((psn) =>
         `${psn.nama} ${psn.email} ${psn.tanggal_presensi} ${psn.jam_in} ${psn.jam_out} ${psn.lokasi_in} ${psn.lokasi_out}`
@@ -83,6 +80,11 @@ export default function MonitoringPresensi({ presensi, statusPresensi }) {
     }
 
     // Memperbarui bagian "combinedData" untuk memasukkan waktu keterlambatan
+    const parseTimeToSeconds = (timeStr) => {
+        const [hours, minutes, seconds] = timeStr.split(":").map(Number);
+        return hours * 3600 + minutes * 60 + (seconds || 0); // Konversi jam ke detik total
+    };
+
     const combinedData = presensi.map((psn) => {
         const status = statusPresensi.find(
             (status) =>
@@ -91,8 +93,15 @@ export default function MonitoringPresensi({ presensi, statusPresensi }) {
         );
 
         const akhirJamMasuk = status?.akhir_jam_masuk || "23:59:59";
+
+        // Konversi waktu ke detik untuk perbandingan akurat
+        const jamMasukPegawai = parseTimeToSeconds(psn.jam_in);
+        const batasJamMasuk = parseTimeToSeconds(akhirJamMasuk);
+
         const statusTerlambat =
-            psn.jam_in > akhirJamMasuk ? "Terlambat" : "Tepat Waktu";
+            jamMasukPegawai > batasJamMasuk ? "Terlambat" : "Tepat Waktu";
+
+        // Hitung keterlambatan dalam format jam:menit:detik
         const jamKeterlambatan =
             statusTerlambat === "Terlambat"
                 ? hitungJamKeterlambatan(psn.jam_in, akhirJamMasuk)
@@ -105,10 +114,6 @@ export default function MonitoringPresensi({ presensi, statusPresensi }) {
             jam_keterlambatan: jamKeterlambatan, // Menambahkan jumlah jam keterlambatan
         };
     });
-
-    // menampilkan map
-
-    console.log("Modal dibuka:", showModal);
 
     useEffect(() => {
         let map;
@@ -167,17 +172,10 @@ export default function MonitoringPresensi({ presensi, statusPresensi }) {
         };
     }, [showModal, selectedLocation]);
 
-    const mapElement = document.getElementById("map");
-    if (!mapElement) {
-        console.error("Elemen #map tidak ditemukan");
-    } else {
-        console.log("Elemen #map ditemukan");
-    }
-
     return (
         <>
             <AuthenticatedLayout
-                header={<h1>Monitoring Presensi Pegawai</h1>}
+                header={<>Monitoring Presensi Pegawai</>}
                 children={
                     <>
                         <div className="p-6 bg-white shadow-md rounded-lg">
