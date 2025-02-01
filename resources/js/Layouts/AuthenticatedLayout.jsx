@@ -9,6 +9,7 @@ import { HiOutlinePresentationChartLine } from "react-icons/hi2";
 import { IoIosSettings } from "react-icons/io";
 import { RiArrowDropDownLine } from "react-icons/ri";
 import { TbReportSearch } from "react-icons/tb";
+import { TbMessageReport } from "react-icons/tb";
 
 export default function AuthenticatedLayout({ header, children }) {
     const user = usePage().props.auth?.user || { name: "Guest" };
@@ -27,7 +28,7 @@ export default function AuthenticatedLayout({ header, children }) {
                 <nav className="flex flex-col mt-10 space-y-2 px-2">
                     <NavLink
                         href={route("dashboard")}
-                        className="block px-6 py-3 text-lg text-white hover:bg-white rounded-lg transition-all duration-200 ease-in-out"
+                        className="block px-6 py-3 text-lg my-auto text-white hover:bg-white rounded-lg transition-all duration-200 ease-in-out"
                     >
                         <CgHomeAlt className="mr-2 h-5 w-5" />
                         Home
@@ -47,8 +48,15 @@ export default function AuthenticatedLayout({ header, children }) {
                         Monitoring Presensi
                     </NavLink>
                     <NavLink
-                        href={route("konfigurasi.index")}
+                        href={route("izin.show")}
                         className="block px-5 py-3 text-lg text-white hover:bg-white rounded-lg transition-all duration-200 ease-in-out"
+                    >
+                        <TbMessageReport className=" mr-2 w-6 h-6 " />
+                        Izin / Sakit
+                    </NavLink>
+                    <NavLink
+                        href={route("konfigurasi.index")}
+                        className="block px-5 py-3 text-lg text-white hover:bg-white rounded-lg transition-all duration-200 ease-in-out whitespace-nowrap"
                     >
                         <IoIosSettings className=" mr-2 w-6 h-6 " />
                         Konfigurasi Jam Kerja

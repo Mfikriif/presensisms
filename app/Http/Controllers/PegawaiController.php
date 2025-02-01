@@ -36,7 +36,7 @@ class PegawaiController extends Controller
 
     public function store(Request $request)
     {
-        sleep(2); // Simulasi delay (boleh dihapus jika tidak diperlukan)
+        // sleep(2); // Simulasi delay (boleh dihapus jika tidak diperlukan)
 
         // store ke table pegawai
         $inputPegawai = $request->validate([

@@ -136,8 +136,12 @@ export default function LaporanPresensi({
             const fileData = new Blob([excelBuffer], {
                 type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             });
+            const namaPegawai =
+                responseData.dataPresensi.length > 0
+                    ? responseData.dataPresensi[0].nama || "Tidak Diketahui"
+                    : "Tidak Diketahui";
 
-            const namaFile = `Laporan_Presensi_${pegawai}_${bulan}_${tahun}.xlsx`;
+            const namaFile = `Laporan_Presensi_${namaPegawai}_${bulan}_${tahun}.xlsx`;
             saveAs(fileData, namaFile);
         } catch (error) {
             console.error("Error fetching data:", error);
@@ -154,7 +158,7 @@ export default function LaporanPresensi({
                 children={
                     <>
                         <div className="ml-20">
-                            <div className=" w-2/4 bg-white shadow-lg ">
+                            <div className=" w-2/4 bg-white shadow-lg rounded-lg">
                                 <div className="flex flex-col px-5 py-5">
                                     <select
                                         className="mb-4 h-9 rounded-lg"

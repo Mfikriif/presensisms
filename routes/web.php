@@ -37,10 +37,7 @@ Route::get('/admin', function () {
 
 // Rute untuk Admin
 Route::middleware(['auth', 'admin'])->group(function () {
-    // Route::get('/dashboard', function () {
-    //     return Inertia::render('Dashboard');
-    // })->name('dashboard');
-
+    // Dashboard admin
     Route::get('/dashboard', [DashboardController::class,'dashboardAdmin'])->name('dashboard');
 
     // Pegawai
@@ -54,15 +51,15 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/presensi-monitoring', [PresensiController::class,'presensiMonitoring'])->name('pegawai.presensi');
 
     // Konfigurasi Jam Kerja
-
     Route::get('/Admin/konfigurasi-shift_kerja',[KonfigurasiShiftKerjaController::class,'index'])->name('konfigurasi.index');
     Route::post('/Admin/konfigurasi-shift_kerja/set_jam_kerja',[KonfigurasiShiftKerjaController::class, 'store'])->name('konfigurasi.store');
-    // Route::get('/Admin/konfigurasi-jam_kerja',[KonfigurasiShiftKerjaController::class,'index'])->name('konfigurasi.index');
     Route::post('/Admin/konfigurasi-jam_kerja/set_jam_kerja',[KonfigurasiShiftKerjaController::class, 'store'])->name('konfigurasi.store');
 
     Route::get('/Admin/konfigurasi-shift-kerja/{konfigurasi}/edit', [KonfigurasiShiftKerjaController::class, 'edit'])->name('konfigurasi.edit');
     Route::put('/Admin/konfigurasi-shift-kerja/{konfigurasi}/update', [KonfigurasiShiftKerjaController::class, 'update'])->name('konfigurasi.update');
     Route::delete('/Admin/konfigurasi-shift-kerja/{id}', [KonfigurasiShiftKerjaController::class, 'destroy'])->name('konfigurasi.destroy');
+
+    // Set jam kerja pegawai
     Route::get('/Admin/konfigurasi-shift-kerja/{pegawai}',[PegawaiController::class, 'showSetSchedule'])->name('konfigurasi.show');
     Route::post('/Admin/konfigurasi-shift-kerja',[KonfigurasiShiftKerjaController::class,'setJamkerja'])->name('setShift.store');
     Route::put('/Admin/konfigurasi-shift-kerja/{id}',[KonfigurasiShiftKerjaController::class,'updateJamkerja'])->name('setShift.edit');
@@ -73,8 +70,11 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/laporan/export-excel', [PresensiController::class, 'exportExcel'])->name('laporan.exportExcel');
     Route::get('/Admin/Rekap-Presensi', [PresensiController::class, 'showPageRekap'])->name('laporan.rekap');
     Route::get('/cetak-laporan-presensi', [PresensiController::class, 'getRekapPresensi'])->name('laporan.cetakPresensi');
+    Route::get('rekap/export-excel',[PresensiController::class,'getRekapExcel'])->name('rekap.excel');
 
-
+    // Izin / Sakit
+    Route::get('/Admin/izin-/-sakit', [PresensiController::class,'showIzinSakit'])->name('izin.show');
+    Route::post('/izin-sakit/${id}/update', [PresensiController::class, 'approvalIzin'])->name('izin.update');
 });
 
 

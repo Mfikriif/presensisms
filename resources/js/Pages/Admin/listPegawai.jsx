@@ -5,12 +5,22 @@ import ReactPaginate from "react-paginate";
 import Modal from "@/Components/Modal";
 import { IoIosSettings } from "react-icons/io";
 import { FaEdit, FaPlus } from "react-icons/fa";
+import { toast } from "sonner";
+import { MdDelete } from "react-icons/md";
+import { AlertTriangle } from "lucide-react";
 
 export default function listPegawai({ pegawai }) {
     const [searchTerm, setSearchTerm] = useState(""); // State untuk kata kunci pencarian
     const [currentPage, setCurrentPage] = useState(0); // State untuk halaman saat ini
     const itemsPerPage = 10; // Jumlah data per halaman
-    const { data, setData, post, errors, processing } = useForm({
+    const {
+        data,
+        setData,
+        post,
+        delete: destroy,
+        errors,
+        processing,
+    } = useForm({
         //useForm untuk store ke database
         nama_lengkap: "",
         email: "",
@@ -26,21 +36,6 @@ export default function listPegawai({ pegawai }) {
     // modal tambah pegawai
     const openModal = () => setShowModal(true); // Buka modal
     const closeModal = () => setShowModal(false); // Tutup modal
-
-    // flash Message
-    const { flash } = usePage().props; // Ambil flash dari props
-    const [flashScss, setFlashScss] = useState(null); // State flash message
-
-    useEffect(() => {
-        if (flash.success) {
-            setFlashScss(flash.success); // Perbarui state flashScss
-            const timer = setTimeout(() => {
-                setFlashScss(null); // Hapus flash setelah 2 detik
-            }, 6000);
-
-            return () => clearTimeout(timer); // Bersihkan timer jika komponen di-unmount
-        }
-    }, [flash.success]);
 
     // Filter data berdasarkan kata kunci pencarian
     const filteredPegawai = pegawai.filter(
@@ -63,6 +58,16 @@ export default function listPegawai({ pegawai }) {
     };
 
     // Fungsi handle submit
+    const promise = () =>
+        new Promise((resolve) =>
+            setTimeout(
+                () =>
+                    resolve({
+                        name: "Pegawai",
+                    }),
+                2000
+            )
+        );
     function submitHandle(e) {
         e.preventDefault();
         post(route("pegawai.store"), {
@@ -76,8 +81,65 @@ export default function listPegawai({ pegawai }) {
                     tempat_lahir: "",
                     tanggal_lahir: "",
                 });
+                // <Toaster richColors />;
+                closeModal();
+                toast.promise(promise, {
+                    loading: "Loading...",
+                    success: (data) => {
+                        return `${data.name} baru berhasil di tambahkan`;
+                    },
+                    error: "Error",
+                });
+                // toast.success("Pegawai baru berhasil di tambahkan");
             },
         });
+    }
+
+    function confirmDestroy(toastId) {
+        // Hapus data setelah konfirmasi
+        destroy(route("pegawai.destroy", pegawai), {
+            onSuccess: () => {
+                toast.dismiss(toastId);
+                toast.success("Pegawai berhasil dihapus");
+            },
+            onError: () => {
+                toast.dismiss(toastId);
+                toast.error("Terjadi kesalahan saat menghapus data");
+            },
+        });
+    }
+
+    function handleDestroy(e) {
+        e.preventDefault();
+
+        // Tampilkan alert konfirmasi sebelum menghapus data
+        toast(
+            (t) => (
+                <div className="flex flex-col items-center justify-center space-y-4 p-4 bg-red-100 border border-red-400 rounded-lg">
+                    <div className="flex items-center gap-2">
+                        <AlertTriangle className="text-red-600 w-20 h-20" />
+                        <p className="text-lg font-semibold text-red-600">
+                            Apakah Anda yakin ingin menghapus data ini?
+                        </p>
+                    </div>
+                    <div className="flex gap-4">
+                        <button
+                            onClick={() => confirmDestroy(t)}
+                            className="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700"
+                        >
+                            OK
+                        </button>
+                        <button
+                            onClick={() => toast.dismiss(t)}
+                            className="px-4 py-2 text-red-600 bg-red-200 rounded-lg hover:bg-red-300"
+                        >
+                            Batal
+                        </button>
+                    </div>
+                </div>
+            ),
+            { duration: Infinity }
+        );
     }
 
     return (
@@ -89,13 +151,6 @@ export default function listPegawai({ pegawai }) {
                         <div className="p-6 bg-white shadow-md rounded-lg">
                             <Head title="List Pegawai" />
                             <div className="max-w-screen-xl mx-auto p-6 rounded-md">
-                                {/* Tombol Tambah Pegawai */}
-                                {flashScss && (
-                                    <div className="absolute top-24 right-6 bg-green-500 p-2 rounded-md shadow-lg text-sm text-white">
-                                        {flashScss}
-                                    </div>
-                                )}
-
                                 <div className="mb-6 flex justify-between">
                                     <button
                                         className="bg-blue-950 text-white my-auto py-2 px-4 rounded-lg flex text-sm"
@@ -325,30 +380,18 @@ export default function listPegawai({ pegawai }) {
                                 </div>
 
                                 {/* Tabel Data Pegawai */}
-                                <table className="w-full border-collapse border border-gray-300 text-left">
+                                <table className="w-full border-collapse text-left">
                                     <thead className="bg-gray-100">
                                         <tr>
-                                            <th className="px-4 py-2 border border-gray-300">
-                                                No
-                                            </th>
-                                            <th className="px-4 py-2 border border-gray-300">
-                                                Nama
-                                            </th>
-                                            <th className="px-4 py-2 border border-gray-300">
-                                                email
-                                            </th>
-                                            <th className="px-4 py-2 border border-gray-300">
+                                            <th className="px-4 py-2">No</th>
+                                            <th className="px-4 py-2">Nama</th>
+                                            <th className="px-4 py-2">email</th>
+                                            <th className="px-4 py-2">
                                                 posisi
                                             </th>
-                                            <th className="px-4 py-2 border border-gray-300">
-                                                No Hp
-                                            </th>
-                                            <th className="px-4 py-2 border border-gray-300">
-                                                foto
-                                            </th>
-                                            <th className="px-4 py-2 border border-gray-300">
-                                                Aksi
-                                            </th>
+                                            <th className="px-4 py-2">No Hp</th>
+                                            <th className="px-4 py-2">foto</th>
+                                            <th className="px-4 py-2">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -359,25 +402,25 @@ export default function listPegawai({ pegawai }) {
                                                         key={pgw.id}
                                                         className="odd:bg-white even:bg-gray-50 hover:bg-gray-100"
                                                     >
-                                                        <td className="px-4 py-2 border border-gray-300 text-center">
+                                                        <td className="px-4 py-2 text-center">
                                                             {currentPage *
                                                                 itemsPerPage +
                                                                 index +
                                                                 1}
                                                         </td>
-                                                        <td className="px-4 py-2 border border-gray-300">
+                                                        <td className="px-4 py-2">
                                                             {pgw.nama_lengkap}
                                                         </td>
-                                                        <td className="px-4 py-2 border border-gray-300">
+                                                        <td className="px-4 py-2">
                                                             {pgw.email}
                                                         </td>
-                                                        <td className="px-4 py-2 border border-gray-300">
+                                                        <td className="px-4 py-2">
                                                             {pgw.posisi}
                                                         </td>
-                                                        <td className="px-4 py-2 border border-gray-300">
+                                                        <td className="px-4 py-2">
                                                             {pgw.no_hp}
                                                         </td>
-                                                        <td className="px-4 py-2 border border-gray-300 text-center">
+                                                        <td className="px-4 py-2 text-center">
                                                             <img
                                                                 src={
                                                                     pgw.foto
@@ -388,7 +431,7 @@ export default function listPegawai({ pegawai }) {
                                                                 className="w-12 h-12 object-cover rounded-md"
                                                             />
                                                         </td>
-                                                        <td className=" border border-gray-300 text-center">
+                                                        <td className=" text-center">
                                                             <div className="flex justify-center">
                                                                 <Link
                                                                     href={route(
@@ -396,7 +439,7 @@ export default function listPegawai({ pegawai }) {
                                                                         pgw
                                                                     )}
                                                                 >
-                                                                    <FaEdit className="h-5 w-5 hover:text-blue-500" />
+                                                                    <FaEdit className="h-5 w-5 text-slate-500 hover:text-blue-500" />
                                                                 </Link>
                                                                 <Link
                                                                     href={route(
@@ -404,8 +447,15 @@ export default function listPegawai({ pegawai }) {
                                                                         pgw
                                                                     )}
                                                                 >
-                                                                    <IoIosSettings className="h-5 w-5 ml-1 hover:text-blue-500" />
+                                                                    <IoIosSettings className="h-5 w-5 ml-1 text-slate-500 hover:text-blue-500" />
                                                                 </Link>
+                                                                <button
+                                                                    onClick={
+                                                                        handleDestroy
+                                                                    }
+                                                                >
+                                                                    <MdDelete className="text-xl text-slate-500 hover:text-blue-500" />
+                                                                </button>
                                                             </div>
                                                         </td>
                                                     </tr>
@@ -435,15 +485,9 @@ export default function listPegawai({ pegawai }) {
                                         containerClassName={
                                             "flex justify-center space-x-2"
                                         }
-                                        pageClassName={
-                                            "px-4 py-2 border border-gray-300"
-                                        }
-                                        previousClassName={
-                                            "px-4 py-2 border border-gray-300"
-                                        }
-                                        nextClassName={
-                                            "px-4 py-2 border border-gray-300"
-                                        }
+                                        pageClassName={"px-4 py-2"}
+                                        previousClassName={"px-4 py-2"}
+                                        nextClassName={"px-4 py-2"}
                                         activeClassName={
                                             "bg-blue-500 text-white font-bold"
                                         }

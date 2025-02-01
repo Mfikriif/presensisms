@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\pegawai;
+use App\Models\pengajuan_izin;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
@@ -58,32 +59,40 @@ class DashboardController extends Controller
 
 
     // Dashboard Admin
-    public function dashboardAdmin()
-    {   
-        $totalPegawai = pegawai::count();
+   public function dashboardAdmin()
+{   
+    $totalPegawai = pegawai::count();
+    $tanggalTahunHariIni = now()->toDateString();
+    $hariIni = now()->locale('id')->translatedFormat('l');
 
-        $tanggalTahunHariIni = now()->toDateString();
-        $hariIni = now()->locale('id')->translatedFormat('l'); // Nama hari dalam bahasa Indonesia
+    // Filter data izin dan sakit berdasarkan tanggal hari ini
+    $totalIzin = pengajuan_izin::where('status', 'i')
+        ->whereDate('created_at', $tanggalTahunHariIni)
+        ->count();
 
-        // Rekap Presensi
-        $rekappresensi = DB::table('presensi as p')
-            ->join('set_jam_kerja as s', 'p.kode_pegawai', '=', 's.id')
-            ->join('konfigurasi_shift_kerja as k', 's.kode_jamkerja', '=', 'k.kode_jamkerja')
-            ->selectRaw('
-                COUNT(p.id) as total_hadir,
-                SUM(IF(p.jam_in > k.akhir_jam_masuk, 1, 0)) as terlambat,
-                SUM(IF(p.jam_in <= k.akhir_jam_masuk, 1, 0)) as tepat_waktu
-            ')
-            ->whereDate('p.tanggal_presensi', $tanggalTahunHariIni)
-            ->where('s.hari', '=', $hariIni) // Filter hari sesuai nama hari
-            ->first();
+    $totalSakit = pengajuan_izin::where('status', 's')
+        ->whereDate('created_at', $tanggalTahunHariIni)
+        ->count();
 
+    // Rekap Presensi
+    $rekappresensi = DB::table('presensi as p')
+        ->join('set_jam_kerja as s', 'p.kode_pegawai', '=', 's.id')
+        ->join('konfigurasi_shift_kerja as k', 's.kode_jamkerja', '=', 'k.kode_jamkerja')
+        ->selectRaw('
+            COUNT(p.id) as total_hadir,
+            SUM(IF(p.jam_in > k.akhir_jam_masuk, 1, 0)) as terlambat,
+            SUM(IF(p.jam_in <= k.akhir_jam_masuk, 1, 0)) as tepat_waktu
+        ')
+        ->whereDate('p.tanggal_presensi', $tanggalTahunHariIni)
+        ->where('s.hari', '=', $hariIni)
+        ->first();
 
-        
-        return Inertia::render('Dashboard', [
-            'rekappresensi' => $rekappresensi,
-            'totalPegawai' => $totalPegawai,
-        ]);
+    return Inertia::render('Dashboard', [
+        'rekappresensi' => $rekappresensi,
+        'totalPegawai' => $totalPegawai,
+        'totalIzin' => $totalIzin,
+        'totalSakit' => $totalSakit,
+    ]);
+}
 
-    }
 }

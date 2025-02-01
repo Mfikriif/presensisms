@@ -1,5 +1,7 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, useForm } from "@inertiajs/react";
+import { toast } from "sonner";
+import { AlertTriangle } from "lucide-react";
 
 export default function EditKonfigurasiJamkerja({ konfigurasi_shift_kerja }) {
     const {
@@ -27,7 +29,7 @@ export default function EditKonfigurasiJamkerja({ konfigurasi_shift_kerja }) {
             }),
             {
                 onSuccess: () => {
-                    alert("Data berhasil diupdate!");
+                    toast.success("Data shift berhasil di perbarui");
                 },
             }
         );
@@ -35,7 +37,49 @@ export default function EditKonfigurasiJamkerja({ konfigurasi_shift_kerja }) {
 
     function handleDestroy(e) {
         e.preventDefault();
-        destroy(route("konfigurasi.destroy", konfigurasi_shift_kerja.id));
+
+        // Tampilkan alert konfirmasi sebelum menghapus data
+        toast(
+            (t) => (
+                <div className="flex flex-col items-center justify-center space-y-4 p-4 bg-red-100 border border-red-400 rounded-lg">
+                    <div className="flex items-center gap-2">
+                        <AlertTriangle className="text-red-600 w-20 h-20" />
+                        <p className="text-lg font-semibold text-red-600">
+                            Apakah Anda yakin ingin menghapus data ini?
+                        </p>
+                    </div>
+                    <div className="flex gap-4">
+                        <button
+                            onClick={() => confirmDestroy(t)}
+                            className="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700"
+                        >
+                            OK
+                        </button>
+                        <button
+                            onClick={() => toast.dismiss(t)}
+                            className="px-4 py-2 text-red-600 bg-red-200 rounded-lg hover:bg-red-300"
+                        >
+                            Batal
+                        </button>
+                    </div>
+                </div>
+            ),
+            { duration: Infinity }
+        );
+    }
+
+    function confirmDestroy(toastId) {
+        // Hapus data setelah konfirmasi
+        destroy(route("konfigurasi.destroy", konfigurasi_shift_kerja.id), {
+            onSuccess: () => {
+                toast.dismiss(toastId);
+                toast.success("Data shift berhasil dihapus");
+            },
+            onError: () => {
+                toast.dismiss(toastId);
+                toast.error("Terjadi kesalahan saat menghapus data");
+            },
+        });
     }
 
     return (

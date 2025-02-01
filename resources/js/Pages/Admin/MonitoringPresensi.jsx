@@ -10,7 +10,7 @@ import "leaflet/dist/leaflet.css";
 export default function MonitoringPresensi({ presensi, statusPresensi }) {
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(0);
-    const itemsPerPage = 10; // Jumlah item per halaman
+    const itemsPerPage = 8; // Jumlah item per halaman
     const [showModal, setShowModal] = useState(false);
     const [selectedLocation, setSelectedLocation] = useState({
         latitude: 0,
@@ -23,13 +23,6 @@ export default function MonitoringPresensi({ presensi, statusPresensi }) {
         `${psn.nama} ${psn.email} ${psn.tanggal_presensi} ${psn.jam_in} ${psn.jam_out} ${psn.lokasi_in} ${psn.lokasi_out}`
             .toLowerCase()
             .includes(searchTerm.toLowerCase())
-    );
-
-    // Data untuk halaman yang sedang ditampilkan
-    const pageCount = Math.ceil(filteredPresensi.length / itemsPerPage);
-    const paginatedPresensi = filteredPresensi.slice(
-        currentPage * itemsPerPage,
-        (currentPage + 1) * itemsPerPage
     );
 
     // Fungsi untuk menangani perubahan halaman
@@ -85,7 +78,8 @@ export default function MonitoringPresensi({ presensi, statusPresensi }) {
         return hours * 3600 + minutes * 60 + (seconds || 0); // Konversi jam ke detik total
     };
 
-    const combinedData = presensi.map((psn) => {
+    const combinedData = filteredPresensi.map((psn) => {
+        // Sisa logika hitung keterlambatan tetap sama
         const status = statusPresensi.find(
             (status) =>
                 status.nama === psn.nama &&
@@ -94,14 +88,12 @@ export default function MonitoringPresensi({ presensi, statusPresensi }) {
 
         const akhirJamMasuk = status?.akhir_jam_masuk || "23:59:59";
 
-        // Konversi waktu ke detik untuk perbandingan akurat
         const jamMasukPegawai = parseTimeToSeconds(psn.jam_in);
         const batasJamMasuk = parseTimeToSeconds(akhirJamMasuk);
 
         const statusTerlambat =
             jamMasukPegawai > batasJamMasuk ? "Terlambat" : "Tepat Waktu";
 
-        // Hitung keterlambatan dalam format jam:menit:detik
         const jamKeterlambatan =
             statusTerlambat === "Terlambat"
                 ? hitungJamKeterlambatan(psn.jam_in, akhirJamMasuk)
@@ -111,7 +103,7 @@ export default function MonitoringPresensi({ presensi, statusPresensi }) {
             ...psn,
             akhir_jam_masuk: akhirJamMasuk,
             status_terlambat: statusTerlambat,
-            jam_keterlambatan: jamKeterlambatan, // Menambahkan jumlah jam keterlambatan
+            jam_keterlambatan: jamKeterlambatan,
         };
     });
 
@@ -171,6 +163,25 @@ export default function MonitoringPresensi({ presensi, statusPresensi }) {
             }
         };
     }, [showModal, selectedLocation]);
+
+    const getCurrentDate = () => {
+        const today = new Date();
+        return today.toISOString().split("T")[0]; // Format 'YYYY-MM-DD'
+    };
+
+    const filteredForToday = combinedData.filter(
+        (psn) => psn.tanggal_presensi === getCurrentDate()
+    );
+
+    const isSearching = searchTerm !== "";
+    const displayPresensi = isSearching ? combinedData : filteredForToday;
+
+    // Data untuk halaman yang sedang ditampilkan
+    const pageCount = Math.ceil(filteredPresensi.length / itemsPerPage);
+    const paginatedPresensi = displayPresensi.slice(
+        currentPage * itemsPerPage,
+        (currentPage + 1) * itemsPerPage
+    );
 
     return (
         <>
@@ -232,7 +243,7 @@ export default function MonitoringPresensi({ presensi, statusPresensi }) {
 
                                         <tbody>
                                             {paginatedPresensi.length > 0 ? (
-                                                combinedData.map(
+                                                paginatedPresensi.map(
                                                     (psn, index) => {
                                                         return (
                                                             <tr
@@ -274,13 +285,28 @@ export default function MonitoringPresensi({ presensi, statusPresensi }) {
                                                                     />
                                                                 </td>
                                                                 <td className="px-2 py-1">
-                                                                    {psn.jam_out ? (
-                                                                        psn.jam_out
+                                                                    {!psn.jam_out ? (
+                                                                        new Date() -
+                                                                            new Date(
+                                                                                psn.tanggal_presensi
+                                                                            ) >
+                                                                        24 *
+                                                                            60 *
+                                                                            60 *
+                                                                            1000 ? (
+                                                                            <span className="bg-red-600 text-white rounded px-3 text-center py-1 whitespace-nowrap">
+                                                                                Tidak
+                                                                                Absen
+                                                                                pulang
+                                                                            </span>
+                                                                        ) : (
+                                                                            <span className="bg-red-600 text-white rounded px-3 text-center py-1 whitespace-nowrap">
+                                                                                Belum
+                                                                                Absen
+                                                                            </span>
+                                                                        )
                                                                     ) : (
-                                                                        <span className="bg-red-600 text-white rounded px-3 text-center py-1 whitespace-nowrap">
-                                                                            Belum
-                                                                            Absen
-                                                                        </span>
+                                                                        psn.jam_out
                                                                     )}
                                                                 </td>
                                                                 <td className="px-2 py-1">
