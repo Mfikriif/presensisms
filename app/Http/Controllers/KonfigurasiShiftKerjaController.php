@@ -129,6 +129,8 @@ class KonfigurasiShiftKerjaController extends Controller
                     'nama' => $nama,
                     'hari' => ucfirst($day),
                     'kode_jamkerja' => $kodeJamKerja,
+                    'updated_at' => now(),
+                    'created_at' => now(),
                 ]);
             }
         }

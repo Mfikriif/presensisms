@@ -103,7 +103,7 @@ export default function Izin({ dataizin, errorMessage, successMessage }) {
                 {/* Header */}
                 <div className="bg-blue-950 text-white flex items-center justify-between px-4 py-3 shadow-md">
                     <button
-                        onClick={() => window.history.back()}
+                        onClick={() => (window.location.href = "/dashboardop")}
                         className="flex items-center text-white"
                     >
                         <ion-icon
@@ -116,7 +116,7 @@ export default function Izin({ dataizin, errorMessage, successMessage }) {
                 </div>
 
                 {/* Kontainer Scrollable */}
-                <div className="flex-1 overflow-y-auto p-4 pb-24">
+                <div className="flex-1 overflow-y-auto p-6 pb-32">
                     {izinList.length > 0 ? (
                         <SwipeableList fullSwipe={false}>
                             {izinList.map((izin, index) => (
@@ -128,9 +128,9 @@ export default function Izin({ dataizin, errorMessage, successMessage }) {
                                     )}
                                     leadingActions={leadingActions(izin.id)}
                                 >
-                                    <li className="bg-white shadow-md rounded-lg p-4 flex justify-between items-center w-full mb-2">
-                                        <div className="flex flex-col">
-                                            <h3 className="text-base font-semibold text-gray-800">
+                                    <li className="bg-white shadow-lg rounded-xl p-5 flex justify-between items-center w-full max-w-md mx-auto mb-3">
+                                        <div className="flex flex-col w-full">
+                                            <h3 className="text-lg font-semibold text-gray-800">
                                                 {new Date(
                                                     izin.tanggal_izin
                                                 ).toLocaleDateString("id-ID", {
@@ -139,7 +139,7 @@ export default function Izin({ dataizin, errorMessage, successMessage }) {
                                                     year: "numeric",
                                                 })}
                                             </h3>
-                                            <p className="text-gray-500 text-xs">
+                                            <p className="text-gray-600 text-sm mt-1">
                                                 <strong className="text-gray-700">
                                                     Jenis:
                                                 </strong>{" "}
@@ -147,7 +147,7 @@ export default function Izin({ dataizin, errorMessage, successMessage }) {
                                                     ? "Izin"
                                                     : "Sakit"}
                                             </p>
-                                            <p className="text-gray-500 text-xs">
+                                            <p className="text-gray-600 text-sm">
                                                 <strong className="text-gray-700">
                                                     Keterangan:
                                                 </strong>{" "}
@@ -157,7 +157,7 @@ export default function Izin({ dataizin, errorMessage, successMessage }) {
 
                                         {/* Status Persetujuan */}
                                         <span
-                                            className={`px-3 py-1 text-xs font-semibold rounded-lg shadow-md ${
+                                            className={`px-4 py-2 text-sm font-semibold rounded-xl shadow-md ${
                                                 izin.status_approved === "0"
                                                     ? "bg-yellow-500 text-white"
                                                     : izin.status_approved ===
@@ -165,7 +165,7 @@ export default function Izin({ dataizin, errorMessage, successMessage }) {
                                                     ? "bg-green-500 text-white"
                                                     : izin.status_approved ===
                                                       "batal"
-                                                    ? "bg-gray-400 text-white"
+                                                    ? "bg-gray-500 text-white"
                                                     : "bg-red-500 text-white"
                                             }`}
                                         >
@@ -183,9 +183,11 @@ export default function Izin({ dataizin, errorMessage, successMessage }) {
                             ))}
                         </SwipeableList>
                     ) : (
-                        <p className="text-gray-500 text-center">
-                            Belum ada data izin.
-                        </p>
+                        <div className="flex justify-center items-center min-h-20 h-48">
+                            <p className="text-gray-500 text-center text-base">
+                                Belum ada data izin.
+                            </p>
+                        </div>
                     )}
                 </div>
 

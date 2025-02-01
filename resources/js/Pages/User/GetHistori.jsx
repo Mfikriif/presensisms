@@ -5,8 +5,9 @@ export default function GetHistori({ histori }) {
     const defaultImage = "/assets/img/sample/avatar/avatar1.jpg"; // Gambar default jika foto tidak ditemukan
 
     return (
-        <ul className="listview image-listview space-y-2">
+        <ul className="listview image-listview space-y-4">
             {histori.map((d, index) => {
+                console.log("Data jam_in:", d.jam_in); // Debug data
                 const imagePath = d.foto_in
                     ? `${basePath}${d.foto_in}`
                     : defaultImage;
@@ -15,7 +16,7 @@ export default function GetHistori({ histori }) {
                 const isIzin = d.status === "i";
                 const isSakit = d.status === "s";
 
-                // Label status kehadiran
+                // Tampilkan jenis izin/sakit/hadir
                 const statusLabel = isIzin
                     ? "Izin"
                     : isSakit
@@ -30,20 +31,20 @@ export default function GetHistori({ histori }) {
                 return (
                     <li
                         key={index}
-                        className="flex items-center bg-white rounded-lg shadow-sm p-3 transition duration-300 hover:shadow-md"
+                        className="flex items-center bg-white rounded-lg shadow-md p-4"
                     >
                         {/* Image Section */}
                         <div className="flex-shrink-0">
                             <img
                                 src={imagePath}
                                 alt="Foto Absen"
-                                className="rounded-full w-12 h-12 object-cover border border-gray-300"
+                                className="rounded-full w-16 h-16 object-cover border-2 border-gray-300"
                             />
                         </div>
 
                         {/* Details Section */}
-                        <div className="ml-3 flex-grow">
-                            <h3 className="text-sm font-semibold text-gray-800">
+                        <div className="ml-4 flex-grow">
+                            <h3 className="text-base font-semibold text-gray-800 mb-1">
                                 {new Date(
                                     d.tanggal_presensi
                                 ).toLocaleDateString("id-ID", {
@@ -52,38 +53,38 @@ export default function GetHistori({ histori }) {
                                     year: "numeric",
                                 })}
                             </h3>
+                            <div className="flex items-center text-sm text-gray-600 space-x-2">
+                                <span
+                                    className={`px-3 py-1 text-xs font-semibold rounded-lg shadow-sm ${statusColor}`}
+                                >
+                                    {statusLabel}
+                                </span>
+                            </div>
 
-                            {/* Status Kehadiran */}
-                            <span
-                                className={`inline-block px-2 py-1 text-xs font-medium rounded ${statusColor}`}
-                            >
-                                {statusLabel}
-                            </span>
-
-                            {/* Keterangan untuk izin/sakit */}
+                            {/* Jika izin atau sakit, tampilkan keterangan */}
                             {(isIzin || isSakit) && (
-                                <p className="text-xs text-gray-600 mt-1">
+                                <div className="mt-1 text-sm text-gray-600">
                                     <span className="font-medium">
                                         Keterangan:
                                     </span>{" "}
                                     {d.keterangan || "-"}
-                                </p>
+                                </div>
                             )}
 
-                            {/* Jika hadir, tampilkan jam masuk & jam pulang */}
+                            {/* Jika hadir, tampilkan jam masuk dan pulang tanpa badge */}
                             {!isIzin && !isSakit && (
-                                <div className="mt-1 text-xs text-gray-600">
+                                <div className="mt-1 text-sm text-gray-600">
                                     <p>
                                         <span className="font-medium text-green-600">
-                                            Masuk:
+                                            Jam Masuk:
                                         </span>{" "}
-                                        {d.jam_in || "-"}
+                                        {d.jam_in || "Tidak Absen"}
                                     </p>
                                     <p>
                                         <span className="font-medium text-red-600">
-                                            Pulang:
+                                            Jam Pulang:
                                         </span>{" "}
-                                        {d.jam_out || "-"}
+                                        {d.jam_out || "Tidak Absen"}
                                     </p>
                                 </div>
                             )}

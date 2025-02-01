@@ -16,6 +16,7 @@ return new class extends Migration
             $table->char('nama');
             $table->char('hari');
             $table->char('kode_jamkerja');
+            $table->timestamps();
         });
     }
 
@@ -24,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('set_jam_kerja');
     }
 };

@@ -1,22 +1,28 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MainLayout from "@/Layouts/MainLayout";
+import toast, { Toaster } from "react-hot-toast";
 
 export default function Profile({ pegawai, successMessage, errorMessage }) {
     const [namaLengkap, setNamaLengkap] = useState(pegawai.nama_lengkap || "");
     const [noHp, setNoHp] = useState(pegawai.no_hp || "");
 
-    const handleFileChange = (e) => {
-        setFoto(e.target.files[0]);
-    };
+    // Menampilkan notifikasi saat ada pesan
+    useEffect(() => {
+        if (successMessage) toast.success(successMessage);
+        if (errorMessage) toast.error(errorMessage);
+    }, [successMessage, errorMessage]);
 
     return (
         <MainLayout>
             <div className="bg-gray-100 min-h-screen overflow-y-auto">
+                {/* Toaster untuk Notifikasi */}
+                <Toaster position="top-center" reverseOrder={false} />
+
                 {/* Header */}
                 <div className="bg-blue-950 text-white flex items-center justify-between px-4 py-3 shadow-md">
                     <button
-                        onClick={() => window.history.back()}
-                        className="flex items-center text-white hover:text-gray-200"
+                        onClick={() => (window.location.href = "/dashboardop")}
+                        className="flex items-center text-white"
                     >
                         <ion-icon
                             name="chevron-back-outline"
@@ -25,44 +31,6 @@ export default function Profile({ pegawai, successMessage, errorMessage }) {
                         <span className="ml-2 text-sm">Back</span>
                     </button>
                     <h1 className="text-lg font-semibold">Edit Profile</h1>
-                </div>
-
-                {/* Alerts */}
-                <div className="mt-4 px-4">
-                    {successMessage && (
-                        <div
-                            className="flex items-center justify-between bg-green-50 border-l-4 border-green-500 text-green-700 p-4 rounded-md"
-                            role="alert"
-                        >
-                            <p className="text-sm">{successMessage}</p>
-                            <button
-                                className="text-green-500 hover:text-green-700 focus:outline-none"
-                                onClick={() => window.location.reload()}
-                            >
-                                <ion-icon
-                                    name="close-circle-outline"
-                                    className="text-lg"
-                                ></ion-icon>
-                            </button>
-                        </div>
-                    )}
-                    {errorMessage && (
-                        <div
-                            className="flex items-center justify-between bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-md"
-                            role="alert"
-                        >
-                            <p className="text-sm">{errorMessage}</p>
-                            <button
-                                className="text-red-500 hover:text-red-700 focus:outline-none"
-                                onClick={() => window.location.reload()}
-                            >
-                                <ion-icon
-                                    name="close-circle-outline"
-                                    className="text-lg"
-                                ></ion-icon>
-                            </button>
-                        </div>
-                    )}
                 </div>
 
                 {/* Form Edit Profile */}
@@ -144,7 +112,7 @@ export default function Profile({ pegawai, successMessage, errorMessage }) {
                     <div>
                         <button
                             type="submit"
-                            className="w-full px-4 py-2 text-white bg-blue-950 rounded-lg shadow hover:bg-blue-900 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                            className="w-full px-4 py-2 text-white bg-blue-950 rounded-lg shadow hover:bg-blue-900 focus:ring focus:ring-blue-200 focus:ring-opacity-50 flex items-center justify-center gap-2"
                         >
                             <ion-icon
                                 name="refresh-outline"

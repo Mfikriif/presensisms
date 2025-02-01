@@ -37,10 +37,10 @@ export default function Histori({ namabulan = [], tahun_awal = 2022 }) {
         <MainLayout title="Histori Absensi">
             <div className="bg-gray-100 min-h-screen pb-20">
                 {/* Header */}
-                <div className="bg-blue-950 text-white flex items-center justify-between px-4 py-3 shadow-md fixed w-full z-50 top-0">
+                <div className="bg-blue-950 text-white flex items-center justify-between px-4 py-3 shadow-md">
                     <button
-                        onClick={() => window.history.back()}
-                        className="flex items-center text-white hover:text-gray-200"
+                        onClick={() => (window.location.href = "/dashboardop")}
+                        className="flex items-center text-white"
                     >
                         <ion-icon
                             name="chevron-back-outline"
@@ -48,25 +48,23 @@ export default function Histori({ namabulan = [], tahun_awal = 2022 }) {
                         ></ion-icon>
                         <span className="ml-2 text-sm">Back</span>
                     </button>
-                    <h1 className="text-lg font-semibold text-center flex-grow">
-                        Histori Absensi
-                    </h1>
+                    <h1 className="text-lg font-semibold">Histori Presensi</h1>
                 </div>
 
                 {/* Form Filter */}
-                <div className="p-4 pt-16">
-                    <div className="grid grid-cols-2 gap-3">
+                <div className="p-6 pt-12">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Pilih Bulan */}
                         <div>
                             <label
                                 htmlFor="bulan"
-                                className="block text-sm font-medium text-gray-700"
+                                className="block text-base font-semibold text-gray-800"
                             >
                                 Bulan
                             </label>
                             <select
                                 id="bulan"
-                                className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm text-sm p-2 bg-white focus:border-blue-500 focus:ring focus:ring-blue-200"
+                                className="mt-2 block w-full min-w-[150px] rounded-xl border-gray-300 shadow-md text-base p-3 bg-white focus:border-blue-600 focus:ring focus:ring-blue-300"
                                 value={bulan}
                                 onChange={(e) => setBulan(e.target.value)}
                             >
@@ -83,13 +81,13 @@ export default function Histori({ namabulan = [], tahun_awal = 2022 }) {
                         <div>
                             <label
                                 htmlFor="tahun"
-                                className="block text-sm font-medium text-gray-700"
+                                className="block text-base font-semibold text-gray-800"
                             >
                                 Tahun
                             </label>
                             <select
                                 id="tahun"
-                                className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm text-sm p-2 bg-white focus:border-blue-500 focus:ring focus:ring-blue-200"
+                                className="mt-2 block w-full min-w-[150px] rounded-xl border-gray-300 shadow-md text-base p-3 bg-white focus:border-blue-600 focus:ring focus:ring-blue-300"
                                 value={tahun}
                                 onChange={(e) => setTahun(e.target.value)}
                             >
@@ -110,11 +108,11 @@ export default function Histori({ namabulan = [], tahun_awal = 2022 }) {
                     <button
                         onClick={handleCariData}
                         disabled={loading}
-                        className={`mt-4 w-full px-4 py-2 text-white text-sm font-medium rounded-lg shadow ${
+                        className={`mt-6 w-full px-5 py-3 text-white text-base font-semibold rounded-xl shadow-md ${
                             loading
                                 ? "bg-gray-400"
-                                : "bg-blue-950 hover:bg-blue-900"
-                        } focus:ring focus:ring-blue-200`}
+                                : "bg-blue-950 hover:bg-blue-800"
+                        } focus:ring focus:ring-blue-300`}
                     >
                         {loading ? "Memuat..." : "Cari Data"}
                     </button>

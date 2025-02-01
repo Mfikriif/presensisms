@@ -8,7 +8,7 @@ class set_jam_kerja extends Model
 {
     protected $table = 'set_jam_kerja';
 
-    public $timestamps = false;
+    public $timestamps = true;
 
     protected $fillable = [
         'id',

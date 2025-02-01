@@ -18,6 +18,19 @@ class DashboardController extends Controller
         $bulanini = date("m") * 1;
         $tahunini = date("Y");
         $email = Auth::user()->email;
+        $hariSekarang = date('l'); // Ambil hari ini dalam bahasa Inggris
+    
+        // Konversi hari Inggris ke bahasa Indonesia
+        $hariIndo = [
+            "Sunday" => "Minggu",
+            "Monday" => "Senin",
+            "Tuesday" => "Selasa",
+            "Wednesday" => "Rabu",
+            "Thursday" => "Kamis",
+            "Friday" => "Jumat",
+            "Saturday" => "Sabtu"
+        ];
+        $hariIniIndo = $hariIndo[$hariSekarang];
     
         // Ambil data user dari tabel pegawais
         $user = DB::table('pegawais')->where('email', $email)->first();
@@ -56,34 +69,29 @@ class DashboardController extends Controller
                         'keterangan'
                     )
             )
-            ->orderBy('tanggal_presensi', 'desc') // Urutkan berdasarkan tanggal terbaru
+            ->orderBy('tanggal_presensi', 'desc')
             ->get();
     
-        // Ambil shift kerja pegawai
-        $shift = DB::table('konfigurasi_shift_kerja')
-            ->where('kode_jamkerja', function ($query) use ($kode_pegawai) {
-                $query->select('kode_jamkerja')
-                      ->from('pegawais')
-                      ->where('id', $kode_pegawai)
-                      ->limit(1);
-            })
-            ->first();
+        // Ambil shift kerja pegawai untuk seluruh minggu
+        $jadwalMingguan = DB::table('set_jam_kerja')
+        ->join('konfigurasi_shift_kerja', 'set_jam_kerja.kode_jamkerja', '=', 'konfigurasi_shift_kerja.kode_jamkerja')
+        ->select('set_jam_kerja.hari', 'konfigurasi_shift_kerja.*', 'set_jam_kerja.updated_at')
+        ->orderByRaw("FIELD(set_jam_kerja.hari, 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu')")
+        ->get();
+    
+        $updatedAtTerbaru = DB::table('set_jam_kerja')
+            ->where('id', $kode_pegawai)  // Sesuaikan dengan kolom id user jika ada
+            ->max('updated_at');
     
         // Rekap presensi bulanan
         $rekappresensi = DB::table('presensi')
             ->selectRaw('COUNT(email) as hadir, SUM(IF(jam_in > "07:00",1,0)) as terlambat')
-            ->where('email',$email)
-            ->whereRaw('MONTH(tanggal_presensi)="'.$bulanini.'"')
-            ->whereRaw('YEAR(tanggal_presensi)="'.$tahunini.'"')
+            ->where('email', $email)
+            ->whereRaw('MONTH(tanggal_presensi) = ?', [$bulanini])
+            ->whereRaw('YEAR(tanggal_presensi) = ?', [$tahunini])
             ->first();
     
-        // Leaderboard berdasarkan presensi hari ini
-        $leaderboard = DB::table('presensi')
-            ->join('pegawais', 'presensi.email', '=', 'pegawais.email')
-            ->where('tanggal_presensi', $hariini)
-            ->get();
-    
-        $namabulan = ["","Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+        $namabulan = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
     
         // Rekap Izin / Sakit
         $rekapizin = DB::table('pengajuan_izin')
@@ -104,10 +112,10 @@ class DashboardController extends Controller
             'bulanini' => $bulanini,
             'tahunini' => $tahunini,
             'rekapPresensi' => $rekappresensi,
-            'leaderboard' => $leaderboard,
             'user' => $user,
-            'rekapizin' => $rekapizin, 
-            'shift' => $shift // Kirim data shift ke frontend
+            'rekapizin' => $rekapizin,
+            'jadwalMingguan' => $jadwalMingguan,
+            'updatedAtTerbaru' => $updatedAtTerbaru
         ]);
     }
 
