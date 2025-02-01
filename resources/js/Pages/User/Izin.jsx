@@ -1,58 +1,207 @@
-import React from "react";
-import BottomNav from "@/Layouts/BottomNav";
+import React, { useState, useEffect } from "react";
+import MainLayout from "@/Layouts/MainLayout";
+import axios from "axios";
+import {
+    SwipeableList,
+    SwipeableListItem,
+    TrailingActions,
+    LeadingActions,
+    SwipeAction,
+} from "react-swipeable-list";
+import "react-swipeable-list/dist/styles.css";
+import toast, { Toaster } from "react-hot-toast";
 
-export default function Izin({ successMessage, errorMessage }) {
-    return (
-        <div className="bg-gray-100 min-h-screen overflow-y-auto relative">
-            {/* Header */}
-            <div className="bg-blue-950 text-white flex items-center justify-between px-4 py-3 shadow-md">
-                <button
-                    onClick={() => window.history.back()}
-                    className="flex items-center text-white hover:text-gray-200"
+export default function Izin({ dataizin, errorMessage, successMessage }) {
+    const [izinList, setIzinList] = useState(dataizin);
+    const [dibatalkan, setDibatalkan] = useState({});
+
+    // Tampilkan error dan success message menggunakan react-hot-toast
+    useEffect(() => {
+        if (errorMessage) toast.error(errorMessage);
+        if (successMessage) toast.success(successMessage);
+    }, [errorMessage, successMessage]);
+
+    const handleMarkForDelete = (id) => {
+        setDibatalkan((prev) => ({ ...prev, [id]: true }));
+    };
+
+    const handleCancelIzin = async (id) => {
+        try {
+            const response = await axios.post(`/presensi/batalkanizin/${id}`);
+            if (response.status === 200) {
+                setIzinList((prevList) =>
+                    prevList.filter((izin) => izin.id !== id)
+                );
+                setDibatalkan((prev) => {
+                    const updatedDibatalkan = { ...prev };
+                    delete updatedDibatalkan[id];
+                    return updatedDibatalkan;
+                });
+                toast.success("Izin berhasil dibatalkan!");
+            }
+        } catch (error) {
+            toast.error("Gagal membatalkan izin!");
+        }
+    };
+
+    const handleRestoreIzin = (id) => {
+        setDibatalkan((prev) => {
+            const updatedDibatalkan = { ...prev };
+            delete updatedDibatalkan[id];
+            return updatedDibatalkan;
+        });
+    };
+
+    const trailingActions = (id, statusApproved) => {
+        if (statusApproved === "1") return null;
+        return dibatalkan[id] ? (
+            <TrailingActions threshold={0.9}>
+                <SwipeAction
+                    destructive={true}
+                    onClick={() => handleCancelIzin(id)}
                 >
-                    <ion-icon
-                        name="chevron-back-outline"
-                        className="text-2xl"
-                    ></ion-icon>
-                    <span className="ml-2 text-sm">Back</span>
-                </button>
-                <h1 className="text-lg font-semibold">Data Izin / Sakit</h1>
-            </div>
-
-            {/* Alert Section */}
-            <div className="p-4">
-                {successMessage && (
-                    <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
-                        <strong className="font-bold">Berhasil!</strong>
-                        <span className="block sm:inline">
-                            {" "}
-                            {successMessage}
+                    <div className="bg-red-600 text-white flex items-center justify-center px-6 py-6 rounded-r-lg w-24 shadow-md">
+                        <ion-icon
+                            name="trash-outline"
+                            className="text-3xl"
+                        ></ion-icon>
+                    </div>
+                </SwipeAction>
+            </TrailingActions>
+        ) : (
+            <TrailingActions threshold={0.5}>
+                <SwipeAction onClick={() => handleMarkForDelete(id)}>
+                    <div className="bg-yellow-500 text-white flex items-center justify-center px-6 py-6 rounded-r-lg w-40 shadow-md">
+                        <span className="text-sm font-semibold">
+                            Swipe Lagi Untuk Hapus
                         </span>
                     </div>
-                )}
-                {errorMessage && (
-                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
-                        <strong className="font-bold">Gagal!</strong>
-                        <span className="block sm:inline"> {errorMessage}</span>
+                </SwipeAction>
+            </TrailingActions>
+        );
+    };
+
+    const leadingActions = (id) =>
+        dibatalkan[id] && (
+            <LeadingActions threshold={0.5}>
+                <SwipeAction onClick={() => handleRestoreIzin(id)}>
+                    <div className="bg-blue-500 text-white flex items-center justify-center px-6 py-6 rounded-l-lg w-40 shadow-md">
+                        <span className="text-sm font-semibold">
+                            Batalkan Pembatalan
+                        </span>
                     </div>
-                )}
-            </div>
+                </SwipeAction>
+            </LeadingActions>
+        );
 
-            {/* FAB Button */}
-            <div className="fixed bottom-28 right-6 z-50">
-                <a
-                    href="/presensi/buatizin"
-                    className="flex items-center justify-center w-16 h-16 bg-blue-950 text-white rounded-full shadow-xl hover:bg-blue-900 transition duration-200"
-                >
-                    <ion-icon
-                        name="add-outline"
-                        className="text-4xl"
-                    ></ion-icon>
-                </a>
-            </div>
+    return (
+        <MainLayout>
+            <div className="bg-gray-50 h-screen flex flex-col relative">
+                {/* Toaster untuk Notifikasi */}
+                <Toaster position="top-center" reverseOrder={false} />
 
-            {/* Bottom Navigation */}
-            <BottomNav />
-        </div>
+                {/* Header */}
+                <div className="bg-blue-950 text-white flex items-center justify-between px-4 py-3 shadow-md">
+                    <button
+                        onClick={() => window.history.back()}
+                        className="flex items-center text-white"
+                    >
+                        <ion-icon
+                            name="chevron-back-outline"
+                            className="text-2xl"
+                        ></ion-icon>
+                        <span className="ml-2 text-sm">Back</span>
+                    </button>
+                    <h1 className="text-lg font-semibold">Data Izin / Sakit</h1>
+                </div>
+
+                {/* Kontainer Scrollable */}
+                <div className="flex-1 overflow-y-auto p-4 pb-24">
+                    {izinList.length > 0 ? (
+                        <SwipeableList fullSwipe={false}>
+                            {izinList.map((izin, index) => (
+                                <SwipeableListItem
+                                    key={index}
+                                    trailingActions={trailingActions(
+                                        izin.id,
+                                        izin.status_approved
+                                    )}
+                                    leadingActions={leadingActions(izin.id)}
+                                >
+                                    <li className="bg-white shadow-md rounded-lg p-4 flex justify-between items-center w-full mb-2">
+                                        <div className="flex flex-col">
+                                            <h3 className="text-base font-semibold text-gray-800">
+                                                {new Date(
+                                                    izin.tanggal_izin
+                                                ).toLocaleDateString("id-ID", {
+                                                    day: "2-digit",
+                                                    month: "long",
+                                                    year: "numeric",
+                                                })}
+                                            </h3>
+                                            <p className="text-gray-500 text-xs">
+                                                <strong className="text-gray-700">
+                                                    Jenis:
+                                                </strong>{" "}
+                                                {izin.status === "i"
+                                                    ? "Izin"
+                                                    : "Sakit"}
+                                            </p>
+                                            <p className="text-gray-500 text-xs">
+                                                <strong className="text-gray-700">
+                                                    Keterangan:
+                                                </strong>{" "}
+                                                {izin.keterangan}
+                                            </p>
+                                        </div>
+
+                                        {/* Status Persetujuan */}
+                                        <span
+                                            className={`px-3 py-1 text-xs font-semibold rounded-lg shadow-md ${
+                                                izin.status_approved === "0"
+                                                    ? "bg-yellow-500 text-white"
+                                                    : izin.status_approved ===
+                                                      "1"
+                                                    ? "bg-green-500 text-white"
+                                                    : izin.status_approved ===
+                                                      "batal"
+                                                    ? "bg-gray-400 text-white"
+                                                    : "bg-red-500 text-white"
+                                            }`}
+                                        >
+                                            {izin.status_approved === "0"
+                                                ? "Pending"
+                                                : izin.status_approved === "1"
+                                                ? "Disetujui"
+                                                : izin.status_approved ===
+                                                  "batal"
+                                                ? "Dibatalkan"
+                                                : "Ditolak"}
+                                        </span>
+                                    </li>
+                                </SwipeableListItem>
+                            ))}
+                        </SwipeableList>
+                    ) : (
+                        <p className="text-gray-500 text-center">
+                            Belum ada data izin.
+                        </p>
+                    )}
+                </div>
+
+                {/* FAB Button (Mini) */}
+                <div className="fixed bottom-28 right-6 z-50">
+                    <a
+                        href="/presensi/buatizin"
+                        className="flex items-center justify-center w-12 h-12 bg-blue-950 text-white rounded-full shadow-lg hover:bg-blue-900 transition duration-200"
+                    >
+                        <ion-icon
+                            name="add-outline"
+                            className="text-2xl"
+                        ></ion-icon>
+                    </a>
+                </div>
+            </div>
+        </MainLayout>
     );
 }

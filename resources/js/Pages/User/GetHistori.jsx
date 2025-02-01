@@ -5,42 +5,45 @@ export default function GetHistori({ histori }) {
     const defaultImage = "/assets/img/sample/avatar/avatar1.jpg"; // Gambar default jika foto tidak ditemukan
 
     return (
-        <ul className="listview image-listview space-y-4">
+        <ul className="listview image-listview space-y-2">
             {histori.map((d, index) => {
-                console.log("Data jam_in:", d.jam_in); // Debug data
                 const imagePath = d.foto_in
                     ? `${basePath}${d.foto_in}`
                     : defaultImage;
 
-                // Warna badge berdasarkan jam masuk
-                const badgeClassMasuk = d.jam_in
-                    ? d.jam_in < "07:00:00"
-                        ? "bg-green-500 text-white"
-                        : "bg-red-500 text-white"
-                    : "bg-gray-500 text-white";
+                // Tentukan tipe kehadiran
+                const isIzin = d.status === "i";
+                const isSakit = d.status === "s";
 
-                // Warna badge berdasarkan jam pulang
-                const badgeClassPulang = d.jam_out
-                    ? "bg-blue-500 text-white"
-                    : "bg-gray-500 text-white";
+                // Label status kehadiran
+                const statusLabel = isIzin
+                    ? "Izin"
+                    : isSakit
+                    ? "Sakit"
+                    : "Hadir";
+                const statusColor = isIzin
+                    ? "bg-yellow-500 text-white"
+                    : isSakit
+                    ? "bg-red-500 text-white"
+                    : "bg-green-500 text-white";
 
                 return (
                     <li
                         key={index}
-                        className="flex items-center bg-white rounded-lg shadow-md p-4 transition duration-300 hover:shadow-lg"
+                        className="flex items-center bg-white rounded-lg shadow-sm p-3 transition duration-300 hover:shadow-md"
                     >
                         {/* Image Section */}
                         <div className="flex-shrink-0">
                             <img
                                 src={imagePath}
                                 alt="Foto Absen"
-                                className="rounded-full w-16 h-16 object-cover border-2 border-gray-300"
+                                className="rounded-full w-12 h-12 object-cover border border-gray-300"
                             />
                         </div>
 
                         {/* Details Section */}
-                        <div className="ml-4 flex-grow">
-                            <h3 className="text-base font-semibold text-gray-800 mb-1">
+                        <div className="ml-3 flex-grow">
+                            <h3 className="text-sm font-semibold text-gray-800">
                                 {new Date(
                                     d.tanggal_presensi
                                 ).toLocaleDateString("id-ID", {
@@ -49,22 +52,41 @@ export default function GetHistori({ histori }) {
                                     year: "numeric",
                                 })}
                             </h3>
-                            <div className="flex items-center text-sm text-gray-600 space-x-2">
-                                <span className="font-medium">Jam Masuk:</span>
-                                <span
-                                    className={`px-3 py-1 text-xs font-semibold rounded-lg shadow-sm ${badgeClassMasuk}`}
-                                >
-                                    {d.jam_in || "Tidak Absen"}
-                                </span>
-                            </div>
-                            <div className="flex items-center text-sm text-gray-600 space-x-2 mt-1">
-                                <span className="font-medium">Jam Pulang:</span>
-                                <span
-                                    className={`px-3 py-1 text-xs font-semibold rounded-lg shadow-sm ${badgeClassPulang}`}
-                                >
-                                    {d.jam_out || "Tidak Absen"}
-                                </span>
-                            </div>
+
+                            {/* Status Kehadiran */}
+                            <span
+                                className={`inline-block px-2 py-1 text-xs font-medium rounded ${statusColor}`}
+                            >
+                                {statusLabel}
+                            </span>
+
+                            {/* Keterangan untuk izin/sakit */}
+                            {(isIzin || isSakit) && (
+                                <p className="text-xs text-gray-600 mt-1">
+                                    <span className="font-medium">
+                                        Keterangan:
+                                    </span>{" "}
+                                    {d.keterangan || "-"}
+                                </p>
+                            )}
+
+                            {/* Jika hadir, tampilkan jam masuk & jam pulang */}
+                            {!isIzin && !isSakit && (
+                                <div className="mt-1 text-xs text-gray-600">
+                                    <p>
+                                        <span className="font-medium text-green-600">
+                                            Masuk:
+                                        </span>{" "}
+                                        {d.jam_in || "-"}
+                                    </p>
+                                    <p>
+                                        <span className="font-medium text-red-600">
+                                            Pulang:
+                                        </span>{" "}
+                                        {d.jam_out || "-"}
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     </li>
                 );

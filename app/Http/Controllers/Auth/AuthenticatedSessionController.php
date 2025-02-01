@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\LoginRequest;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -21,57 +19,48 @@ class AuthenticatedSessionController extends Controller
         return Inertia::render('User/Login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => session('status'),
+            'errors' => session('errors') ? session('errors')->getBag('default')->toArray() : []
         ]);
     }
 
     /**
-     * Handle an incoming authentication request.
+     * Handle authentication request.
      */
     public function store(Request $request)
     {
+        // Validasi input
         $credentials = $request->validate([
             'email' => 'required|email',
             'password' => 'required',
         ]);
     
+        // Coba login
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
             $user = Auth::user();
     
-            // Logika pengalihan berdasarkan peran
-            if ($user->role === 'admin') {
-                return redirect()->route("dashboard");
-            } elseif ($user->role === 'operator') {
-                return redirect()->route('dashboardop');
-            }
-    
-            // Logout jika role tidak dikenali
-            Auth::logout();
-            return back()->withErrors([
-                'login' => 'Role pengguna tidak dikenali.',
-            ]);
+            // Redirect ke dashboard sesuai peran
+            return redirect()->route(
+                $user->role === 'admin' ? "dashboard" : "dashboardop"
+            )->with('status', 'Login berhasil!');
         }
-
-        // Menyimpan error di session jika autentikasi gagal
-        return back()->withErrors([
-            'login' => 'Email atau password tidak cocok dengan data kami.',
+    
+        // Jika gagal login, kembalikan dengan Inertia agar tidak error
+        return Inertia::render('User/Login', [
+            'errors' => ['login' => 'Email atau password tidak cocok dengan data kami.'],
         ]);
     }
 
     /**
-     * Destroy an authenticated session.
+     * Logout pengguna.
      */
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(Request $request)
     {
-    
-        // Logout pengguna
         Auth::guard('web')->logout();
-    
-        // Invalidate session
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-    
-        // Default redirect untuk operator atau lainnya
+
         return redirect('/');
     }
 }
