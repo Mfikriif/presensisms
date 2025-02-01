@@ -28,6 +28,7 @@ Route::middleware(['auth', 'operator'])->group(function () {
     Route::get('/presensi/izin',[PresensiController::class,'izin']);
     Route::get('/presensi/buatizin',[PresensiController::class,'buatizin']);
     Route::post('/presensi/storeizin',[PresensiController::class,'storeizin']);
+    Route::post('/presensi/batalkanizin/{id}',[PresensiController::class,'batalkanIzin']);
 });
 
 // Admin

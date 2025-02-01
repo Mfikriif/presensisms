@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import BottomNav from "@/Layouts/BottomNav";
-import Script from "@/Layouts/Script";
+import MainLayout from "@/Layouts/MainLayout";
 import Webcam from "react-webcam";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -72,6 +71,7 @@ export default function Create({ cek }) {
                     title: "Gagal",
                     text: "Gagal menangkap gambar. Coba lagi.",
                     showConfirmButton: false,
+                    timerProgressBar: true,
                     timer: 3000,
                 });
                 return;
@@ -83,6 +83,7 @@ export default function Create({ cek }) {
                     title: "Lokasi Tidak Tersedia",
                     text: "Ambil lokasi terlebih dahulu.",
                     showConfirmButton: false,
+                    timerProgressBar: true,
                     timer: 3000,
                 });
                 return;
@@ -117,42 +118,39 @@ export default function Create({ cek }) {
                             : "Terima kasih, Hati-Hati di Jalan!",
                         showConfirmButton: false,
                         timer: 3000,
+                        timerProgressBar: true,
                         didClose: () => {
                             window.location.href = "/dashboard";
                         },
                     });
 
                     if (isAbsenMasuk) setIsAbsenMasuk(false);
-                } else {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Gagal!",
-                        text: "Maaf, Gagal Absen. Silahkan Hubungi IT.",
-                        showConfirmButton: false,
-                        timer: 3000,
-                    });
                 }
             } catch (error) {
-                if (error.response && error.response.status === 403) {
-                    // Tangani error radius
-                    Swal.fire({
-                        icon: "error",
-                        title: "Diluar Radius!",
-                        text:
-                            error.response.data.message ||
-                            "Anda berada di luar radius kantor!",
-                        showConfirmButton: false,
-                        timer: 3000,
-                    });
-                } else {
-                    console.error("Error submitting presensi:", error);
-                    Swal.fire({
-                        icon: "error",
-                        title: "Error!",
-                        text: "Terjadi kesalahan saat mengirim data presensi.",
-                        showConfirmButton: false,
-                        timer: 3000,
-                    });
+                if (error.response) {
+                    const errorMessage =
+                        error.response.data.message ||
+                        "Terjadi kesalahan saat absen.";
+
+                    if (error.response.status === 403) {
+                        Swal.fire({
+                            icon: "error",
+                            title: error.response.data.error || "Gagal!",
+                            text: errorMessage,
+                            showConfirmButton: false,
+                            timerProgressBar: true,
+                            timer: 3000,
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error!",
+                            text: errorMessage,
+                            showConfirmButton: false,
+                            timerProgressBar: true,
+                            timer: 3000,
+                        });
+                    }
                 }
             } finally {
                 setIsLoading(false);
@@ -161,112 +159,110 @@ export default function Create({ cek }) {
     };
 
     return (
-        <div className="bg-gray-100 min-h-screen flex flex-col pb-20 relative">
-            {/* Loader */}
-            {isLoading && (
-                <div className="fixed inset-0 bg-gray-100 flex items-center justify-center z-50">
-                    <svg
-                        className="animate-spin h-8 w-8 text-blue-500"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                    >
-                        <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                        ></circle>
-                        <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        ></path>
-                    </svg>
-                </div>
-            )}
-
-            {/* Header */}
-            <div className="bg-blue-950 text-white flex items-center justify-between px-4 py-3 shadow-md">
-                <button
-                    onClick={() => window.history.back()}
-                    className="flex items-center text-white hover:text-gray-200"
-                >
-                    <ion-icon
-                        name="chevron-back-outline"
-                        className="text-2xl"
-                    ></ion-icon>
-                    <span className="ml-2 text-sm">Back</span>
-                </button>
-                <h1 className="text-lg font-semibold">E-Presensi</h1>
-            </div>
-
-            {/* Form Section */}
-            <div className="flex-grow flex flex-col items-center gap-6 mt-6 px-4">
-                {/* Webcam Section */}
-                <div className="flex flex-col items-center justify-center">
-                    <Webcam
-                        audio={false}
-                        ref={webcamRef}
-                        screenshotFormat="image/jpeg"
-                        className="rounded-lg shadow-lg border-4 border-blue-500"
-                        style={{
-                            width: "300px",
-                            height: "300px",
-                        }}
-                    />
-                    <p className="text-sm text-gray-500 mt-2">
-                        Pastikan wajah Anda terlihat jelas.
-                    </p>
-                </div>
-
-                {/* Absen Button */}
-                <button
-                    onClick={handleTakeAbsen}
-                    className={`${
-                        isAbsenMasuk
-                            ? "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
-                            : "bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700"
-                    } text-white rounded-full px-8 py-4 flex items-center gap-2 transition duration-300 ease-in-out shadow-lg transform hover:scale-105 focus:outline-none`}
-                >
-                    <ion-icon
-                        name="camera-outline"
-                        className="text-2xl"
-                    ></ion-icon>
-                    <span className="font-semibold text-lg">
-                        {isAbsenMasuk ? "Absen Masuk" : "Absen Pulang"}
-                    </span>
-                </button>
-
-                {/* Error Message */}
-                {errorMessage && (
-                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg shadow-md w-full max-w-xs">
-                        <p className="text-sm">{errorMessage}</p>
+        <MainLayout>
+            <div className="bg-gray-100 min-h-screen flex flex-col pb-20 relative">
+                {/* Loader */}
+                {isLoading && (
+                    <div className="fixed inset-0 bg-gray-100 flex items-center justify-center z-50">
+                        <svg
+                            className="animate-spin h-8 w-8 text-blue-500"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                        >
+                            <circle
+                                className="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                            ></circle>
+                            <path
+                                className="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
+                        </svg>
                     </div>
                 )}
 
-                {/* Map Section */}
-                <div className="w-full max-w-xs bg-white rounded-lg overflow-hidden shadow-lg">
-                    <div
-                        id="map"
-                        className="bg-gray-100 relative z-0"
-                        style={{
-                            width: "100%",
-                            height: "200px",
-                            borderRadius: "10px",
-                        }}
-                    ></div>
-                    <p className="text-xs text-gray-500 text-center py-2">
-                        Lokasi Anda saat ini.
-                    </p>
+                {/* Header */}
+                <div className="bg-blue-950 text-white flex items-center justify-between px-4 py-3 shadow-md">
+                    <button
+                        onClick={() => window.history.back()}
+                        className="flex items-center text-white hover:text-gray-200"
+                    >
+                        <ion-icon
+                            name="chevron-back-outline"
+                            className="text-2xl"
+                        ></ion-icon>
+                        <span className="ml-2 text-sm">Back</span>
+                    </button>
+                    <h1 className="text-lg font-semibold">E-Presensi</h1>
+                </div>
+
+                {/* Form Section */}
+                <div className="flex-grow flex flex-col items-center gap-6 mt-6 px-4">
+                    {/* Webcam Section */}
+                    <div className="flex flex-col items-center justify-center">
+                        <Webcam
+                            audio={false}
+                            ref={webcamRef}
+                            screenshotFormat="image/jpeg"
+                            className="rounded-lg shadow-lg border-4 border-blue-500"
+                            style={{
+                                width: "300px",
+                                height: "300px",
+                            }}
+                        />
+                        <p className="text-sm text-gray-500 mt-2">
+                            Pastikan wajah Anda terlihat jelas.
+                        </p>
+                    </div>
+
+                    {/* Absen Button */}
+                    <button
+                        onClick={handleTakeAbsen}
+                        className={`${
+                            isAbsenMasuk
+                                ? "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+                                : "bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700"
+                        } text-white rounded-full px-8 py-4 flex items-center gap-2 transition duration-300 ease-in-out shadow-lg transform hover:scale-105 focus:outline-none`}
+                    >
+                        <ion-icon
+                            name="camera-outline"
+                            className="text-2xl"
+                        ></ion-icon>
+                        <span className="font-semibold text-lg">
+                            {isAbsenMasuk ? "Absen Masuk" : "Absen Pulang"}
+                        </span>
+                    </button>
+
+                    {/* Error Message */}
+                    {errorMessage && (
+                        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg shadow-md w-full max-w-xs">
+                            <p className="text-sm">{errorMessage}</p>
+                        </div>
+                    )}
+
+                    {/* Map Section */}
+                    <div className="w-full max-w-xs bg-white rounded-lg overflow-hidden shadow-lg">
+                        <div
+                            id="map"
+                            className="bg-gray-100 relative z-0"
+                            style={{
+                                width: "100%",
+                                height: "200px",
+                                borderRadius: "10px",
+                            }}
+                        ></div>
+                        <p className="text-xs text-gray-500 text-center py-2">
+                            Lokasi Anda saat ini.
+                        </p>
+                    </div>
                 </div>
             </div>
-
-            {/* Bottom Navigation */}
-            <BottomNav className="z-50" />
-            <Script />
-        </div>
+        </MainLayout>
     );
 }

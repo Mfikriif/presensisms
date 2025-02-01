@@ -26,7 +26,7 @@ class PresensiController extends Controller
             'cek' => $cek,
         ]);
     }
-
+    
     public function store(Request $request)
     {
         $user = Auth::user();
@@ -35,21 +35,17 @@ class PresensiController extends Controller
         $email = $user->email;
         $tanggal_presensi = date("Y-m-d");
         $jam = date("H:i:s");
-        
+    
         // Lokasi Kantor
-        $latitudekantor = -7.023765967616574;
-        $longitudekantor = 110.50692516838049;
-        
-        // Lokasi rumah fikri -6.333679799378126, 106.97344148219695
-        $latituderumahfikri = -6.996710406504407;
-        $longituderumahfikri = 110.45101361405058;
-        
+        $latitudekantor = -6.990931121408543;
+        $longitudekantor = 110.46086342321159;
+    
         // Lokasi User
         $lokasi = $request->lokasi;
         $lokasiuser = explode(",", $lokasi);
         $latitudeuser = $lokasiuser[0];
         $longitudeuser = $lokasiuser[1];
-        $jarak = $this->distance($latituderumahfikri, $longituderumahfikri, $latitudeuser, $longitudeuser);
+        $jarak = $this->distance($latitudekantor, $longitudekantor, $latitudeuser, $longitudeuser);
         $radius = round($jarak["meters"]);
     
         $image = $request->image;
@@ -63,22 +59,74 @@ class PresensiController extends Controller
     
         $tipeAbsen = $request->input('tipeAbsen');
     
-        // Pisahkan data base64 dan decode gambar
-        $image_parts = explode(";base64,", $image);
-        if (count($image_parts) < 2) {
-            return response()->json(['error' => 'Invalid image format'], 400);
+        // Mendapatkan hari ini dalam format bahasa Indonesia
+        $hariIni = date('l'); // Mendapatkan hari dalam bahasa Inggris
+        $hariIndonesia = [
+            "Monday" => "Senin",
+            "Tuesday" => "Selasa",
+            "Wednesday" => "Rabu",
+            "Thursday" => "Kamis",
+            "Friday" => "Jumat",
+            "Saturday" => "Sabtu",
+            "Sunday" => "Minggu",
+        ];
+        $hariSekarang = $hariIndonesia[$hariIni];
+
+        // Cek apakah pegawai memiliki izin atau sakit yang sudah disetujui untuk hari ini
+        $izinDisetujui = DB::table('pengajuan_izin')
+            ->where('kode_pegawai', $kode_pegawai)
+            ->where('tanggal_izin', $tanggal_presensi)
+            ->where('status_approved', 1)
+            ->first();
+
+        if ($izinDisetujui) {
+            return response()->json([
+                'error' => 'Anda tidak perlu presensi!',
+                'message' => 'Anda sudah mendapatkan izin ' . ($izinDisetujui->status == 'i' ? 'Izin' : 'Sakit') . '. Tidak perlu melakukan presensi.',
+            ], 403);
         }
     
-        $image_base64 = base64_decode($image_parts[1]);
+        // Cek hari kerja pegawai di set_jam_kerja
+        $cekHariKerja = DB::table('set_jam_kerja')
+            ->where('nama', $nama)
+            ->where('hari', $hariSekarang)
+            ->first();
     
-        // Memastikan folder untuk menyimpan absensi
-        $folderPath = "uploads/absensi/";
-        $emailName = explode('@', $email)[0]; // Mengambil bagian sebelum @
-        $formatName = $emailName . "-" . $tanggal_presensi . "-" . $tipeAbsen;
-        $fileName = $formatName . ".png";
-        $filePath = $folderPath . $fileName;
+        if (!$cekHariKerja) {
+            return response()->json([
+                'error' => 'Hari ini bukan hari kerja Anda!',
+                'message' => 'Anda tidak dapat melakukan presensi di hari yang tidak dijadwalkan.',
+            ], 403);
+        }
     
-        // Cek radius
+        // Ambil konfigurasi shift kerja berdasarkan kode jam kerja
+        $shiftKerja = DB::table('konfigurasi_shift_kerja')
+            ->where('kode_jamkerja', $cekHariKerja->kode_jamkerja)
+            ->first();
+    
+        if (!$shiftKerja) {
+            return response()->json([
+                'error' => 'Konfigurasi shift tidak ditemukan!',
+                'message' => 'Silakan hubungi administrator untuk konfigurasi shift kerja.',
+            ], 500);
+        }
+    
+        // Validasi jam masuk dan pulang berdasarkan shift kerja
+        if ($tipeAbsen === 'masuk' && ($jam < $shiftKerja->awal_jam_masuk || $jam > $shiftKerja->akhir_jam_masuk)) {
+            return response()->json([
+                'error' => 'Tidak dalam waktu absensi masuk!',
+                'message' => 'Anda hanya bisa absen masuk antara ' . $shiftKerja->awal_jam_masuk . ' - ' . $shiftKerja->akhir_jam_masuk,
+            ], 403);
+        }
+    
+        if ($tipeAbsen === 'pulang' && $jam < $shiftKerja->jam_pulang) {
+            return response()->json([
+                'error' => 'Belum waktunya pulang!',
+                'message' => 'Anda hanya bisa absen pulang setelah ' . $shiftKerja->jam_pulang,
+            ], 403);
+        }
+    
+        // Cek radius lokasi kantor
         if ($radius > 90) {
             return response()->json([
                 'error' => 'Anda berada di luar radius kantor!',
@@ -86,17 +134,31 @@ class PresensiController extends Controller
             ], 403);
         }
     
-        // Simpan gambar ke storage
+        // Pisahkan data base64 dan decode gambar
+        $image_parts = explode(";base64,", $image);
+        if (count($image_parts) < 2) {
+            return response()->json(['error' => 'Format gambar tidak valid!'], 400);
+        }
+    
+        $image_base64 = base64_decode($image_parts[1]);
+    
+        // Menyimpan file gambar
+        $folderPath = "uploads/absensi/";
+        $emailName = explode('@', $email)[0]; // Mengambil bagian sebelum @
+        $formatName = $emailName . "-" . $tanggal_presensi . "-" . $tipeAbsen;
+        $fileName = $formatName . ".png";
+        $filePath = $folderPath . $fileName;
+    
         Storage::disk('public')->put($filePath, $image_base64);
     
-        // Cek apakah data presensi sudah ada untuk hari ini
+        // Cek apakah sudah ada presensi untuk hari ini
         $cek = DB::table('presensi')
             ->where('tanggal_presensi', $tanggal_presensi)
             ->where('email', $email)
             ->first();
     
         if ($cek) {
-            // Absen Pulang
+            // Proses Absen Pulang
             if ($tipeAbsen === 'pulang') {
                 $data_pulang = [
                     'jam_out' => $jam,
@@ -120,7 +182,7 @@ class PresensiController extends Controller
                 }
             }
         } else {
-            // Absen Masuk
+            // Proses Absen Masuk
             if ($tipeAbsen === 'masuk') {
                 $data = [
                     'nama' => $nama,
@@ -183,7 +245,7 @@ class PresensiController extends Controller
 
     public function updateprofile(Request $request)
     {
-        $user = Auth::user(); // Mendapatkan data user yang sedang login
+        $user = Auth::user();
     
         // Validasi input
         $validated = $request->validate([
@@ -234,12 +296,33 @@ class PresensiController extends Controller
             $user = Auth::user();
             $kode_pegawai = $user->id;
     
-            $histori = DB::table('presensi')
+            // Ambil data presensi
+            $presensi = DB::table('presensi')
                 ->whereRaw('MONTH(tanggal_presensi) = ?', [$bulan])
                 ->whereRaw('YEAR(tanggal_presensi) = ?', [$tahun])
                 ->where('kode_pegawai', $kode_pegawai)
                 ->orderBy('tanggal_presensi')
                 ->get();
+    
+            // Ambil data pengajuan izin hanya yang disetujui (status_approved = 1)
+            $izin = DB::table('pengajuan_izin')
+                ->select(
+                    'tanggal_izin AS tanggal_presensi',
+                    'status',
+                    'keterangan',
+                    'status_approved',
+                    DB::raw('NULL as jam_in'),
+                    DB::raw('NULL as jam_out')
+                )
+                ->whereRaw('MONTH(tanggal_izin) = ?', [$bulan])
+                ->whereRaw('YEAR(tanggal_izin) = ?', [$tahun])
+                ->where('kode_pegawai', $kode_pegawai)
+                ->where('status_approved', 1) // Filter hanya yang disetujui
+                ->orderBy('tanggal_izin')
+                ->get();
+    
+            // Gabungkan hasil presensi dan izin
+            $histori = collect($presensi)->merge($izin)->sortBy('tanggal_presensi')->values();
     
             return response()->json($histori);
         } catch (\Exception $e) {
@@ -250,11 +333,48 @@ class PresensiController extends Controller
         }
     }
 
-    public function izin(){
-        return Inertia::render('User/Izin',[
+    public function izin() {
+        $user = Auth::user();
+        $kode_pegawai = $user->id;
+    
+        $dataizin = DB::table('pengajuan_izin')
+            ->where('kode_pegawai', $kode_pegawai)
+            ->orderBy('tanggal_izin', 'asc') // Mengurutkan berdasarkan tanggal izin secara ascending
+            ->get();
+        
+        return Inertia::render('User/Izin', [
+            'dataizin' => $dataizin
+        ])->with([
             'successMessage' => session('successMessage'),
             'errorMessage' => session('errorMessage'),
-    ]);
+        ]);
+    }
+
+    public function batalkanIzin($id)
+    {
+        // Ambil data izin berdasarkan ID
+        $izin = DB::table('pengajuan_izin')->where('id', $id)->first();
+    
+        // Cek apakah izin ditemukan
+        if (!$izin) {
+            return response()->json(['error' => 'Izin tidak ditemukan!'], 404);
+        }
+    
+        // Cek apakah izin masih pending (status_approved = 0)
+        if ($izin->status_approved != 0) {
+            return response()->json([
+                'error' => 'Izin tidak dapat dibatalkan!',
+                'message' => 'Izin sudah disetujui atau ditolak.'
+            ], 403);
+        }
+    
+        // Hapus izin jika masih pending
+        DB::table('pengajuan_izin')->where('id', $id)->delete();
+    
+        return response()->json([
+            'message' => 'Izin berhasil dibatalkan!',
+            'success' => true
+        ], 200);
     }
 
     public function buatizin(){
@@ -264,7 +384,6 @@ class PresensiController extends Controller
 
     public function storeizin(Request $request)
     {
-        // Mendapatkan Kode Pegawai
         $user = Auth::user();
         $kode_pegawai = $user->id;
     
@@ -272,21 +391,46 @@ class PresensiController extends Controller
         $status = $request->status;
         $keterangan = $request->keterangan;
     
-        $data = [
-            'kode_pegawai' => $kode_pegawai,
-            'tanggal_izin' => $tanggal_izin,
-            'status' => $status,
-            'keterangan' => $keterangan,
-            'created_at' => now()
-        ];
+        // **Validasi input**
+        $request->validate([
+            'tanggal_izin' => 'required|date',
+            'status' => 'required|in:i,s', // i = izin, s = sakit
+            'keterangan' => 'required|string|max:255',
+        ]);
     
-        $simpan = DB::table('pengajuan_izin')->insert($data);
+        // **Cek apakah izin sudah ada di tanggal yang sama**
+        $izinSudahAda = DB::table('pengajuan_izin')
+            ->where('kode_pegawai', $kode_pegawai)
+            ->where('tanggal_izin', $tanggal_izin)
+            ->first();
     
-        // Redirect dengan flash message
-        if ($simpan) {
-            return redirect('/presensi/izin')->with(['successMessage' => 'Data Berhasil Disimpan']);
-        } else {
-            return redirect('/presensi/izin')->with(['errorMessage' => 'Data Gagal Disimpan']);
+        if ($izinSudahAda) {
+            session()->flash('errorMessage', 'Anda sudah mengajukan izin untuk tanggal ini!');
+            return redirect('/presensi/izin');
+        }
+    
+        try {
+            // **Simpan data izin baru**
+            $data = [
+                'kode_pegawai' => $kode_pegawai,
+                'tanggal_izin' => $tanggal_izin,
+                'status' => $status,
+                'keterangan' => $keterangan,
+                'created_at' => now()
+            ];
+    
+            $simpan = DB::table('pengajuan_izin')->insert($data);
+    
+            if ($simpan) {
+                session()->flash('successMessage', 'Data Berhasil Disimpan');
+                return redirect('/presensi/izin');
+            } else {
+                session()->flash('errorMessage', 'Terjadi kesalahan saat menyimpan data. Coba lagi.');
+                return redirect('/presensi/izin');
+            }
+        } catch (\Exception $e) {
+            session()->flash('errorMessage', 'Terjadi kesalahan sistem: ' . $e->getMessage());
+            return redirect('/presensi/izin');
         }
     }
 
