@@ -23,6 +23,9 @@
     "dependencies": {
         "@amcharts/amcharts4": "^4.10.39",
         "@inertiajs/inertia": "^0.11.1",
+
+        "file-saver": "^2.0.5",
+        "lucide-react": "^0.474.0",
         "framer-motion": "^12.0.6",
         "ionicons": "^7.4.0",
         "leaflet": "^1.9.4",
@@ -34,8 +37,10 @@
         "react-swipeable-list": "^1.10.0",
         "react-toastify": "^11.0.3",
         "react-webcam": "^7.2.0",
+        "sonner": "^1.7.4",
         "sweetalert2": "^11.15.10",
         "webcamjs": "^1.0.26",
-        "webjs": "^0.6.1"
+        "webjs": "^0.6.1",
+        "xlsx": "^0.18.5"
     }
 }

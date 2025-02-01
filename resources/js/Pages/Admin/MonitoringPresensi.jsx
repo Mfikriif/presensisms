@@ -10,7 +10,7 @@ import "leaflet/dist/leaflet.css";
 export default function MonitoringPresensi({ presensi, statusPresensi }) {
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(0);
-    const itemsPerPage = 10; // Jumlah item per halaman
+    const itemsPerPage = 8; // Jumlah item per halaman
     const [showModal, setShowModal] = useState(false);
     const [selectedLocation, setSelectedLocation] = useState({
         latitude: 0,
@@ -18,21 +18,11 @@ export default function MonitoringPresensi({ presensi, statusPresensi }) {
         nama: "",
     });
 
-    const openModal = () => setShowModal(true);
-    const closeModal = () => setShowModal(false);
-
     // Fungsi untuk memfilter data berdasarkan input pencarian
     const filteredPresensi = presensi.filter((psn) =>
         `${psn.nama} ${psn.email} ${psn.tanggal_presensi} ${psn.jam_in} ${psn.jam_out} ${psn.lokasi_in} ${psn.lokasi_out}`
             .toLowerCase()
             .includes(searchTerm.toLowerCase())
-    );
-
-    // Data untuk halaman yang sedang ditampilkan
-    const pageCount = Math.ceil(filteredPresensi.length / itemsPerPage);
-    const paginatedPresensi = filteredPresensi.slice(
-        currentPage * itemsPerPage,
-        (currentPage + 1) * itemsPerPage
     );
 
     // Fungsi untuk menangani perubahan halaman
@@ -83,7 +73,13 @@ export default function MonitoringPresensi({ presensi, statusPresensi }) {
     }
 
     // Memperbarui bagian "combinedData" untuk memasukkan waktu keterlambatan
-    const combinedData = presensi.map((psn) => {
+    const parseTimeToSeconds = (timeStr) => {
+        const [hours, minutes, seconds] = timeStr.split(":").map(Number);
+        return hours * 3600 + minutes * 60 + (seconds || 0); // Konversi jam ke detik total
+    };
+
+    const combinedData = filteredPresensi.map((psn) => {
+        // Sisa logika hitung keterlambatan tetap sama
         const status = statusPresensi.find(
             (status) =>
                 status.nama === psn.nama &&
@@ -91,8 +87,13 @@ export default function MonitoringPresensi({ presensi, statusPresensi }) {
         );
 
         const akhirJamMasuk = status?.akhir_jam_masuk || "23:59:59";
+
+        const jamMasukPegawai = parseTimeToSeconds(psn.jam_in);
+        const batasJamMasuk = parseTimeToSeconds(akhirJamMasuk);
+
         const statusTerlambat =
-            psn.jam_in > akhirJamMasuk ? "Terlambat" : "Tepat Waktu";
+            jamMasukPegawai > batasJamMasuk ? "Terlambat" : "Tepat Waktu";
+
         const jamKeterlambatan =
             statusTerlambat === "Terlambat"
                 ? hitungJamKeterlambatan(psn.jam_in, akhirJamMasuk)
@@ -102,13 +103,9 @@ export default function MonitoringPresensi({ presensi, statusPresensi }) {
             ...psn,
             akhir_jam_masuk: akhirJamMasuk,
             status_terlambat: statusTerlambat,
-            jam_keterlambatan: jamKeterlambatan, // Menambahkan jumlah jam keterlambatan
+            jam_keterlambatan: jamKeterlambatan,
         };
     });
-
-    // menampilkan map
-
-    console.log("Modal dibuka:", showModal);
 
     useEffect(() => {
         let map;
@@ -167,17 +164,29 @@ export default function MonitoringPresensi({ presensi, statusPresensi }) {
         };
     }, [showModal, selectedLocation]);
 
-    const mapElement = document.getElementById("map");
-    if (!mapElement) {
-        console.error("Elemen #map tidak ditemukan");
-    } else {
-        console.log("Elemen #map ditemukan");
-    }
+    const getCurrentDate = () => {
+        const today = new Date();
+        return today.toISOString().split("T")[0]; // Format 'YYYY-MM-DD'
+    };
+
+    const filteredForToday = combinedData.filter(
+        (psn) => psn.tanggal_presensi === getCurrentDate()
+    );
+
+    const isSearching = searchTerm !== "";
+    const displayPresensi = isSearching ? combinedData : filteredForToday;
+
+    // Data untuk halaman yang sedang ditampilkan
+    const pageCount = Math.ceil(filteredPresensi.length / itemsPerPage);
+    const paginatedPresensi = displayPresensi.slice(
+        currentPage * itemsPerPage,
+        (currentPage + 1) * itemsPerPage
+    );
 
     return (
         <>
             <AuthenticatedLayout
-                header={<h1>Monitoring Presensi Pegawai</h1>}
+                header={<>Monitoring Presensi Pegawai</>}
                 children={
                     <>
                         <div className="p-6 bg-white shadow-md rounded-lg">
@@ -234,7 +243,7 @@ export default function MonitoringPresensi({ presensi, statusPresensi }) {
 
                                         <tbody>
                                             {paginatedPresensi.length > 0 ? (
-                                                combinedData.map(
+                                                paginatedPresensi.map(
                                                     (psn, index) => {
                                                         return (
                                                             <tr
@@ -276,13 +285,28 @@ export default function MonitoringPresensi({ presensi, statusPresensi }) {
                                                                     />
                                                                 </td>
                                                                 <td className="px-2 py-1">
-                                                                    {psn.jam_out ? (
-                                                                        psn.jam_out
+                                                                    {!psn.jam_out ? (
+                                                                        new Date() -
+                                                                            new Date(
+                                                                                psn.tanggal_presensi
+                                                                            ) >
+                                                                        24 *
+                                                                            60 *
+                                                                            60 *
+                                                                            1000 ? (
+                                                                            <span className="bg-red-600 text-white rounded px-3 text-center py-1 whitespace-nowrap">
+                                                                                Tidak
+                                                                                Absen
+                                                                                pulang
+                                                                            </span>
+                                                                        ) : (
+                                                                            <span className="bg-red-600 text-white rounded px-3 text-center py-1 whitespace-nowrap">
+                                                                                Belum
+                                                                                Absen
+                                                                            </span>
+                                                                        )
                                                                     ) : (
-                                                                        <span className="bg-red-600 text-white rounded px-3 text-center py-1 whitespace-nowrap">
-                                                                            Belum
-                                                                            Absen
-                                                                        </span>
+                                                                        psn.jam_out
                                                                     )}
                                                                 </td>
                                                                 <td className="px-2 py-1">

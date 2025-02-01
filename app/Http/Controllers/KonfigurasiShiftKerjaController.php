@@ -30,7 +30,6 @@ class KonfigurasiShiftKerjaController extends Controller
      */
     public function store(Request $request)
     {
-        sleep(2);
 
         $dataShift = $request->validate([
             'kode_jamkerja' => 'required',
@@ -41,9 +40,15 @@ class KonfigurasiShiftKerjaController extends Controller
             'jam_pulang' => 'required',
         ]);
 
+        if(konfigurasi_shift_kerja::where('kode_jamkerja', $dataShift['kode_jamkerja'])->exists()){
+             return back()->withErrors(['kode_jamkerja' => 'Kode jam kerja sudah digunakan'])->withInput();
+        }
+
+        sleep(2);
+
         konfigurasi_shift_kerja::create($dataShift);
 
-        return redirect()->route('konfigurasi.index')->with('success');
+        return redirect()->route('konfigurasi.index');
     }
 
     /**

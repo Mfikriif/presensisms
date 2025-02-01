@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\pegawai;
 use App\Models\presensi;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -9,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\pengajuan_izin;
 
 class PresensiController extends Controller
 {
@@ -434,29 +436,436 @@ class PresensiController extends Controller
         }
     }
 
-    // Presensi Monitoring
+    // Presensi Monitoring // Controller Admin
     public function presensiMonitoring()
     {   
-        $tanggalTahunHariIni = now()->toDateString();
-        $presensi = presensi::whereDate('created_at', $tanggalTahunHariIni)->latest()->get();
-
-        $hariIni = now()->locale('id')->translatedFormat('l'); // Nama hari dalam bahasa Indonesia
+        $presensi = presensi::latest()->get();
 
         $statusPresensi = DB::table('presensi as p')
-            ->join('set_jam_kerja as s', 'p.kode_pegawai', '=', 's.id')
-            ->join('konfigurasi_shift_kerja as k', 's.kode_jamkerja', '=', 'k.kode_jamkerja')
+                ->leftJoin('set_jam_kerja as s', function ($join) {
+                $join->on('p.kode_pegawai', '=', 's.id')
+                    ->whereRaw("LOWER(s.hari) = LOWER(
+                        CASE 
+                            WHEN DAYNAME(p.tanggal_presensi) = 'Monday' THEN 'Senin'
+                            WHEN DAYNAME(p.tanggal_presensi) = 'Tuesday' THEN 'Selasa'
+                            WHEN DAYNAME(p.tanggal_presensi) = 'Wednesday' THEN 'Rabu'
+                            WHEN DAYNAME(p.tanggal_presensi) = 'Thursday' THEN 'Kamis'
+                            WHEN DAYNAME(p.tanggal_presensi) = 'Friday' THEN 'Jumat'
+                            WHEN DAYNAME(p.tanggal_presensi) = 'Saturday' THEN 'Sabtu'
+                            WHEN DAYNAME(p.tanggal_presensi) = 'Sunday' THEN 'Minggu'
+                        END
+                    )"); 
+            })
+            ->leftJoin('konfigurasi_shift_kerja as k', 's.kode_jamkerja', '=', 'k.kode_jamkerja')
             ->select(
                 'p.nama',
                 'p.jam_in',
+                'p.jam_out',
                 'p.tanggal_presensi',
-                'k.akhir_jam_masuk'
+                's.hari AS shift_hari',
+                's.kode_jamkerja',
+                DB::raw("COALESCE(k.akhir_jam_masuk, 'Tidak ada data') AS akhir_jam_masuk")
             )
-            ->whereDate('p.tanggal_presensi', $tanggalTahunHariIni)
-            ->where('s.hari', '=', $hariIni) // Filter hari sesuai nama hari
+            ->orderBy('p.tanggal_presensi', 'asc')
             ->get();
 
 
         return Inertia::render('Admin/MonitoringPresensi',['presensi' => $presensi,'statusPresensi' => $statusPresensi]);
     }
 
+    public function laporan()
+    {   
+        $namabulan = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+        $namaPegawai = pegawai::orderBy('nama_lengkap')->get();
+        return Inertia::render('Admin/LaporanPresensi',['namabulan' => $namabulan, 'namaPegawai' => $namaPegawai]);
+    }
+
+    public function cetakLaporanPegawai(Request $request)
+    {
+        try {
+            // Ambil parameter dari query string
+            $bulan = $request->query('bulan');
+            $tahun = $request->query('tahun');
+            $kode_pegawai = $request->query('idPegawai');
+
+            // Query data presensi
+            $histori = DB::table('presensi')
+            ->whereRaw('MONTH(tanggal_presensi) = ?', [$bulan])
+            ->whereRaw('YEAR(tanggal_presensi) = ?', [$tahun])
+            ->where('kode_pegawai', $kode_pegawai)
+            ->join('pegawais', 'presensi.kode_pegawai', '=', 'pegawais.id') 
+            ->select('presensi.*', 'pegawais.posisi','pegawais.foto','pegawais.no_hp')
+            ->orderBy('tanggal_presensi')
+            ->get();
+
+
+
+            $statusPresensi = DB::table('presensi as p')
+                ->leftJoin('set_jam_kerja as s', function ($join) {
+                $join->on('p.kode_pegawai', '=', 's.id')
+                    ->whereRaw("LOWER(s.hari) = LOWER(
+                        CASE 
+                            WHEN DAYNAME(p.tanggal_presensi) = 'Monday' THEN 'Senin'
+                            WHEN DAYNAME(p.tanggal_presensi) = 'Tuesday' THEN 'Selasa'
+                            WHEN DAYNAME(p.tanggal_presensi) = 'Wednesday' THEN 'Rabu'
+                            WHEN DAYNAME(p.tanggal_presensi) = 'Thursday' THEN 'Kamis'
+                            WHEN DAYNAME(p.tanggal_presensi) = 'Friday' THEN 'Jumat'
+                            WHEN DAYNAME(p.tanggal_presensi) = 'Saturday' THEN 'Sabtu'
+                            WHEN DAYNAME(p.tanggal_presensi) = 'Sunday' THEN 'Minggu'
+                        END
+                    )"); 
+            })
+            ->leftJoin('konfigurasi_shift_kerja as k', 's.kode_jamkerja', '=', 'k.kode_jamkerja')
+            ->select(
+                'p.nama',
+                'p.jam_in',
+                'p.jam_out',
+                'p.tanggal_presensi',
+                's.hari AS shift_hari',
+                's.kode_jamkerja',
+                DB::raw("COALESCE(k.akhir_jam_masuk, 'Tidak ada data') AS akhir_jam_masuk")
+            )
+            ->where('p.kode_pegawai', $kode_pegawai)
+            ->orderBy('p.tanggal_presensi', 'asc')
+            ->get();
+
+            // Jika tidak ada data, tampilkan pesan di halaman cetak
+            if ($histori->isEmpty()) {
+                return Inertia::render('Admin/CetakLaporan', [
+                    'histori' => [],
+                    'bulan' => $bulan,
+                    'tahun' => $tahun,
+                    'statusPresensi' => $statusPresensi,
+                    'error' => 'Tidak ada data untuk bulan dan tahun yang dipilih.',
+                ]);
+            }
+
+            // Kirim data ke view untuk dicetak
+            return Inertia::render('Admin/CetakLaporan', [
+                'histori' => $histori,
+                'bulan' => $bulan,
+                'tahun' => $tahun,
+                'statusPresensi' => $statusPresensi,
+
+            ]);
+        } catch (\Exception $e) {
+            // Tampilkan error jika terjadi masalah
+            return Inertia::render('Admin/CetakLaporan', [
+                'histori' => [],
+                'bulan' => null,
+                'tahun' => null,
+                'statusPresensi' => null,
+
+                'error' => 'Terjadi kesalahan: ' . $e->getMessage(),
+            ]);
+        }
+    }
+
+   public function exportExcel(Request $request)
+    {
+        try {
+            // Validasi input tanpa exists
+            $request->validate([
+                'bulan' => 'required|integer|min:1|max:12',
+                'tahun' => 'required|integer|min:2000',
+                'idPegawai' => 'required|integer',
+            ]);
+
+            $bulan = $request->bulan;
+            $tahun = $request->tahun;
+            $idPegawai = $request->idPegawai;
+
+            // Ambil data presensi
+            $dataPresensi = presensi::where('kode_pegawai', $idPegawai)
+                ->whereYear('tanggal_presensi', $tahun)
+                ->whereMonth('tanggal_presensi', $bulan)
+                ->orderBy('tanggal_presensi', 'asc')
+                ->get();
+
+            $statusPresensi = DB::table('presensi as p')
+                ->leftJoin('set_jam_kerja as s', function ($join) {
+                $join->on('p.kode_pegawai', '=', 's.id')
+                    ->whereRaw("LOWER(s.hari) = LOWER(
+                        CASE 
+                            WHEN DAYNAME(p.tanggal_presensi) = 'Monday' THEN 'Senin'
+                            WHEN DAYNAME(p.tanggal_presensi) = 'Tuesday' THEN 'Selasa'
+                            WHEN DAYNAME(p.tanggal_presensi) = 'Wednesday' THEN 'Rabu'
+                            WHEN DAYNAME(p.tanggal_presensi) = 'Thursday' THEN 'Kamis'
+                            WHEN DAYNAME(p.tanggal_presensi) = 'Friday' THEN 'Jumat'
+                            WHEN DAYNAME(p.tanggal_presensi) = 'Saturday' THEN 'Sabtu'
+                            WHEN DAYNAME(p.tanggal_presensi) = 'Sunday' THEN 'Minggu'
+                        END
+                    )"); 
+            })
+            ->leftJoin('konfigurasi_shift_kerja as k', 's.kode_jamkerja', '=', 'k.kode_jamkerja')
+            ->select(
+                'p.nama',
+                'p.jam_in',
+                'p.jam_out',
+                'p.tanggal_presensi',
+                's.hari AS shift_hari',
+                's.kode_jamkerja',
+                DB::raw("COALESCE(k.akhir_jam_masuk, 'Tidak ada data') AS akhir_jam_masuk")
+            )
+            ->where('p.kode_pegawai', $idPegawai)
+            ->orderBy('p.tanggal_presensi', 'asc')
+            ->get();
+
+            if ($dataPresensi->isEmpty()) {
+                return response()->json(['error' => 'Tidak ada data presensi'], 404);
+            }
+            if ($statusPresensi->isEmpty()) {
+                return response()->json(['error' => 'Tidak ada data presensi'], 404);
+            }
+
+           return response()->json([
+                'dataPresensi' => $dataPresensi,
+                'statusPresensi' => $statusPresensi,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function showPageRekap()
+    {   
+        $namabulan = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+        return Inertia::render('Admin/RekapPresensi', ['namabulan' => $namabulan]);
+    }
+
+    public function getRekapPresensi(Request $request)
+    {
+        $bulan = $request->bulan;
+        $tahun = $request->tahun;
+        
+        $subQuery = DB::table('set_jam_kerja')
+            ->join('konfigurasi_shift_kerja', 'konfigurasi_shift_kerja.kode_jamkerja', '=', 'set_jam_kerja.kode_jamkerja')
+            ->select(
+                'set_jam_kerja.id',
+                'set_jam_kerja.hari',
+                'konfigurasi_shift_kerja.akhir_jam_masuk'
+            );
+
+        $rekapPresensi = DB::table('presensi')
+            ->whereRaw('MONTH(tanggal_presensi) = ?', [$bulan])
+            ->whereRaw('YEAR(tanggal_presensi) = ?', [$tahun])
+            ->join('pegawais', 'presensi.kode_pegawai', '=', 'pegawais.id')
+            ->leftJoinSub($subQuery, 'shift_data', function ($join) {
+                $join->on('pegawais.id', '=', 'shift_data.id')
+                    ->whereRaw("LOWER(shift_data.hari) = LOWER(
+                        CASE 
+                            WHEN DAYNAME(presensi.tanggal_presensi) = 'Monday' THEN 'Senin'
+                            WHEN DAYNAME(presensi.tanggal_presensi) = 'Tuesday' THEN 'Selasa'
+                            WHEN DAYNAME(presensi.tanggal_presensi) = 'Wednesday' THEN 'Rabu'
+                            WHEN DAYNAME(presensi.tanggal_presensi) = 'Thursday' THEN 'Kamis'
+                            WHEN DAYNAME(presensi.tanggal_presensi) = 'Friday' THEN 'Jumat'
+                            WHEN DAYNAME(presensi.tanggal_presensi) = 'Saturday' THEN 'Sabtu'
+                            WHEN DAYNAME(presensi.tanggal_presensi) = 'Sunday' THEN 'Minggu'
+                        END
+                    )");
+            })
+            ->select(
+                'presensi.id',
+                'presensi.kode_pegawai',
+                'presensi.tanggal_presensi',
+                'presensi.jam_in',
+                'presensi.jam_out',
+                'pegawais.nama_lengkap',
+                'pegawais.posisi',
+                'pegawais.foto',
+                'pegawais.no_hp',
+            )
+            ->orderBy('presensi.tanggal_presensi')
+            ->get();
+
+
+
+
+        $statusPresensi = DB::table('presensi as p')
+            ->leftJoin('set_jam_kerja as s', function ($join) {
+                $join->on('p.kode_pegawai', '=', 's.id')
+                    ->whereRaw("LOWER(s.hari) = LOWER(
+                        CASE 
+                            WHEN DAYNAME(p.tanggal_presensi) = 'Monday' THEN 'Senin'
+                            WHEN DAYNAME(p.tanggal_presensi) = 'Tuesday' THEN 'Selasa'
+                            WHEN DAYNAME(p.tanggal_presensi) = 'Wednesday' THEN 'Rabu'
+                            WHEN DAYNAME(p.tanggal_presensi) = 'Thursday' THEN 'Kamis'
+                            WHEN DAYNAME(p.tanggal_presensi) = 'Friday' THEN 'Jumat'
+                            WHEN DAYNAME(p.tanggal_presensi) = 'Saturday' THEN 'Sabtu'
+                            WHEN DAYNAME(p.tanggal_presensi) = 'Sunday' THEN 'Minggu'
+                        END
+                    )");
+            })
+            ->leftJoin('konfigurasi_shift_kerja as k', 's.kode_jamkerja', '=', 'k.kode_jamkerja')
+            ->select(
+                'p.kode_pegawai',
+                'p.nama',
+                'p.jam_in',
+                'p.jam_out',
+                'p.tanggal_presensi',
+                's.hari AS shift_hari',
+                's.kode_jamkerja',
+                DB::raw("COALESCE(k.akhir_jam_masuk, 'Tidak ada data') AS akhir_jam_masuk"),
+                DB::raw("CASE WHEN TIME(p.jam_in) > TIME(k.akhir_jam_masuk) THEN 1 ELSE 0 END AS terlambat")
+            )
+            ->orderBy('p.tanggal_presensi', 'asc')
+            ->get();
+
+        // Mengelompokkan data berdasarkan pegawai dan menghitung jumlah keterlambatan
+        $rekapKeterlambatan = $statusPresensi->groupBy('kode_pegawai')->map(function ($items) {
+            return [
+                'nama' => $items->first()->nama,
+                'jumlah_keterlambatan' => $items->sum('terlambat'),
+                'total_presensi' => $items->count()
+            ];
+        });
+
+
+
+        // dd($rekapPresensi, $rekapKeterlambatan);
+
+        return Inertia::render('Admin/CetakRekap', ['rekapPresensi' => $rekapPresensi,'rekapKeterlambatan' => $rekapKeterlambatan, 'bulan' => $bulan,'tahun' => $tahun]);
+    }
+
+    public function getRekapExcel(Request $request)
+    {
+        try {
+            $request->validate([
+                'bulan' => 'required|integer',
+                'tahun' => 'required|integer'
+            ]);
+
+            $bulan = $request->bulan;
+            $tahun = $request->tahun;
+
+            $subQuery = DB::table('set_jam_kerja')
+            ->join('konfigurasi_shift_kerja', 'konfigurasi_shift_kerja.kode_jamkerja', '=', 'set_jam_kerja.kode_jamkerja')
+            ->select(
+                'set_jam_kerja.id',
+                'set_jam_kerja.hari',
+                'konfigurasi_shift_kerja.akhir_jam_masuk'
+            );
+
+            $rekapPresensi = DB::table('presensi')
+                ->whereRaw('MONTH(tanggal_presensi) = ?', [$bulan])
+                ->whereRaw('YEAR(tanggal_presensi) = ?', [$tahun])
+                ->join('pegawais', 'presensi.kode_pegawai', '=', 'pegawais.id')
+                ->leftJoinSub($subQuery, 'shift_data', function ($join) {
+                    $join->on('pegawais.id', '=', 'shift_data.id')
+                        ->whereRaw("LOWER(shift_data.hari) = LOWER(
+                            CASE 
+                                WHEN DAYNAME(presensi.tanggal_presensi) = 'Monday' THEN 'Senin'
+                                WHEN DAYNAME(presensi.tanggal_presensi) = 'Tuesday' THEN 'Selasa'
+                                WHEN DAYNAME(presensi.tanggal_presensi) = 'Wednesday' THEN 'Rabu'
+                                WHEN DAYNAME(presensi.tanggal_presensi) = 'Thursday' THEN 'Kamis'
+                                WHEN DAYNAME(presensi.tanggal_presensi) = 'Friday' THEN 'Jumat'
+                                WHEN DAYNAME(presensi.tanggal_presensi) = 'Saturday' THEN 'Sabtu'
+                                WHEN DAYNAME(presensi.tanggal_presensi) = 'Sunday' THEN 'Minggu'
+                            END
+                        )");
+                })
+                ->select(
+                    'presensi.id',
+                    'presensi.kode_pegawai',
+                    'presensi.tanggal_presensi',
+                    'presensi.jam_in',
+                    'presensi.jam_out',
+                    'pegawais.nama_lengkap',
+                    'pegawais.posisi',
+                    'pegawais.foto',
+                    'pegawais.no_hp',
+                )
+                ->orderBy('presensi.tanggal_presensi')
+                ->get();
+
+
+
+
+            $statusPresensi = DB::table('presensi as p')
+                ->leftJoin('set_jam_kerja as s', function ($join) {
+                    $join->on('p.kode_pegawai', '=', 's.id')
+                        ->whereRaw("LOWER(s.hari) = LOWER(
+                            CASE 
+                                WHEN DAYNAME(p.tanggal_presensi) = 'Monday' THEN 'Senin'
+                                WHEN DAYNAME(p.tanggal_presensi) = 'Tuesday' THEN 'Selasa'
+                                WHEN DAYNAME(p.tanggal_presensi) = 'Wednesday' THEN 'Rabu'
+                                WHEN DAYNAME(p.tanggal_presensi) = 'Thursday' THEN 'Kamis'
+                                WHEN DAYNAME(p.tanggal_presensi) = 'Friday' THEN 'Jumat'
+                                WHEN DAYNAME(p.tanggal_presensi) = 'Saturday' THEN 'Sabtu'
+                                WHEN DAYNAME(p.tanggal_presensi) = 'Sunday' THEN 'Minggu'
+                            END
+                        )");
+                })
+                ->leftJoin('konfigurasi_shift_kerja as k', 's.kode_jamkerja', '=', 'k.kode_jamkerja')
+                ->select(
+                    'p.kode_pegawai',
+                    'p.nama',
+                    'p.jam_in',
+                    'p.jam_out',
+                    'p.tanggal_presensi',
+                    's.hari AS shift_hari',
+                    's.kode_jamkerja',
+                    DB::raw("COALESCE(k.akhir_jam_masuk, 'Tidak ada data') AS akhir_jam_masuk"),
+                    DB::raw("CASE WHEN TIME(p.jam_in) > TIME(k.akhir_jam_masuk) THEN 1 ELSE 0 END AS terlambat")
+                )
+                ->orderBy('p.tanggal_presensi', 'asc')
+                ->get();
+
+                // dd($rekapPresensi);
+            // Mengelompokkan data berdasarkan pegawai dan menghitung jumlah keterlambatan
+            $rekapKeterlambatan = $statusPresensi->groupBy('kode_pegawai')->map(function ($items) {
+                return [
+                    'nama' => $items->first()->nama,
+                    'jumlah_keterlambatan' => $items->sum('terlambat'),
+                    'total_presensi' => $items->count()
+                ];
+            });
+
+            
+            if ($rekapPresensi->isEmpty()) {
+                return response()->json(['error' => 'Tidak ada data presensi']);
+            }
+            
+            if ($rekapKeterlambatan->isEmpty()){
+                return response()->json(['error' => ' Tidak ada data keterlambatan presensi']);
+            }
+            
+            return response()->json([
+                'rekapPresensi' => $rekapPresensi,
+                'rekapKeterlambatan' => $rekapKeterlambatan
+            ]);
+
+        } catch (\Throwable $th) {
+            return response()->json(['error', $th->getMessage()],500);
+        }
+    }
+
+    public function showIzinSakit()
+    {   
+        $dataIzinSakit = DB::table('pengajuan_izin')
+                        ->join('pegawais', 'pengajuan_izin.kode_pegawai', '=', 'pegawais.id')
+                        ->select('pegawais.nama_lengkap', 'pengajuan_izin.*')
+                        ->get();
+        return Inertia::render('Admin/IzinSakit',['dataIzinSakit' => $dataIzinSakit]);
+    }
+
+    public function approvalIzin(Request $request, $id)
+    {
+        $request->validate([
+            'status_approved' => 'required',
+        ]);
+
+        $izinSakit = pengajuan_izin::find($id);
+
+        if (!$izinSakit) {
+            return response()->json(['message' => 'Data tidk ditemukan'], 404);
+        }
+
+        $izinSakit->status_approved = $request->status_approved;
+
+        $izinSakit->save();
+
+        return response()->json(['message' => 'Status berhasil diperbarui'], 200);
+    }
 }

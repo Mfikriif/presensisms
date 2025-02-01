@@ -3,6 +3,7 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, useForm } from "@inertiajs/react";
 import { useState } from "react";
 import { FaEdit, FaPlus } from "react-icons/fa";
+import { toast } from "sonner";
 
 export default function KonfigurasiJamkerja({ jadwalShift }) {
     // modal input data shift baru
@@ -10,7 +11,7 @@ export default function KonfigurasiJamkerja({ jadwalShift }) {
     const openModal = () => setShowModal(true);
     const closeModal = () => setShowModal(false);
 
-    const { data, setData, post, put, errors, processing } = useForm({
+    const { data, setData, post, errors, processing } = useForm({
         id: "",
         kode_jamkerja: "",
         nama_jamkerja: "",
@@ -32,6 +33,13 @@ export default function KonfigurasiJamkerja({ jadwalShift }) {
                     akhir_jam_masuk: "",
                     jam_pulang: "",
                 });
+                toast.success("Shift kerja berhasil di tambahkan");
+                closeModal();
+            },
+
+            onError: () => {
+                closeModal();
+                toast.error("Kode Jam kerja sudah digunakan");
             },
         });
     }

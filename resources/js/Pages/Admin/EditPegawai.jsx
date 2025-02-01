@@ -1,27 +1,15 @@
 import Modal from "@/Components/Modal";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { Head, useForm, usePage } from "@inertiajs/react";
-import { useEffect, useState } from "react";
+import { Head, useForm } from "@inertiajs/react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { AlertTriangle } from "lucide-react";
 
 export default function EditPegawai({ pegawai }) {
     const [showEditModal, setShowEditModal] = useState(false); // State untuk mengontrol modal untuk modal edit pegawai
     // modal edit pegawai
     const openEditModal = () => setShowEditModal(true); // Buka modal
     const closeEditModal = () => setShowEditModal(false); // Tutup modal
-
-    // flash Message
-    const { flash } = usePage().props;
-    const [flashMsg, setFlashMsg] = useState(null);
-    useEffect(() => {
-        if (flash.success) {
-            setFlashMsg(flash.success);
-            const timer = setTimeout(() => {
-                setFlashMsg(null);
-            }, 6000);
-
-            return () => clearTimeout(timer);
-        }
-    }, [flash.success]);
 
     const {
         data,
@@ -36,7 +24,7 @@ export default function EditPegawai({ pegawai }) {
         email: pegawai.email,
         tempat_lahir: pegawai.tempat_lahir,
         tanggal_lahir: pegawai.tanggal_lahir,
-        no_Hp: pegawai.no_Hp,
+        no_hp: pegawai.no_hp,
     });
 
     function handleUpdate(e) {
@@ -47,23 +35,59 @@ export default function EditPegawai({ pegawai }) {
                     nama_lengkap: "",
                     email: "",
                     posisi: "",
-                    No_Hp: "",
+                    no_hp: "",
                     foto: null,
                     tempat_lahir: "",
                     tanggal_lahir: "",
                 });
+                closeEditModal();
+                toast.success("Data pegawai berhasil di perbarui");
             },
         });
     }
 
     function handleDestroy(e) {
         e.preventDefault();
+
+        // Tampilkan alert konfirmasi sebelum menghapus data
+        toast(
+            (t) => (
+                <div className="flex flex-col items-center justify-center space-y-4 p-4 bg-red-100 border border-red-400 rounded-lg">
+                    <div className="flex items-center gap-2">
+                        <AlertTriangle className="text-red-600 w-20 h-20" />
+                        <p className="text-lg font-semibold text-red-600">
+                            Apakah Anda yakin ingin menghapus data ini?
+                        </p>
+                    </div>
+                    <div className="flex gap-4">
+                        <button
+                            onClick={() => confirmDestroy(t)}
+                            className="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700"
+                        >
+                            OK
+                        </button>
+                        <button
+                            onClick={() => toast.dismiss(t)}
+                            className="px-4 py-2 text-red-600 bg-red-200 rounded-lg hover:bg-red-300"
+                        >
+                            Batal
+                        </button>
+                    </div>
+                </div>
+            ),
+            { duration: Infinity }
+        );
+    }
+    function confirmDestroy(toastId) {
+        // Hapus data setelah konfirmasi
         destroy(route("pegawai.destroy", { pegawai: pegawai.id }), {
             onSuccess: () => {
-                console.log("Pegawai berhasil dihapus");
+                toast.dismiss(toastId);
+                toast.success("Pegawai berhasil dihapus");
             },
-            onError: (errors) => {
-                console.error("Terjadi kesalahan:", errors);
+            onError: () => {
+                toast.dismiss(toastId);
+                toast.error("Terjadi kesalahan saat menghapus data");
             },
         });
     }
@@ -80,12 +104,6 @@ export default function EditPegawai({ pegawai }) {
                     <>
                         <div className="p-6 bg-white shadow-md rounded-lg">
                             <Head title="Edit Pegawai" />
-
-                            {flashMsg && (
-                                <div className="absolute top-24 right-6 bg-green-500 p-2 rounded-md shadow-lg text-sm text-white">
-                                    {flashMsg}
-                                </div>
-                            )}
 
                             {/* Informasi Detail Pegawai */}
                             <div className="max-w-5xl p-10">
@@ -259,10 +277,10 @@ export default function EditPegawai({ pegawai }) {
                                                         className="ml-2 block w-full mt-3 rounded-md border-0 p-2 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-500 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm bg-white"
                                                         type="text"
                                                         placeholder="Nomor Hand Phone"
-                                                        value={data.No_Hp}
+                                                        value={data.no_hp}
                                                         onChange={(e) =>
                                                             setData(
-                                                                "No_Hp",
+                                                                "no_hp",
                                                                 e.target.value
                                                             )
                                                         }
@@ -270,7 +288,7 @@ export default function EditPegawai({ pegawai }) {
                                                 </div>
                                                 {errors.No_Hp && (
                                                     <p className="error ml-12">
-                                                        {errors.No_Hp}
+                                                        {errors.no_hp}
                                                     </p>
                                                 )}
                                                 <div className="flex">
@@ -283,7 +301,7 @@ export default function EditPegawai({ pegawai }) {
                                                         type="file"
                                                         onChange={(e) =>
                                                             setData(
-                                                                "Foto",
+                                                                "foto",
                                                                 e.target
                                                                     .files[0]
                                                             )
@@ -292,7 +310,7 @@ export default function EditPegawai({ pegawai }) {
                                                 </div>
                                                 {errors.Foto && (
                                                     <p className="error ml-12">
-                                                        {errors.Foto}
+                                                        {errors.foto}
                                                     </p>
                                                 )}
                                                 <div className="flex">
