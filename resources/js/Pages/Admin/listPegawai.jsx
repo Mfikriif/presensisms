@@ -58,16 +58,6 @@ export default function listPegawai({ pegawai }) {
     };
 
     // Fungsi handle submit
-    const promise = () =>
-        new Promise((resolve) =>
-            setTimeout(
-                () =>
-                    resolve({
-                        name: "Pegawai",
-                    }),
-                2000
-            )
-        );
     function submitHandle(e) {
         e.preventDefault();
         post(route("pegawai.store"), {
@@ -83,14 +73,7 @@ export default function listPegawai({ pegawai }) {
                 });
                 // <Toaster richColors />;
                 closeModal();
-                toast.promise(promise, {
-                    loading: "Loading...",
-                    success: (data) => {
-                        return `${data.name} baru berhasil di tambahkan`;
-                    },
-                    error: "Error",
-                });
-                // toast.success("Pegawai baru berhasil di tambahkan");
+                toast.success("Pegawai baru berhasil di tambahkan");
             },
         });
     }
@@ -204,7 +187,7 @@ export default function listPegawai({ pegawai }) {
                                                     )}
                                                     <div className="flex">
                                                         <span className="my-auto">
-                                                            email:
+                                                            Email:
                                                         </span>
                                                         <input
                                                             className="ml-2 block w-full mt-3 rounded-md border-0 p-2 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-500 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm bg-white"
@@ -227,7 +210,7 @@ export default function listPegawai({ pegawai }) {
                                                     )}
                                                     <div className="flex">
                                                         <span className="my-auto">
-                                                            posisi:
+                                                            Jabatan:
                                                         </span>
                                                         <input
                                                             className="ml-2 block w-full mt-3 rounded-md border-0 p-2 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-500 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm bg-white"
@@ -273,7 +256,7 @@ export default function listPegawai({ pegawai }) {
                                                     )}
                                                     <div className="flex">
                                                         <span className="my-auto">
-                                                            foto:
+                                                            Foto:
                                                         </span>
 
                                                         <input
@@ -385,12 +368,12 @@ export default function listPegawai({ pegawai }) {
                                         <tr>
                                             <th className="px-4 py-2">No</th>
                                             <th className="px-4 py-2">Nama</th>
-                                            <th className="px-4 py-2">email</th>
+                                            <th className="px-4 py-2">Email</th>
                                             <th className="px-4 py-2">
-                                                posisi
+                                                Jabatan
                                             </th>
                                             <th className="px-4 py-2">No Hp</th>
-                                            <th className="px-4 py-2">foto</th>
+                                            <th className="px-4 py-2">Foto</th>
                                             <th className="px-4 py-2">Aksi</th>
                                         </tr>
                                     </thead>

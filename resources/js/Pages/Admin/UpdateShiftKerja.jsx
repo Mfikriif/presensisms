@@ -1,5 +1,6 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, useForm } from "@inertiajs/react";
+import { toast } from "sonner";
 
 export default function UpdateShiftKerja({ pegawai, jadwalShift, shift }) {
     const { data, setData, put, errors, processing } = useForm({
@@ -41,7 +42,11 @@ export default function UpdateShiftKerja({ pegawai, jadwalShift, shift }) {
     const handleEdit = (e) => {
         e.preventDefault();
         console.log(data); // Debug data sebelum pengiriman
-        put(route("setShift.edit", { id: pegawai.id }));
+        put(route("setShift.edit", { id: pegawai.id }), {
+            onSuccess: () => {
+                toast.success("Shift Pegawai berhasil di perbarui");
+            },
+        });
     };
 
     console.log("shift data from backend", shift);

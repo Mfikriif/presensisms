@@ -183,6 +183,8 @@ export default function MonitoringPresensi({ presensi, statusPresensi }) {
         (currentPage + 1) * itemsPerPage
     );
 
+    console.log(presensi);
+
     return (
         <>
             <AuthenticatedLayout
@@ -217,7 +219,7 @@ export default function MonitoringPresensi({ presensi, statusPresensi }) {
                                                     Nama
                                                 </th>
                                                 <th className="px-2 py-2">
-                                                    Email
+                                                    Shift Kerja
                                                 </th>
                                                 <th className="px-2 py-1 whitespace-nowrap">
                                                     Tanggal Presensi
