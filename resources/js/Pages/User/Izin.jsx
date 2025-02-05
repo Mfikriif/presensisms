@@ -53,7 +53,7 @@ export default function Izin({ dataizin, errorMessage, successMessage }) {
     };
 
     const trailingActions = (id, statusApproved) => {
-        if (statusApproved === "1") return null;
+        if (statusApproved === "1" || statusApproved === "2") return null;
         return dibatalkan[id] ? (
             <TrailingActions threshold={0.9}>
                 <SwipeAction
@@ -130,10 +130,11 @@ export default function Izin({ dataizin, errorMessage, successMessage }) {
                                 >
                                     <li className="bg-white shadow-lg rounded-xl p-5 flex justify-between items-center w-full max-w-md mx-auto mb-3">
                                         <div className="flex flex-col w-full">
-                                            <h3 className="text-lg font-semibold text-gray-800">
+                                            <h3 className="text-base font-semibold text-gray-800">
                                                 {new Date(
                                                     izin.tanggal_izin
                                                 ).toLocaleDateString("id-ID", {
+                                                    weekday: "long", // Menampilkan hari
                                                     day: "2-digit",
                                                     month: "long",
                                                     year: "numeric",

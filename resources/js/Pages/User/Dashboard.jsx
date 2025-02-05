@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MainLayout from "@/Layouts/MainLayout";
 import { Inertia } from "@inertiajs/inertia";
 import Swal from "sweetalert2";
 import PullToRefresh from "react-pull-to-refresh";
+import debounce from "lodash/debounce";
 
 export default function Dashboard({
     rekapizin,
@@ -13,23 +14,173 @@ export default function Dashboard({
     rekapPresensi,
     user,
     shift,
-    jadwalMingguan,
+    jadwalShift,
+    shiftKerjaTerisi,
 }) {
+    // Fungsi untuk mendapatkan minggu ke-berapa dalam bulan
+    const getCurrentWeekOfMonth = () => {
+        const today = new Date(); // Tanggal hari ini
+        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1); // Tanggal 1 di bulan ini
+
+        // Hitung perbedaan hari dari awal bulan ke hari ini
+        const dayOfMonth = today.getDate();
+        const startDay = startOfMonth.getDay(); // 0 = Minggu, 1 = Senin, dst.
+
+        // Menghitung minggu dengan asumsi Senin sebagai awal minggu
+        const weekNumber = Math.ceil((dayOfMonth + startDay) / 7);
+
+        return `Minggu ke-${weekNumber}`;
+    };
+
+    // State untuk menyimpan minggu saat ini
+    const [currentWeek, setCurrentWeek] = useState(getCurrentWeekOfMonth());
+
+    useEffect(() => {
+        setCurrentWeek(getCurrentWeekOfMonth()); // Perbarui state saat komponen dimuat
+    }, []);
+
     const [activeTab, setActiveTab] = useState("bulanIni");
     const handleRefresh = async () => {
         Inertia.reload();
     };
     const tabs = [
         { key: "bulanIni", label: "Bulan Ini" },
-        { key: "jadwalKerja", label: "Jadwal Kerja" },
+        { key: "shiftKerja", label: "Shift Kerja" },
     ];
+
+    const [shiftData, setShiftData] = useState({
+        senin: "",
+        selasa: "",
+        rabu: "",
+        kamis: "",
+        jumat: "",
+        sabtu: "",
+        minggu: "",
+    });
+
+    // Mengisi form dengan data shift dari database
+    useEffect(() => {
+        if (shiftKerjaTerisi) {
+            const mappedShift = {};
+            shiftKerjaTerisi.forEach((shift) => {
+                mappedShift[shift.hari.toLowerCase()] = shift.kode_jamkerja;
+            });
+            setShiftData(mappedShift);
+        }
+    }, [shiftKerjaTerisi]);
+
+    // Fungsi untuk menyimpan shift otomatis dengan debounce
+    const saveShift = debounce((updatedShiftData) => {
+        Inertia.post(
+            route("dashboard.setShiftKerja"), // Endpoint untuk menyimpan data shift
+            {
+                id: user.id,
+                nama: user.nama_lengkap,
+                shift: updatedShiftData,
+            },
+            {
+                preserveScroll: true, // Mencegah reload atau scroll ke atas
+                onSuccess: () => {
+                    toast.success("Shift berhasil disimpan!", {
+                        duration: 3000,
+                    });
+                },
+                onError: (error) => {
+                    console.error("Gagal menyimpan shift:", error);
+                    toast.error(
+                        "Terjadi kesalahan saat menyimpan shift kerja. Silakan coba lagi.",
+                        {
+                            duration: 5000,
+                        }
+                    );
+                },
+            }
+        );
+    }, 300);
+
+    // Fungsi untuk menangani perubahan shift
+    const handleChange = (day, value) => {
+        const updatedShiftData = { ...shiftData, [day]: value };
+        setShiftData(updatedShiftData);
+
+        // Menampilkan SweetAlert sebelum simpan
+        Swal.fire({
+            title: "Konfirmasi",
+            text: `Shift untuk hari ${
+                day.charAt(0).toUpperCase() + day.slice(1)
+            } telah diubah.`,
+            icon: "success",
+            confirmButtonText: "OK",
+            timer: 2000,
+            timerProgressBar: true,
+        }).then(() => {
+            // Simpan shift setelah SweetAlert ditutup
+            saveShift(updatedShiftData);
+        });
+    };
+
+    const rekapItems = [
+        {
+            type: "Hadir",
+            iconName: "checkmark-done-outline",
+            iconColor: "text-blue-500",
+            count: rekapPresensi.hadir || 0,
+        },
+        {
+            type: "Izin",
+            iconName: "document-outline",
+            iconColor: "text-green-500",
+            count: rekapizin.jmlizin || 0,
+        },
+        {
+            type: "Sakit",
+            iconName: "medkit-outline",
+            iconColor: "text-yellow-500",
+            count: rekapizin.jmlsakit || 0,
+        },
+    ];
+
+    function Clock() {
+        const [currentTime, setCurrentTime] = useState(new Date());
+
+        useEffect(() => {
+            const timer = setInterval(() => {
+                setCurrentTime(new Date());
+            }, 1000);
+
+            // Cleanup interval saat komponen di-unmount
+            return () => clearInterval(timer);
+        }, []);
+
+        const formattedTime = new Intl.DateTimeFormat("id-ID", {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+            hour12: false,
+            timeZone: "Asia/Jakarta",
+        }).format(currentTime);
+
+        const formattedDate = new Intl.DateTimeFormat("id-ID", {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+        }).format(currentTime);
+
+        return (
+            <div className="text-white text-center mb-6">
+                <div className="text-4xl font-extrabold">{formattedTime}</div>
+                <div className="text-lg mt-1">{formattedDate}</div>
+            </div>
+        );
+    }
 
     return (
         <MainLayout>
-            <PullToRefresh onRefresh={handleRefresh}>
+            <PullToRefresh onRefresh={handleRefresh} pulldownthreshold={50}>
                 <div className="bg-gray-100 min-h-screen overflow-y-auto pb-24">
                     {/* User Section */}
-                    <div className="bg-blue-950 shadow-md rounded-b-lg p-4 flex items-center justify-between overflow-hidden">
+                    <div className="bg-blue-950 shadow-md rounded-b-sm p-4 flex items-center justify-between overflow-hidden">
                         <div className="flex items-center">
                             {/* Avatar */}
                             <div className="rounded-full overflow-hidden w-16 h-16 border-4 border-blue-500">
@@ -64,42 +215,55 @@ export default function Dashboard({
                         {/* Logout Button */}
                         <a
                             href="#"
-                            className="text-red-400 hover:text-red-500 transition duration-300"
+                            className="flex items-center justify-center bg-red-500 text-white rounded-full p-2 shadow-lg hover:bg-red-600 active:bg-red-700 transition duration-300 w-12 h-12"
                             onClick={(e) => {
                                 e.preventDefault();
-                                Inertia.post(route("logout"));
+
+                                Swal.fire({
+                                    title: "Konfirmasi Logout",
+                                    text: "Apakah Anda yakin ingin logout?",
+                                    icon: "warning",
+                                    showCancelButton: true,
+                                    confirmButtonColor: "#d33",
+                                    cancelButtonColor: "#3085d6",
+                                    confirmButtonText: "Ya, Logout",
+                                    cancelButtonText: "Batal",
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        Inertia.post(route("logout"));
+                                    }
+                                });
                             }}
                         >
                             <ion-icon
-                                name="exit-outline"
-                                className="text-3xl"
+                                name="exit"
+                                className="text-xl"
                             ></ion-icon>
                         </a>
                     </div>
+
                     {/* Absensi Hari Ini */}
-                    <div className="relative w-full overflow-hidden">
+                    <div className="relative w-full overflow-hidden pb-8">
                         {/* Background Image */}
                         <div
                             className="absolute inset-0 bg-cover bg-center"
                             style={{
                                 backgroundImage:
-                                    "url('/assets/img/bringin.jpg')",
+                                    "url('/assets/img/operator.jpeg')",
                                 backgroundSize: "cover",
-                                backgroundPosition: "center",
+                                backgroundPosition: "center 70%",
                                 width: "100%",
                                 height: "100%",
                             }}
                         ></div>
-
-                        {/* Overlay agar teks lebih jelas */}
-                        <div className="absolute inset-0 bg-black bg-opacity-30"></div>
+                        <div className="absolute inset-0 bg-black bg-opacity-35"></div>
 
                         {/* Konten */}
-                        <div className="relative z-10 p-4">
+                        <div className="relative z-10 px-6 py-10 max-w-xl mx-auto">
+                            <Clock />
                             <h3 className="text-lg font-semibold mb-4 text-white">
                                 Presensi Hari Ini
                             </h3>
-
                             <div className="grid grid-cols-2 gap-4">
                                 {/* Masuk Card */}
                                 <div
@@ -215,62 +379,45 @@ export default function Dashboard({
                     {/* Tab Content */}
                     {activeTab === "bulanIni" && (
                         <div>
-                            {/* Rekap Presensi */}
-                            <div className="p-4" id="rekappresensi">
-                                <h3 className="text-lg font-semibold mb-4 text-center">
-                                    Rekap Presensi Bulan {namabulan[bulanini]}
-                                </h3>
-                                <div className="grid grid-cols-3 gap-3">
-                                    {[
-                                        {
-                                            type: "Hadir",
-                                            icon: "accessibility-outline",
-                                            color: "text-blue-500",
-                                            count: rekapPresensi.hadir || 0,
-                                        },
-                                        {
-                                            type: "Izin",
-                                            icon: "newspaper-outline",
-                                            color: "text-green-500",
-                                            count: rekapizin.jmlizin || 0,
-                                        },
-                                        {
-                                            type: "Sakit",
-                                            icon: "medkit-outline",
-                                            color: "text-yellow-500",
-                                            count: rekapizin.jmlsakit || 0,
-                                        },
-                                    ].map((item, index) => (
-                                        <div
-                                            key={index}
-                                            className="relative bg-white shadow rounded-lg p-3 flex flex-col items-center"
-                                        >
-                                            {/* Badge */}
-                                            <span
-                                                className="absolute top-1.5 right-1.5 bg-red-500 text-white rounded-full text-xs px-2 py-0.5"
-                                                style={{ fontSize: "0.7rem" }}
+                            <div>
+                                {/* Rekap Presensi */}
+                                <div className="p-4" id="rekappresensi">
+                                    <h3 className="text-lg font-semibold mb-4 text-center">
+                                        Rekap Presensi Bulan{" "}
+                                        {namabulan[bulanini]}
+                                    </h3>
+                                    <div className="grid grid-cols-3 gap-3">
+                                        {rekapItems.map((item, index) => (
+                                            <div
+                                                key={index}
+                                                className="relative bg-white shadow rounded-lg p-3 flex flex-col items-center justify-center"
                                             >
-                                                {item.count}
-                                            </span>
+                                                {/* Custom Badge */}
+                                                {item.count > 0 && (
+                                                    <span className="absolute top-1 right-1 bg-red-500 text-white rounded-full text-xs font-bold px-2 py-0.5 shadow-lg">
+                                                        {item.count}
+                                                    </span>
+                                                )}
 
-                                            {/* Icon */}
-                                            <ion-icon
-                                                name={item.icon}
-                                                className={`${item.color} text-3xl mb-2`}
-                                            ></ion-icon>
+                                                {/* Icon */}
+                                                <ion-icon
+                                                    name={item.iconName}
+                                                    className={`${item.iconColor} text-4xl mb-2`}
+                                                ></ion-icon>
 
-                                            {/* Label */}
-                                            <span className="text-sm font-medium text-gray-700">
-                                                {item.type}
-                                            </span>
-                                        </div>
-                                    ))}
+                                                {/* Label */}
+                                                <span className="text-sm font-medium text-gray-700 mt-2">
+                                                    {item.type}
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
 
                             <div className="p-4">
                                 <h3 className="text-lg font-semibold mb-4">
-                                    History Bulan Ini
+                                    Histori Bulan Ini
                                 </h3>
 
                                 {historibulanini.length > 0 ? (
@@ -279,13 +426,37 @@ export default function Dashboard({
                                             (a, b) =>
                                                 new Date(a.tanggal_presensi) -
                                                 new Date(b.tanggal_presensi)
-                                        ) // 🔥 Urutkan ASC berdasarkan tanggal
+                                        )
                                         .map((data, index) => {
-                                            // Menentukan apakah terlambat berdasarkan jam kerja
-                                            const terlambat =
-                                                data.jam_in &&
-                                                shift &&
-                                                data.jam_in > shift.jam_masuk;
+                                            const terlambat = (() => {
+                                                // Validasi data jam_in dan shift
+                                                if (
+                                                    !data.jam_in ||
+                                                    !shift ||
+                                                    !shift.jam_masuk
+                                                ) {
+                                                    return null;
+                                                }
+
+                                                // Format waktu dengan tanggal default
+                                                const jamIn = new Date(
+                                                    `1970-01-01T${data.jam_in}`
+                                                );
+                                                const jamMasuk = new Date(
+                                                    `1970-01-01T${shift.jam_masuk}`
+                                                );
+
+                                                // Validasi apakah waktu valid
+                                                if (
+                                                    isNaN(jamIn.getTime()) ||
+                                                    isNaN(jamMasuk.getTime())
+                                                ) {
+                                                    return null;
+                                                }
+
+                                                // Perbandingan waktu
+                                                return jamIn > jamMasuk;
+                                            })();
 
                                             return (
                                                 <div
@@ -324,6 +495,8 @@ export default function Dashboard({
                                                             ).toLocaleDateString(
                                                                 "id-ID",
                                                                 {
+                                                                    weekday:
+                                                                        "long", // Tambahkan ini untuk menampilkan nama hari
                                                                     day: "2-digit",
                                                                     month: "long",
                                                                     year: "numeric",
@@ -391,50 +564,69 @@ export default function Dashboard({
                         </div>
                     )}
 
-                    {/* Jadwal Kerja */}
-                    {activeTab === "jadwalKerja" && (
+                    {/* Shift Kerja */}
+                    {activeTab === "shiftKerja" && (
                         <div className="p-4">
-                            <h3 className="text-lg font-semibold mb-4 text-center">
-                                Jadwal Kerja Mingguan
+                            <h3 className="text-lg font-semibold mb-4 text-center text-gray-800">
+                                Shift Kerja - {currentWeek}
                             </h3>
 
-                            {jadwalMingguan.length > 0 ? (
-                                <div className="bg-white p-4 shadow rounded-lg">
-                                    {jadwalMingguan.map((jadwal, index) => (
-                                        <div
-                                            key={index}
-                                            className="flex justify-between py-2 border-b last:border-none"
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {[
+                                    "senin",
+                                    "selasa",
+                                    "rabu",
+                                    "kamis",
+                                    "jumat",
+                                    "sabtu",
+                                    "minggu",
+                                ].map((day) => (
+                                    <div
+                                        key={day}
+                                        className="bg-white shadow-md rounded-lg p-4 border border-gray-200 active:shadow-sm active:scale-95 transition"
+                                    >
+                                        {/* Nama Hari */}
+                                        <h4 className="text-gray-700 font-semibold capitalize mb-2">
+                                            {day}
+                                        </h4>
+
+                                        {/* Dropdown */}
+                                        <select
+                                            name={day}
+                                            value={shiftData[day] || ""}
+                                            onChange={(e) =>
+                                                handleChange(
+                                                    day,
+                                                    e.target.value
+                                                )
+                                            }
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring focus:ring-blue-400 focus:border-blue-500 transition"
                                         >
-                                            <span className="font-medium text-gray-700">
-                                                {jadwal.hari}
-                                            </span>
-                                            <span className="text-gray-500">
-                                                {jadwal.jam_masuk} -{" "}
-                                                {jadwal.jam_pulang}
-                                            </span>
-                                        </div>
-                                    ))}
-                                    {/* Tambahkan informasi terakhir diperbarui */}
-                                    <div className="text-right text-xs text-gray-500 mt-4">
-                                        Terakhir diperbarui:{" "}
-                                        {new Date(
-                                            jadwalMingguan[0].updated_at
-                                        ).toLocaleString("id-ID", {
-                                            day: "2-digit",
-                                            month: "long",
-                                            year: "numeric",
-                                            hour: "2-digit",
-                                            minute: "2-digit",
-                                        })}
+                                            <option value="">
+                                                Pilih Shift Kerja
+                                            </option>
+                                            {jadwalShift
+                                                .sort((a, b) =>
+                                                    a.nama_jamkerja.localeCompare(
+                                                        b.nama_jamkerja
+                                                    )
+                                                ) // Mengurutkan berdasarkan nama shift
+                                                .map((shift) => (
+                                                    <option
+                                                        key={
+                                                            shift.kode_jamkerja
+                                                        }
+                                                        value={
+                                                            shift.kode_jamkerja
+                                                        }
+                                                    >
+                                                        {`${shift.nama_jamkerja} (${shift.awal_jam_masuk} - ${shift.jam_pulang})`}
+                                                    </option>
+                                                ))}
+                                        </select>
                                     </div>
-                                </div>
-                            ) : (
-                                <div className="text-center py-10">
-                                    <p className="text-gray-500 text-sm">
-                                        Belum ada jadwal kerja yang tersedia.
-                                    </p>
-                                </div>
-                            )}
+                                ))}
+                            </div>
                         </div>
                     )}
                 </div>
