@@ -48,6 +48,7 @@ export default function GetHistori({ histori }) {
                                 {new Date(
                                     d.tanggal_presensi
                                 ).toLocaleDateString("id-ID", {
+                                    weekday: "long",
                                     day: "2-digit",
                                     month: "long",
                                     year: "numeric",

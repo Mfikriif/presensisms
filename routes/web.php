@@ -30,6 +30,8 @@ Route::middleware(['auth', 'operator'])->group(function () {
     Route::get('/presensi/buatizin',[PresensiController::class,'buatizin']);
     Route::post('/presensi/storeizin',[PresensiController::class,'storeizin']);
     Route::post('/presensi/batalkanizin/{id}',[PresensiController::class,'batalkanIzin']);
+    // Shift kerja
+    Route::post('/dashboard/set-shift-kerja', [DashboardController::class, 'setShiftKerja'])->name('dashboard.setShiftKerja');
 });
 
 // Admin

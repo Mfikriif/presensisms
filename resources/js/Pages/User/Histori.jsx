@@ -2,14 +2,17 @@ import React, { useState } from "react";
 import MainLayout from "@/Layouts/MainLayout";
 import axios from "axios";
 import GetHistori from "@/Pages/User/GetHistori";
+import toast, { Toaster } from "react-hot-toast";
 
 export default function Histori({ namabulan = [], tahun_awal = 2022 }) {
-    const [bulan, setBulan] = useState("");
-    const [tahun, setTahun] = useState("");
+    const tanggalSekarang = new Date();
+    const bulanSekarang = tanggalSekarang.getMonth() + 1;
+    const tahunSekarang = tanggalSekarang.getFullYear();
+
+    const [bulan, setBulan] = useState(bulanSekarang);
+    const [tahun, setTahun] = useState(tahunSekarang);
     const [showHistori, setShowHistori] = useState("");
     const [loading, setLoading] = useState(false);
-
-    const tahunSekarang = new Date().getFullYear();
 
     const handleCariData = async () => {
         if (!bulan || !tahun) {
@@ -24,10 +27,12 @@ export default function Histori({ namabulan = [], tahun_awal = 2022 }) {
                 setShowHistori("Tidak ada data untuk bulan dan tahun ini.");
             } else {
                 setShowHistori(response.data);
+                toast.success("Data berhasil ditampilkan!");
             }
         } catch (error) {
             console.error("Error saat mengambil data:", error);
             setShowHistori("Terjadi kesalahan saat mengambil data.");
+            toast.error("Gagal mengambil data. Silakan coba lagi.");
         } finally {
             setLoading(false);
         }
@@ -35,7 +40,9 @@ export default function Histori({ namabulan = [], tahun_awal = 2022 }) {
 
     return (
         <MainLayout title="Histori Absensi">
-            <div className="bg-gray-100 min-h-screen pb-20">
+            <div className="bg-gray-100 min-h-screen pb-10">
+                {/* Toaster untuk notifikasi */}
+                <Toaster position="top-center" reverseOrder={false} />
                 {/* Header */}
                 <div className="bg-blue-950 text-white flex items-center justify-between px-4 py-3 shadow-md">
                     <button
@@ -52,7 +59,7 @@ export default function Histori({ namabulan = [], tahun_awal = 2022 }) {
                 </div>
 
                 {/* Form Filter */}
-                <div className="p-6 pt-12">
+                <div className="p-6 pt-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Pilih Bulan */}
                         <div>
@@ -109,9 +116,7 @@ export default function Histori({ namabulan = [], tahun_awal = 2022 }) {
                         onClick={handleCariData}
                         disabled={loading}
                         className={`mt-6 w-full px-5 py-3 text-white text-base font-semibold rounded-xl shadow-md ${
-                            loading
-                                ? "bg-gray-400"
-                                : "bg-blue-950 hover:bg-blue-800"
+                            loading ? "bg-gray-400" : "bg-blue-950"
                         } focus:ring focus:ring-blue-300`}
                     >
                         {loading ? "Memuat..." : "Cari Data"}

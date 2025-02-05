@@ -38,9 +38,9 @@ class PresensiController extends Controller
         $tanggal_presensi = date("Y-m-d");
         $jam = date("H:i:s");
     
-        // Lokasi Kantor
-        $latitudekantor = -6.990931121408543;
-        $longitudekantor = 110.46086342321159;
+        // Lokasi Kantor -7.023826563310556, 110.50695887209068
+        $latitudekantor = -7.023826563310556;
+        $longitudekantor = 110.50695887209068;
     
         // Lokasi User
         $lokasi = $request->lokasi;
@@ -114,10 +114,10 @@ class PresensiController extends Controller
         }
     
         // Validasi jam masuk dan pulang berdasarkan shift kerja
-        if ($tipeAbsen === 'masuk' && ($jam < $shiftKerja->awal_jam_masuk || $jam > $shiftKerja->akhir_jam_masuk)) {
+        if ($tipeAbsen === 'masuk' && ($jam < $shiftKerja->awal_jam_masuk)) {
             return response()->json([
                 'error' => 'Tidak dalam waktu absensi masuk!',
-                'message' => 'Anda hanya bisa absen masuk antara ' . $shiftKerja->awal_jam_masuk . ' - ' . $shiftKerja->akhir_jam_masuk,
+                'message' => 'Anda hanya bisa absen masuk antara ' . $shiftKerja->awal_jam_masuk . ' - ' . $shiftKerja->jam_masuk,
             ], 403);
         }
     
@@ -129,7 +129,7 @@ class PresensiController extends Controller
         }
     
         // Cek radius lokasi kantor
-        if ($radius > 90) {
+        if ($radius > 25) {
             return response()->json([
                 'error' => 'Anda berada di luar radius kantor!',
                 'message' => 'Maaf, Anda tidak dapat melakukan presensi karena berada di luar radius yang diizinkan. (' . $radius . ' meter)',
