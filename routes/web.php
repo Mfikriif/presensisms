@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KonfigurasiShiftKerjaController;
 use App\Http\Controllers\PresensiController;
 use App\Http\Controllers\UserConstroller;
+use App\Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 

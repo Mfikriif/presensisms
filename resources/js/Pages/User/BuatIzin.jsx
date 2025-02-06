@@ -45,8 +45,8 @@ export default function BuatIzin() {
         }
     };
 
-    // Fungsi untuk menghandle submit form
-    const handleFormSubmit = (e) => {
+    // Handle form submit
+    const handleFormSubmit = async (e) => {
         e.preventDefault();
 
         // Validasi input
@@ -59,37 +59,19 @@ export default function BuatIzin() {
             return;
         }
 
-        if (!tglIzin) {
+        if (!tglIzin || !status || !keterangan) {
             Swal.fire({
                 title: "Oops!",
-                text: "Tanggal harus diisi",
+                text: "Semua field wajib diisi.",
                 icon: "warning",
             });
             return;
         }
 
-        if (!status) {
+        if (status === "s" && !fileIzin) {
             Swal.fire({
                 title: "Oops!",
-                text: "Status harus diisi",
-                icon: "warning",
-            });
-            return;
-        }
-
-        if (!keterangan) {
-            Swal.fire({
-                title: "Oops!",
-                text: "Keterangan harus diisi",
-                icon: "warning",
-            });
-            return;
-        }
-
-        if (!fileIzin) {
-            Swal.fire({
-                title: "Oops!",
-                text: "File izin harus diunggah",
+                text: "Bukti sakit wajib diunggah!",
                 icon: "warning",
             });
             return;
@@ -99,43 +81,46 @@ export default function BuatIzin() {
         formData.append("tanggal_izin", tglIzin);
         formData.append("status", status);
         formData.append("keterangan", keterangan);
-        formData.append("file", fileIzin);
+
+        if (fileIzin) {
+            formData.append("file", fileIzin);
+        }
+
         formData.append(
             "_token",
             document.querySelector('meta[name="csrf-token"]').content
         );
 
-        fetch("/presensi/storeizin", {
-            method: "POST",
-            body: formData,
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.success) {
-                    Swal.fire({
-                        title: "Berhasil!",
-                        text: "Pengajuan izin berhasil dikirim.",
-                        icon: "success",
-                        confirmButtonText: "Oke",
-                    }).then(() => {
-                        window.location.href = "/presensi/izin";
-                    });
-                } else {
-                    Swal.fire({
-                        title: "Gagal!",
-                        text: data.message || "Terjadi kesalahan.",
-                        icon: "error",
-                    });
-                }
-            })
-            .catch((error) => {
-                console.error("Error submitting form:", error);
+        try {
+            const response = await fetch("/presensi/storeizin", {
+                method: "POST",
+                body: formData,
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
                 Swal.fire({
-                    title: "Error!",
-                    text: "Terjadi kesalahan saat mengirim data.",
+                    title: "Berhasil!",
+                    text: data.message,
+                    icon: "success",
+                }).then(() => {
+                    window.location.href = "/presensi/izin";
+                });
+            } else {
+                Swal.fire({
+                    title: "Gagal!",
+                    text: data.message || "Terjadi kesalahan.",
                     icon: "error",
                 });
+            }
+        } catch (error) {
+            Swal.fire({
+                title: "Error!",
+                text: "Terjadi kesalahan saat mengirim data.",
+                icon: "error",
             });
+        }
     };
 
     const handleFileChange = (e) => {
@@ -246,7 +231,7 @@ export default function BuatIzin() {
                         {/* Upload File Izin */}
                         <div className="form-group">
                             <label className="block text-sm font-medium text-gray-700">
-                                Upload File Izin (PDF/JPG/PNG){" "}
+                                Upload Bukti Sakit (PDF){" "}
                                 {status === "s" && (
                                     <span className="text-red-500">*</span>
                                 )}

@@ -388,56 +388,62 @@ class PresensiController extends Controller
     {
         $user = Auth::user();
         $kode_pegawai = $user->id;
-
-        // **Validasi input** (file wajib jika sakit)
+        $status = $request->input('status'); // Ambil status izin
+        
+        //  Validasi input
         $request->validate([
             'tanggal_izin' => 'required|date',
-            'status' => 'required|in:i,s', // 'i' = izin, 's' = sakit
+            'status' => 'required|in:i,s', // 'i' untuk izin, 's' untuk sakit
             'keterangan' => 'required|string|max:255',
-            'file' => $request->status === 's' ? 'required|file|mimes:pdf,jpg,jpeg,png|max:2048' : 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'file' => ($status === 's') ? 'required|file|mimes:pdf|max:2048' : 'nullable|file|mimes:pdf|max:2048',
         ], [
-            'file.required' => 'Wajib mengunggah bukti surat keterangan sakit jika memilih sakit.',
-            'file.mimes' => 'File harus berupa PDF, JPG, JPEG, atau PNG.',
+            'file.required' => 'Bukti surat keterangan sakit wajib diunggah jika memilih sakit.',
+            'file.mimes' => 'File harus berupa PDF.',
             'file.max' => 'Ukuran file maksimal 2MB.',
         ]);
 
-        // **Cek apakah izin sudah ada untuk tanggal yang sama**
+        //  Cek apakah izin sudah ada untuk tanggal yang sama
         $izinSudahAda = DB::table('pengajuan_izin')
             ->where('kode_pegawai', $kode_pegawai)
             ->where('tanggal_izin', $request->tanggal_izin)
             ->exists();
 
         if ($izinSudahAda) {
-            return redirect('/presensi/izin')->with('errorMessage', 'Anda sudah mengajukan izin untuk tanggal ini!');
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda sudah mengajukan izin untuk tanggal ini!',
+            ], 400);
         }
 
         try {
             $filePath = null;
 
-            // **Proses upload file hanya jika diunggah**
+            //  Upload file hanya jika diunggah
             if ($request->hasFile('file')) {
                 $file = $request->file('file');
-                $filename = 'izin_' . $kode_pegawai . '_' . now()->format('YmdHis') . '.' . $file->getClientOriginalExtension();
+                $filename = 'izin_' . $kode_pegawai . '_' . now()->format('YmdHis') . '.pdf'; // Hanya terima PDF
                 $filePath = $file->storeAs('uploads/izin', $filename, 'public');
             }
 
-            // **Simpan data izin ke database**
-            $simpan = DB::table('pengajuan_izin')->insert([
+            //  Simpan data izin ke database
+            DB::table('pengajuan_izin')->insert([
                 'kode_pegawai' => $kode_pegawai,
                 'tanggal_izin' => $request->tanggal_izin,
-                'status' => $request->status,
+                'status' => $status,
                 'keterangan' => $request->keterangan,
-                'file_path' => $filePath, // Simpan path file jika ada
+                'file_path' => $filePath, // Path file jika ada
                 'created_at' => now(),
             ]);
 
-            if ($simpan) {
-                return redirect('/presensi/izin')->with('successMessage', 'Izin berhasil diajukan.');
-            } else {
-                return redirect('/presensi/izin')->with('errorMessage', 'Terjadi kesalahan saat menyimpan izin. Silakan coba lagi.');
-            }
+            return response()->json([
+                'success' => true,
+                'message' => 'Izin berhasil diajukan.',
+            ]);
         } catch (\Exception $e) {
-            return redirect('/presensi/izin')->with('errorMessage', 'Terjadi kesalahan sistem: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan sistem: ' . $e->getMessage(),
+            ], 500);
         }
     }
 
