@@ -388,51 +388,56 @@ class PresensiController extends Controller
     {
         $user = Auth::user();
         $kode_pegawai = $user->id;
-    
-        $tanggal_izin = $request->tanggal_izin;
-        $status = $request->status;
-        $keterangan = $request->keterangan;
-    
-        // **Validasi input**
+
+        // **Validasi input** (file wajib jika sakit)
         $request->validate([
             'tanggal_izin' => 'required|date',
-            'status' => 'required|in:i,s', // i = izin, s = sakit
+            'status' => 'required|in:i,s', // 'i' = izin, 's' = sakit
             'keterangan' => 'required|string|max:255',
+            'file' => $request->status === 's' ? 'required|file|mimes:pdf,jpg,jpeg,png|max:2048' : 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+        ], [
+            'file.required' => 'Wajib mengunggah bukti surat keterangan sakit jika memilih sakit.',
+            'file.mimes' => 'File harus berupa PDF, JPG, JPEG, atau PNG.',
+            'file.max' => 'Ukuran file maksimal 2MB.',
         ]);
-    
-        // **Cek apakah izin sudah ada di tanggal yang sama**
+
+        // **Cek apakah izin sudah ada untuk tanggal yang sama**
         $izinSudahAda = DB::table('pengajuan_izin')
             ->where('kode_pegawai', $kode_pegawai)
-            ->where('tanggal_izin', $tanggal_izin)
-            ->first();
-    
+            ->where('tanggal_izin', $request->tanggal_izin)
+            ->exists();
+
         if ($izinSudahAda) {
-            session()->flash('errorMessage', 'Anda sudah mengajukan izin untuk tanggal ini!');
-            return redirect('/presensi/izin');
+            return redirect('/presensi/izin')->with('errorMessage', 'Anda sudah mengajukan izin untuk tanggal ini!');
         }
-    
+
         try {
-            // **Simpan data izin baru**
-            $data = [
+            $filePath = null;
+
+            // **Proses upload file hanya jika diunggah**
+            if ($request->hasFile('file')) {
+                $file = $request->file('file');
+                $filename = 'izin_' . $kode_pegawai . '_' . now()->format('YmdHis') . '.' . $file->getClientOriginalExtension();
+                $filePath = $file->storeAs('uploads/izin', $filename, 'public');
+            }
+
+            // **Simpan data izin ke database**
+            $simpan = DB::table('pengajuan_izin')->insert([
                 'kode_pegawai' => $kode_pegawai,
-                'tanggal_izin' => $tanggal_izin,
-                'status' => $status,
-                'keterangan' => $keterangan,
-                'created_at' => now()
-            ];
-    
-            $simpan = DB::table('pengajuan_izin')->insert($data);
-    
+                'tanggal_izin' => $request->tanggal_izin,
+                'status' => $request->status,
+                'keterangan' => $request->keterangan,
+                'file_path' => $filePath, // Simpan path file jika ada
+                'created_at' => now(),
+            ]);
+
             if ($simpan) {
-                session()->flash('successMessage', 'Data Berhasil Disimpan');
-                return redirect('/presensi/izin');
+                return redirect('/presensi/izin')->with('successMessage', 'Izin berhasil diajukan.');
             } else {
-                session()->flash('errorMessage', 'Terjadi kesalahan saat menyimpan data. Coba lagi.');
-                return redirect('/presensi/izin');
+                return redirect('/presensi/izin')->with('errorMessage', 'Terjadi kesalahan saat menyimpan izin. Silakan coba lagi.');
             }
         } catch (\Exception $e) {
-            session()->flash('errorMessage', 'Terjadi kesalahan sistem: ' . $e->getMessage());
-            return redirect('/presensi/izin');
+            return redirect('/presensi/izin')->with('errorMessage', 'Terjadi kesalahan sistem: ' . $e->getMessage());
         }
     }
 

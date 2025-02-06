@@ -6,8 +6,10 @@ export default function BuatIzin() {
     const [tglIzin, setTglIzin] = useState("");
     const [status, setStatus] = useState("");
     const [keterangan, setKeterangan] = useState("");
-    const [izinSudahAda, setIzinSudahAda] = useState(false); // Untuk validasi izin duplikat
+    const [fileIzin, setFileIzin] = useState(null);
+    const [izinSudahAda, setIzinSudahAda] = useState(false);
 
+    // Fungsi untuk menghandle perubahan tanggal
     const handleTanggalChange = async (e) => {
         const value = e.target.value;
         setTglIzin(value);
@@ -43,10 +45,11 @@ export default function BuatIzin() {
         }
     };
 
+    // Fungsi untuk menghandle submit form
     const handleFormSubmit = (e) => {
         e.preventDefault();
 
-        // Cek apakah izin sudah ada
+        // Validasi input
         if (izinSudahAda) {
             Swal.fire({
                 title: "Gagal!",
@@ -83,7 +86,85 @@ export default function BuatIzin() {
             return;
         }
 
-        document.getElementById("frmIzin").submit();
+        if (!fileIzin) {
+            Swal.fire({
+                title: "Oops!",
+                text: "File izin harus diunggah",
+                icon: "warning",
+            });
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("tanggal_izin", tglIzin);
+        formData.append("status", status);
+        formData.append("keterangan", keterangan);
+        formData.append("file", fileIzin);
+        formData.append(
+            "_token",
+            document.querySelector('meta[name="csrf-token"]').content
+        );
+
+        fetch("/presensi/storeizin", {
+            method: "POST",
+            body: formData,
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.success) {
+                    Swal.fire({
+                        title: "Berhasil!",
+                        text: "Pengajuan izin berhasil dikirim.",
+                        icon: "success",
+                        confirmButtonText: "Oke",
+                    }).then(() => {
+                        window.location.href = "/presensi/izin";
+                    });
+                } else {
+                    Swal.fire({
+                        title: "Gagal!",
+                        text: data.message || "Terjadi kesalahan.",
+                        icon: "error",
+                    });
+                }
+            })
+            .catch((error) => {
+                console.error("Error submitting form:", error);
+                Swal.fire({
+                    title: "Error!",
+                    text: "Terjadi kesalahan saat mengirim data.",
+                    icon: "error",
+                });
+            });
+    };
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+
+        if (file) {
+            // Validasi ekstensi file
+            const allowedTypes = ["application/pdf", "image/jpeg", "image/png"];
+            if (!allowedTypes.includes(file.type)) {
+                Swal.fire({
+                    title: "Format File Tidak Didukung",
+                    text: "Hanya diperbolehkan file PDF, JPG, atau PNG.",
+                    icon: "error",
+                });
+                return;
+            }
+
+            // Validasi ukuran file (maksimal 2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                Swal.fire({
+                    title: "Ukuran File Terlalu Besar",
+                    text: "Maksimal ukuran file adalah 2MB.",
+                    icon: "error",
+                });
+                return;
+            }
+
+            setFileIzin(file); // Simpan file ke state
+        }
     };
 
     return (
@@ -107,22 +188,10 @@ export default function BuatIzin() {
                 {/* Form */}
                 <div className="p-4">
                     <form
-                        method="POST"
-                        action={"/presensi/storeizin"}
-                        id="frmIzin"
                         onSubmit={handleFormSubmit}
                         className="space-y-4"
+                        encType="multipart/form-data"
                     >
-                        <input
-                            type="hidden"
-                            name="_token"
-                            value={
-                                document.querySelector(
-                                    'meta[name="csrf-token"]'
-                                ).content
-                            }
-                        />
-
                         {/* Tanggal */}
                         <div className="form-group">
                             <input
@@ -172,6 +241,38 @@ export default function BuatIzin() {
                                 className="w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-200 focus:border-blue-500"
                                 placeholder="Keterangan"
                             ></textarea>
+                        </div>
+
+                        {/* Upload File Izin */}
+                        <div className="form-group">
+                            <label className="block text-sm font-medium text-gray-700">
+                                Upload File Izin (PDF/JPG/PNG){" "}
+                                {status === "s" && (
+                                    <span className="text-red-500">*</span>
+                                )}
+                            </label>
+
+                            <input
+                                type="file"
+                                name="file"
+                                accept=".pdf, .jpg, .jpeg, .png"
+                                onChange={handleFileChange} // Panggil fungsi handleFileChange
+                                className="w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-200 focus:border-blue-500"
+                            />
+
+                            {/* Tampilkan pesan error jika file tidak diunggah untuk sakit */}
+                            {status === "s" && !fileIzin && (
+                                <p className="text-red-500 text-sm mt-1">
+                                    Bukti sakit wajib diunggah!
+                                </p>
+                            )}
+
+                            {/* Tampilkan nama file jika sudah dipilih */}
+                            {fileIzin && (
+                                <p className="text-green-600 text-sm mt-1">
+                                    File terpilih: {fileIzin.name}
+                                </p>
+                            )}
                         </div>
 
                         {/* Tombol Kirim */}

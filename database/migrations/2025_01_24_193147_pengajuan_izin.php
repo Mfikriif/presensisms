@@ -18,7 +18,8 @@ return new class extends Migration
             $table->char('status', 1); // i: izin, s: sakit
             $table->string('keterangan', 255); // Keterangan
             $table->char('status_approved', 1)->default('0'); // 0: Pending, 1: Disetujui, 2: Ditolak
-            $table->timestamps(); // created_at dan updated_at
+            $table->string('file_path')-> nullable();
+            $table->timestamps();
         });
     }
 
