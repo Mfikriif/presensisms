@@ -5,6 +5,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KonfigurasiShiftKerjaController;
 use App\Http\Controllers\PresensiController;
+use App\Http\Controllers\UserConstroller;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -39,7 +40,7 @@ Route::get('/admin', function () {
 });
 
 // Rute untuk Admin
-Route::middleware(['auth', 'admin'])->group(function () {
+Route::middleware(['auth', 'role:admin,superadmin'])->group(function () {
     // Dashboard admin
     Route::get('/dashboard', [DashboardController::class,'dashboardAdmin'])->name('dashboard');
 
@@ -78,6 +79,12 @@ Route::middleware(['auth', 'admin'])->group(function () {
     // Izin / Sakit
     Route::get('/Admin/izin-/-sakit', [PresensiController::class,'showIzinSakit'])->name('izin.show');
     Route::post('/izin-sakit/${id}/update', [PresensiController::class, 'approvalIzin'])->name('izin.update');
+
+    // User update role and password
+    Route::get('/user/{id}/edit-role', [UserConstroller::class, 'index'])->name('userrole.edit');
+    Route::put('/user/{id}/upda-role',[UserConstroller::class,'updateRole'])->name('roleuser.update');
+    Route::post('/admin/user-reset/password/{id}', [UserConstroller::class,'resetPassword'])->name('reset.pass');
+
 });
 
 

@@ -58,16 +58,6 @@ export default function listPegawai({ pegawai }) {
     };
 
     // Fungsi handle submit
-    const promise = () =>
-        new Promise((resolve) =>
-            setTimeout(
-                () =>
-                    resolve({
-                        name: "Pegawai",
-                    }),
-                2000
-            )
-        );
     function submitHandle(e) {
         e.preventDefault();
         post(route("pegawai.store"), {
@@ -83,14 +73,7 @@ export default function listPegawai({ pegawai }) {
                 });
                 // <Toaster richColors />;
                 closeModal();
-                toast.promise(promise, {
-                    loading: "Loading...",
-                    success: (data) => {
-                        return `${data.name} baru berhasil di tambahkan`;
-                    },
-                    error: "Error",
-                });
-                // toast.success("Pegawai baru berhasil di tambahkan");
+                toast.success("Pegawai baru berhasil di tambahkan");
             },
         });
     }
@@ -202,9 +185,10 @@ export default function listPegawai({ pegawai }) {
                                                             }
                                                         </p>
                                                     )}
+
                                                     <div className="flex">
                                                         <span className="my-auto">
-                                                            email:
+                                                            Email:
                                                         </span>
                                                         <input
                                                             className="ml-2 block w-full mt-3 rounded-md border-0 p-2 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-500 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm bg-white"
@@ -225,14 +209,13 @@ export default function listPegawai({ pegawai }) {
                                                             {errors.email}
                                                         </p>
                                                     )}
+
                                                     <div className="flex">
                                                         <span className="my-auto">
-                                                            posisi:
+                                                            Jabatan:
                                                         </span>
-                                                        <input
+                                                        <select
                                                             className="ml-2 block w-full mt-3 rounded-md border-0 p-2 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-500 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm bg-white"
-                                                            type="text"
-                                                            placeholder="posisi"
                                                             value={data.posisi}
                                                             onChange={(e) =>
                                                                 setData(
@@ -241,13 +224,30 @@ export default function listPegawai({ pegawai }) {
                                                                         .value
                                                                 )
                                                             }
-                                                        />
+                                                        >
+                                                            <option value="">
+                                                                Pilih Jabatan
+                                                            </option>
+                                                            <option value="staff">
+                                                                Staff
+                                                            </option>
+                                                            <option value="operator">
+                                                                Operator
+                                                            </option>
+                                                            <option value="Cleaning Service">
+                                                                Cleaning Service
+                                                            </option>
+                                                            <option value="Security">
+                                                                Security
+                                                            </option>
+                                                        </select>
                                                     </div>
                                                     {errors.posisi && (
                                                         <p className="error ml-12">
                                                             {errors.posisi}
                                                         </p>
                                                     )}
+
                                                     <div className="flex">
                                                         <span className="my-auto">
                                                             No HP:
@@ -271,11 +271,11 @@ export default function listPegawai({ pegawai }) {
                                                             {errors.no_Hp}
                                                         </p>
                                                     )}
+
                                                     <div className="flex">
                                                         <span className="my-auto">
-                                                            foto:
+                                                            Foto:
                                                         </span>
-
                                                         <input
                                                             className="ml-2 block w-full mt-3 rounded-md border-0 p-2 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-500 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm bg-white"
                                                             type="file"
@@ -293,6 +293,7 @@ export default function listPegawai({ pegawai }) {
                                                             {errors.foto}
                                                         </p>
                                                     )}
+
                                                     <div className="flex">
                                                         <span className="my-auto">
                                                             Tempat Lahir:
@@ -320,6 +321,7 @@ export default function listPegawai({ pegawai }) {
                                                             }
                                                         </p>
                                                     )}
+
                                                     <div className="flex">
                                                         <span className="my-auto">
                                                             Tanggal Lahir:
@@ -385,12 +387,12 @@ export default function listPegawai({ pegawai }) {
                                         <tr>
                                             <th className="px-4 py-2">No</th>
                                             <th className="px-4 py-2">Nama</th>
-                                            <th className="px-4 py-2">email</th>
+                                            <th className="px-4 py-2">Email</th>
                                             <th className="px-4 py-2">
-                                                posisi
+                                                Jabatan
                                             </th>
                                             <th className="px-4 py-2">No Hp</th>
-                                            <th className="px-4 py-2">foto</th>
+                                            <th className="px-4 py-2">Foto</th>
                                             <th className="px-4 py-2">Aksi</th>
                                         </tr>
                                     </thead>

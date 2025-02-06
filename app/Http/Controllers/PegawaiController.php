@@ -105,7 +105,6 @@ class PegawaiController extends Controller
      */
     public function update(Request $request, pegawai $pegawai)
     {
-         sleep(2); // Simulasi delay (boleh dihapus jika tidak diperlukan)
 
         $inputPegawai = $request->validate([
             'nama_lengkap' => 'string|max:255',
@@ -137,6 +136,14 @@ class PegawaiController extends Controller
 
         // Simpan data pegawai ke database
         $pegawai->update($inputPegawai);
+
+        // Update data di tabel users (jika ada relasi)
+        if ($pegawai->user) {
+            $pegawai->user->update([
+                'name' => $inputPegawai['nama_lengkap'],
+                'email' => $inputPegawai['email'],
+            ]);
+        }
 
         return redirect()->route('pegawai.edit', ['pegawai' => $pegawai->id])->with('success', 'Data pegawai berhasil diperbarui');
     
