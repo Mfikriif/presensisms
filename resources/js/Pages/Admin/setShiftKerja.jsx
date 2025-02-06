@@ -1,5 +1,6 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, useForm } from "@inertiajs/react";
+import { toast } from "sonner";
 
 export default function setShiftJamKerja({ pegawai, jadwalShift }) {
     const { data, setData, post, errors, processing } = useForm({
@@ -26,7 +27,16 @@ export default function setShiftJamKerja({ pegawai, jadwalShift }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        post(route("setShift.store")); // Pastikan route ini sesuai dengan Laravel route Anda
+        post(route("setShift.store"), {
+            onSuccess: (response) => {
+                // console.log("Success:", response);
+                toast.success("Shift Pegawai berhasil di set");
+            },
+            onError: (errors) => {
+                // console.log("Errors:", errors);
+                toast.error("Terjadi kesalahan saat menyimpan data");
+            },
+        });
     };
 
     return (

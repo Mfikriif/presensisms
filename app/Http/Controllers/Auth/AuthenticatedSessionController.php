@@ -38,11 +38,14 @@ class AuthenticatedSessionController extends Controller
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
             $user = Auth::user();
-    
-            // Redirect ke dashboard sesuai peran
-            return redirect()->route(
-                $user->role === 'admin' ? "dashboard" : "dashboardop"
-            )->with('status', 'Login berhasil!');
+            
+            // dd($user->role);
+            if ($user->role === 'superadmin' || $user->role === 'admin') {
+                return redirect()->route('dashboard')->with('status', 'Login berhasil');
+            } elseif ($user->role === 'operator') {
+                return redirect()->route('dashboardop')->with('status', 'Login berhasil');
+            }
+
         }
     
         // Jika gagal login, kembalikan dengan Inertia agar tidak error

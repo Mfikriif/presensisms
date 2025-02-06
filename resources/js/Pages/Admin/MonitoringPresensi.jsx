@@ -80,13 +80,16 @@ export default function MonitoringPresensi({ presensi, statusPresensi }) {
 
     const combinedData = filteredPresensi.map((psn) => {
         // Sisa logika hitung keterlambatan tetap sama
-        const status = statusPresensi.find(
+        const statusPresensiData = statusPresensi.find(
             (status) =>
-                status.nama === psn.nama &&
-                status.tanggal_presensi === psn.tanggal_presensi
+                status.nama.toLowerCase() === psn.nama.toLowerCase() &&
+                new Date(status.tanggal_presensi)
+                    .toISOString()
+                    .split("T")[0] ===
+                    new Date(psn.tanggal_presensi).toISOString().split("T")[0]
         );
 
-        const akhirJamMasuk = status?.akhir_jam_masuk || "23:59:59";
+        const akhirJamMasuk = statusPresensiData?.akhir_jam_masuk || "23:59:59";
 
         const jamMasukPegawai = parseTimeToSeconds(psn.jam_in);
         const batasJamMasuk = parseTimeToSeconds(akhirJamMasuk);
@@ -104,6 +107,7 @@ export default function MonitoringPresensi({ presensi, statusPresensi }) {
             akhir_jam_masuk: akhirJamMasuk,
             status_terlambat: statusTerlambat,
             jam_keterlambatan: jamKeterlambatan,
+            nama_jamkerja: statusPresensiData.nama_jamkerja,
         };
     });
 
@@ -183,6 +187,9 @@ export default function MonitoringPresensi({ presensi, statusPresensi }) {
         (currentPage + 1) * itemsPerPage
     );
 
+    console.log(presensi);
+    console.log(statusPresensi);
+
     return (
         <>
             <AuthenticatedLayout
@@ -217,7 +224,7 @@ export default function MonitoringPresensi({ presensi, statusPresensi }) {
                                                     Nama
                                                 </th>
                                                 <th className="px-2 py-2">
-                                                    Email
+                                                    Shift Kerja
                                                 </th>
                                                 <th className="px-2 py-1 whitespace-nowrap">
                                                     Tanggal Presensi
@@ -263,7 +270,9 @@ export default function MonitoringPresensi({ presensi, statusPresensi }) {
                                                                     {psn.nama}
                                                                 </td>
                                                                 <td className="px-2 py-2">
-                                                                    {psn.email}
+                                                                    {
+                                                                        psn.nama_jamkerja
+                                                                    }
                                                                 </td>
                                                                 <td className="px-2 py-1 whitespace-nowrap">
                                                                     {

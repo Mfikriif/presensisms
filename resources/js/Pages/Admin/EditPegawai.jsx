@@ -1,13 +1,12 @@
 import Modal from "@/Components/Modal";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { Head, useForm } from "@inertiajs/react";
+import { Head, Link, useForm } from "@inertiajs/react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { AlertTriangle } from "lucide-react";
 
 export default function EditPegawai({ pegawai }) {
     const [showEditModal, setShowEditModal] = useState(false); // State untuk mengontrol modal untuk modal edit pegawai
-    // modal edit pegawai
     const openEditModal = () => setShowEditModal(true); // Buka modal
     const closeEditModal = () => setShowEditModal(false); // Tutup modal
 
@@ -95,11 +94,7 @@ export default function EditPegawai({ pegawai }) {
     return (
         <>
             <AuthenticatedLayout
-                header={
-                    <>
-                        <h2>Edit Pegawai</h2>
-                    </>
-                }
+                header={<>Edit Pegawai</>}
                 children={
                     <>
                         <div className="p-6 bg-white shadow-md rounded-lg">
@@ -107,7 +102,7 @@ export default function EditPegawai({ pegawai }) {
 
                             {/* Informasi Detail Pegawai */}
                             <div className="max-w-5xl p-10">
-                                <div className="w-20 h-20 rounded-full overflow-hidden ml-10">
+                                <div className="w-20 h-20 overflow-hidden ml-10">
                                     <img
                                         src={`/storage/${pegawai.foto}`}
                                         alt="foto-pegawai"
@@ -188,6 +183,14 @@ export default function EditPegawai({ pegawai }) {
                                             Hapus
                                         </button>
                                     </form>
+                                    <Link
+                                        href={route("userrole.edit", {
+                                            id: pegawai.id,
+                                        })}
+                                        className="bg-green-600 hover:bg-green-700 text-white px-5 py-1 rounded ml-4"
+                                    >
+                                        Edit User
+                                    </Link>
                                 </div>
                                 <Modal
                                     show={showEditModal}
@@ -251,10 +254,8 @@ export default function EditPegawai({ pegawai }) {
                                                     <span className="my-auto">
                                                         posisi:
                                                     </span>
-                                                    <input
+                                                    <select
                                                         className="ml-2 block w-full mt-3 rounded-md border-0 p-2 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-500 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm bg-white"
-                                                        type="text"
-                                                        placeholder="posisi"
                                                         value={data.posisi}
                                                         onChange={(e) =>
                                                             setData(
@@ -262,7 +263,23 @@ export default function EditPegawai({ pegawai }) {
                                                                 e.target.value
                                                             )
                                                         }
-                                                    />
+                                                    >
+                                                        <option value="">
+                                                            Pilih Jabatan
+                                                        </option>
+                                                        <option value="Staff">
+                                                            Staff
+                                                        </option>
+                                                        <option value="Operator">
+                                                            Operator
+                                                        </option>
+                                                        <option value="Cleaning Service">
+                                                            Cleaning Service
+                                                        </option>
+                                                        <option value="Security">
+                                                            Security
+                                                        </option>
+                                                    </select>
                                                 </div>
                                                 {errors.posisi && (
                                                     <p className="error ml-12">
