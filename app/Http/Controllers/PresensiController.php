@@ -464,6 +464,7 @@ class PresensiController extends Controller
                 'p.tanggal_presensi',
                 's.hari AS shift_hari',
                 's.kode_jamkerja',
+                'k.nama_jamkerja',
                 DB::raw("COALESCE(k.akhir_jam_masuk, 'Tidak ada data') AS akhir_jam_masuk")
             )
             ->orderBy('p.tanggal_presensi', 'asc')

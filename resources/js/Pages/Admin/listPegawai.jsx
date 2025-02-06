@@ -185,6 +185,7 @@ export default function listPegawai({ pegawai }) {
                                                             }
                                                         </p>
                                                     )}
+
                                                     <div className="flex">
                                                         <span className="my-auto">
                                                             Email:
@@ -208,14 +209,13 @@ export default function listPegawai({ pegawai }) {
                                                             {errors.email}
                                                         </p>
                                                     )}
+
                                                     <div className="flex">
                                                         <span className="my-auto">
                                                             Jabatan:
                                                         </span>
-                                                        <input
+                                                        <select
                                                             className="ml-2 block w-full mt-3 rounded-md border-0 p-2 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-500 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm bg-white"
-                                                            type="text"
-                                                            placeholder="posisi"
                                                             value={data.posisi}
                                                             onChange={(e) =>
                                                                 setData(
@@ -224,13 +224,30 @@ export default function listPegawai({ pegawai }) {
                                                                         .value
                                                                 )
                                                             }
-                                                        />
+                                                        >
+                                                            <option value="">
+                                                                Pilih Jabatan
+                                                            </option>
+                                                            <option value="staff">
+                                                                Staff
+                                                            </option>
+                                                            <option value="operator">
+                                                                Operator
+                                                            </option>
+                                                            <option value="Cleaning Service">
+                                                                Cleaning Service
+                                                            </option>
+                                                            <option value="Security">
+                                                                Security
+                                                            </option>
+                                                        </select>
                                                     </div>
                                                     {errors.posisi && (
                                                         <p className="error ml-12">
                                                             {errors.posisi}
                                                         </p>
                                                     )}
+
                                                     <div className="flex">
                                                         <span className="my-auto">
                                                             No HP:
@@ -254,11 +271,11 @@ export default function listPegawai({ pegawai }) {
                                                             {errors.no_Hp}
                                                         </p>
                                                     )}
+
                                                     <div className="flex">
                                                         <span className="my-auto">
                                                             Foto:
                                                         </span>
-
                                                         <input
                                                             className="ml-2 block w-full mt-3 rounded-md border-0 p-2 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-500 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm bg-white"
                                                             type="file"
@@ -276,6 +293,7 @@ export default function listPegawai({ pegawai }) {
                                                             {errors.foto}
                                                         </p>
                                                     )}
+
                                                     <div className="flex">
                                                         <span className="my-auto">
                                                             Tempat Lahir:
@@ -303,6 +321,7 @@ export default function listPegawai({ pegawai }) {
                                                             }
                                                         </p>
                                                     )}
+
                                                     <div className="flex">
                                                         <span className="my-auto">
                                                             Tanggal Lahir:
