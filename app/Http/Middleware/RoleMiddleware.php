@@ -20,7 +20,7 @@ class RoleMiddleware
 
         // Cek apakah pengguna memiliki salah satu role yang diizinkan
         if (!$user || !in_array($user->role, $roles)) {
-            return redirect('/')->with('status', 'Akses ditolak. Anda tidak memiliki izin.');
+            return redirect('/dashboardop')->with('status', 'Akses ditolak. Anda tidak memiliki izin.');
         }
 
         return $next($request);

@@ -39,8 +39,8 @@ class PresensiController extends Controller
         $jam = date("H:i:s");
     
         // Lokasi Kantor -7.023826563310556, 110.50695887209068
-        $latitudekantor = -7.023826563310556;
-        $longitudekantor = 110.50695887209068;
+        $latitudekantor = -6.990856622459727;
+        $longitudekantor = 110.46081170361055;
     
         // Lokasi User
         $lokasi = $request->lokasi;

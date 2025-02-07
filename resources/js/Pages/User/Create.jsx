@@ -127,7 +127,7 @@ export default function Create({ cek }) {
                         timer: 3000,
                         timerProgressBar: true,
                         didClose: () => {
-                            window.location.href = "/dashboard";
+                            window.location.href = "/dashboardop";
                         },
                     });
 
