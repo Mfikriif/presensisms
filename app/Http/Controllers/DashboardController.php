@@ -14,15 +14,13 @@ use Inertia\Inertia;
 
 class DashboardController extends Controller
 {
-    // Dashboard
+    // Dashboard User
     public function index(){
         $hariini = date("Y-m-d");
         $bulanini = date("m") * 1;
         $tahunini = date("Y");
         $email = Auth::user()->email;
-        $hariSekarang = date('l'); // Ambil hari ini dalam bahasa Inggris
-        $jadwalShift = konfigurasi_shift_kerja::all();
-
+        $hariSekarang = date('l');
     
         // Konversi hari Inggris ke bahasa Indonesia
         $hariIndo = [
@@ -40,7 +38,38 @@ class DashboardController extends Controller
         $user = DB::table('pegawais')->where('email', $email)->first();
         $user2 = Auth::user();
         $kode_pegawai = $user2->id;
-    
+
+        // Pengecekan posisi 
+        $posisi = $user->posisi;
+        $kodeJamKerja = null;
+
+        // Tentukan kode jam kerja berdasarkan posisi
+        switch ($posisi) {
+            case 'staff':
+                $kodeJamKerja = 'ST';
+                break;
+            case 'security':
+                $kodeJamKerja = 'SC';
+                break;
+            case 'cleaning service':
+                $kodeJamKerja = 'CS';
+                break;
+            case 'operator':
+                $kodeJamKerja = 'OP';
+                break;
+            default:
+                $kodeJamKerja = null;
+                break;
+        }
+
+        // Ambil shift kerja berdasarkan kode jam kerja
+        $shiftKerja = null;
+        if ($kodeJamKerja) {
+            $shiftKerja = DB::table('konfigurasi_shift_kerja')
+                ->where('kode_jamkerja', 'LIKE', "$kodeJamKerja%")
+                ->get();
+        }
+        
         // Ambil data presensi hari ini
         $presensihariini = DB::table('presensi')
             ->where('email', $email)
@@ -112,9 +141,7 @@ class DashboardController extends Controller
         // Shift Kerja Terisi
         $shiftKerjaTerisi = set_jam_kerja::where('id', auth()->user()->id)->get();
 
-        // Ambil daftar konfigurasi shift kerja
-        $jadwalShift = konfigurasi_shift_kerja::all();
-            // Ambil data shift kerja pegawai untuk hari ini
+        // Ambil data shift kerja pegawai untuk hari ini
         $hariIni = date('l');
         $hariIndo = [
             "Sunday" => "Minggu",
@@ -133,9 +160,9 @@ class DashboardController extends Controller
             ->where('set_jam_kerja.hari', $hariIniIndo)
             ->select('konfigurasi_shift_kerja.*')
             ->first();
-
     
         return Inertia::render('User/Dashboard', [
+            'shiftKerja' => $shiftKerja,
             'presensihariini' => $presensihariini,
             'historibulanini' => $historibulanini,
             'namabulan' => $namabulan,
@@ -146,8 +173,8 @@ class DashboardController extends Controller
             'rekapizin' => $rekapizin,
             'jadwalMingguan' => $jadwalMingguan,
             'updatedAtTerbaru' => $updatedAtTerbaru,
-            'jadwalShift' => $jadwalShift,
             'shiftKerjaTerisi' => $shiftKerjaTerisi,
+            'posisi' => $posisi,
             'shift' => $shift,
         ]);
     }
