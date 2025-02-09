@@ -41,6 +41,9 @@ class PresensiController extends Controller
         // Lokasi Kantor -7.023826563310556, 110.50695887209068
         $latitudekantor = -7.020083672655566;
         $longitudekantor = 110.42742316137034;
+        // Lokasi Kantor -7.023826563310556, 110.50695887209068 //artefak -7.059935504906368, 110.42837090396569
+        $latitudekantor = -7.059935504906368;
+        $longitudekantor = 110.42837090396569;
     
         // Lokasi User
         $lokasi = $request->lokasi;
@@ -476,6 +479,7 @@ class PresensiController extends Controller
                 's.hari AS shift_hari',
                 's.kode_jamkerja',
                 'k.nama_jamkerja',
+                'k.jam_pulang',
                 DB::raw("COALESCE(k.akhir_jam_masuk, 'Tidak ada data') AS akhir_jam_masuk")
             )
             ->orderBy('p.tanggal_presensi', 'asc')
@@ -535,6 +539,7 @@ class PresensiController extends Controller
                 'p.tanggal_presensi',
                 's.hari AS shift_hari',
                 's.kode_jamkerja',
+                'k.jam_pulang',
                 DB::raw("COALESCE(k.akhir_jam_masuk, 'Tidak ada data') AS akhir_jam_masuk")
             )
             ->where('p.kode_pegawai', $kode_pegawai)
@@ -660,36 +665,51 @@ class PresensiController extends Controller
             );
 
         $rekapPresensi = DB::table('presensi')
-            ->whereRaw('MONTH(tanggal_presensi) = ?', [$bulan])
-            ->whereRaw('YEAR(tanggal_presensi) = ?', [$tahun])
-            ->join('pegawais', 'presensi.kode_pegawai', '=', 'pegawais.id')
-            ->leftJoinSub($subQuery, 'shift_data', function ($join) {
-                $join->on('pegawais.id', '=', 'shift_data.id')
-                    ->whereRaw("LOWER(shift_data.hari) = LOWER(
-                        CASE 
-                            WHEN DAYNAME(presensi.tanggal_presensi) = 'Monday' THEN 'Senin'
-                            WHEN DAYNAME(presensi.tanggal_presensi) = 'Tuesday' THEN 'Selasa'
-                            WHEN DAYNAME(presensi.tanggal_presensi) = 'Wednesday' THEN 'Rabu'
-                            WHEN DAYNAME(presensi.tanggal_presensi) = 'Thursday' THEN 'Kamis'
-                            WHEN DAYNAME(presensi.tanggal_presensi) = 'Friday' THEN 'Jumat'
-                            WHEN DAYNAME(presensi.tanggal_presensi) = 'Saturday' THEN 'Sabtu'
-                            WHEN DAYNAME(presensi.tanggal_presensi) = 'Sunday' THEN 'Minggu'
-                        END
-                    )");
-            })
-            ->select(
-                'presensi.id',
-                'presensi.kode_pegawai',
-                'presensi.tanggal_presensi',
-                'presensi.jam_in',
-                'presensi.jam_out',
-                'pegawais.nama_lengkap',
-                'pegawais.posisi',
-                'pegawais.foto',
-                'pegawais.no_hp',
-            )
-            ->orderBy('presensi.tanggal_presensi')
-            ->get();
+                ->whereRaw('MONTH(tanggal_presensi) = ?', [$bulan])
+                ->whereRaw('YEAR(tanggal_presensi) = ?', [$tahun])
+                ->join('pegawais', 'presensi.kode_pegawai', '=', 'pegawais.id')
+                ->leftJoinSub($subQuery, 'shift_data', function ($join) {
+                    $join->on('pegawais.id', '=', 'shift_data.id')
+                        ->whereRaw("LOWER(shift_data.hari) = LOWER(
+                            CASE 
+                                WHEN DAYNAME(presensi.tanggal_presensi) = 'Monday' THEN 'Senin'
+                                WHEN DAYNAME(presensi.tanggal_presensi) = 'Tuesday' THEN 'Selasa'
+                                WHEN DAYNAME(presensi.tanggal_presensi) = 'Wednesday' THEN 'Rabu'
+                                WHEN DAYNAME(presensi.tanggal_presensi) = 'Thursday' THEN 'Kamis'
+                                WHEN DAYNAME(presensi.tanggal_presensi) = 'Friday' THEN 'Jumat'
+                                WHEN DAYNAME(presensi.tanggal_presensi) = 'Saturday' THEN 'Sabtu'
+                                WHEN DAYNAME(presensi.tanggal_presensi) = 'Sunday' THEN 'Minggu'
+                            END
+                        )");
+                })
+                ->leftJoin('pengajuan_izin', 'presensi.kode_pegawai', '=', 'pengajuan_izin.kode_pegawai')
+                ->select(
+                    'presensi.id',
+                    'presensi.kode_pegawai',
+                    'presensi.tanggal_presensi',
+                    'presensi.jam_in',
+                    'presensi.jam_out',
+                    'pegawais.nama_lengkap',
+                    'pegawais.posisi',
+                    'pegawais.foto',
+                    'pegawais.no_hp',
+                    DB::raw('SUM(CASE WHEN pengajuan_izin.status = "i" AND pengajuan_izin.status_approved = 1 THEN 1 ELSE 0 END) AS total_izin'),
+                    DB::raw('SUM(CASE WHEN pengajuan_izin.status = "s" AND pengajuan_izin.status_approved = 1 THEN 1 ELSE 0 END) AS total_sakit')
+                )
+                ->groupBy(
+                    'presensi.id',
+                    'presensi.kode_pegawai',
+                    'presensi.tanggal_presensi',
+                    'presensi.jam_in',
+                    'presensi.jam_out',
+                    'pegawais.nama_lengkap',
+                    'pegawais.posisi',
+                    'pegawais.foto',
+                    'pegawais.no_hp'
+                )
+                ->orderBy('presensi.tanggal_presensi')
+                ->get();
+
 
 
 
@@ -777,6 +797,7 @@ class PresensiController extends Controller
                             END
                         )");
                 })
+                ->leftJoin('pengajuan_izin', 'presensi.kode_pegawai', '=', 'pengajuan_izin.kode_pegawai')
                 ->select(
                     'presensi.id',
                     'presensi.kode_pegawai',
@@ -787,9 +808,23 @@ class PresensiController extends Controller
                     'pegawais.posisi',
                     'pegawais.foto',
                     'pegawais.no_hp',
+                    DB::raw('SUM(CASE WHEN pengajuan_izin.status = "i" AND pengajuan_izin.status_approved = 1 THEN 1 ELSE 0 END) AS total_izin'),
+                    DB::raw('SUM(CASE WHEN pengajuan_izin.status = "s" AND pengajuan_izin.status_approved = 1 THEN 1 ELSE 0 END) AS total_sakit')
+                )
+                ->groupBy(
+                    'presensi.id',
+                    'presensi.kode_pegawai',
+                    'presensi.tanggal_presensi',
+                    'presensi.jam_in',
+                    'presensi.jam_out',
+                    'pegawais.nama_lengkap',
+                    'pegawais.posisi',
+                    'pegawais.foto',
+                    'pegawais.no_hp'
                 )
                 ->orderBy('presensi.tanggal_presensi')
                 ->get();
+
 
 
 
@@ -855,10 +890,18 @@ class PresensiController extends Controller
 
     public function showIzinSakit()
     {   
-        $dataIzinSakit = DB::table('pengajuan_izin')
-                        ->join('pegawais', 'pengajuan_izin.kode_pegawai', '=', 'pegawais.id')
-                        ->select('pegawais.nama_lengkap', 'pengajuan_izin.*')
-                        ->get();
+         $dataIzinSakit = pengajuan_izin::with('namaPengaju')->get()->map(function ($dataIzinSakit) {
+            return [
+                'id' => $dataIzinSakit->id,
+                'tanggal_izin' => $dataIzinSakit->tanggal_izin,
+                'status' => $dataIzinSakit->status,
+                'keterangan' => $dataIzinSakit->keterangan,
+                'status_approved' => $dataIzinSakit->status_approved,
+                'namaPengaju' => $dataIzinSakit->namaPengaju->nama_lengkap ?? 'Tidak di temukan' ,
+                'file_path' => $dataIzinSakit->file_path ? Storage::url($dataIzinSakit->file_path) : null,
+            ];
+        });
+
         return Inertia::render('Admin/IzinSakit',['dataIzinSakit' => $dataIzinSakit]);
     }
 
@@ -879,5 +922,16 @@ class PresensiController extends Controller
         $izinSakit->save();
 
         return response()->json(['message' => 'Status berhasil diperbarui'], 200);
+    }
+
+    public function showSuratIzin ($id)
+    {
+        $suratIzin = pengajuan_izin::where('id', $id)
+                ->whereNotNull('file_path')
+                ->firstOrFail();
+
+        $filepath = storage_path('app/public/') . $suratIzin->file_path;
+
+        return response()->download($filepath);
     }
 }

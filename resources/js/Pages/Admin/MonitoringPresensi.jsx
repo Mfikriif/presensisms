@@ -108,6 +108,7 @@ export default function MonitoringPresensi({ presensi, statusPresensi }) {
             status_terlambat: statusTerlambat,
             jam_keterlambatan: jamKeterlambatan,
             nama_jamkerja: statusPresensiData.nama_jamkerja,
+            jam_pulang: statusPresensiData.jam_pulang,
         };
     });
 
@@ -187,9 +188,6 @@ export default function MonitoringPresensi({ presensi, statusPresensi }) {
         (currentPage + 1) * itemsPerPage
     );
 
-    console.log(presensi);
-    console.log(statusPresensi);
-
     return (
         <>
             <AuthenticatedLayout
@@ -258,7 +256,7 @@ export default function MonitoringPresensi({ presensi, statusPresensi }) {
                                                                     psn.id ||
                                                                     index
                                                                 }
-                                                                className="even:bg-gray-50"
+                                                                className="even:bg-gray-50 border-b border-gray-300"
                                                             >
                                                                 <td className="px-2 py-1 text-center">
                                                                     {currentPage *
@@ -303,10 +301,10 @@ export default function MonitoringPresensi({ presensi, statusPresensi }) {
                                                                             60 *
                                                                             60 *
                                                                             1000 ? (
-                                                                            <span className="bg-red-600 text-white rounded px-3 text-center py-1 whitespace-nowrap">
-                                                                                Tidak
-                                                                                Absen
-                                                                                pulang
+                                                                            <span className="">
+                                                                                {
+                                                                                    psn.jam_pulang
+                                                                                }
                                                                             </span>
                                                                         ) : (
                                                                             <span className="bg-red-600 text-white rounded px-3 text-center py-1 whitespace-nowrap">

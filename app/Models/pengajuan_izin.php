@@ -15,5 +15,11 @@ class pengajuan_izin extends Model
         'status',
         'keterangan',
         'status_approved',
+        'file_path',
     ];
+
+    public function namaPengaju()
+    {
+        return $this->hasOne(pegawai::class, 'id','kode_pegawai');
+    }
 }

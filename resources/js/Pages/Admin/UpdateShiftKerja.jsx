@@ -49,10 +49,6 @@ export default function UpdateShiftKerja({ pegawai, jadwalShift, shift }) {
         });
     };
 
-    console.log("shift data from backend", shift);
-
-    // console.log(shiftForDay);
-
     return (
         <>
             <AuthenticatedLayout

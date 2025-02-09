@@ -66,13 +66,11 @@ export default function UpdateRole({ user }) {
                 toast.success("password berhasil di reset");
             },
 
-            onSuccess: () => {
+            onError: () => {
                 toast.error("gagal me reset password");
             },
         });
     }
-
-    console.log(auth.user);
 
     return (
         <>

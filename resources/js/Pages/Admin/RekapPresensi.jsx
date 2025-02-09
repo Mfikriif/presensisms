@@ -84,6 +84,8 @@ export default function RekapPresensi({ namabulan = [], tahun_awal = 2022 }) {
                 return;
             }
 
+            console.log(responData);
+
             // **Format Data**
             const formattedData = responData.rekapPresensi.reduce(
                 (result, current) => {
@@ -107,6 +109,8 @@ export default function RekapPresensi({ namabulan = [], tahun_awal = 2022 }) {
                             }, {}),
                             TH: 0,
                             TT: 0,
+                            TS: 0,
+                            TI: 0,
                         };
                         result.push(existingEntry);
                     }
@@ -126,6 +130,10 @@ export default function RekapPresensi({ namabulan = [], tahun_awal = 2022 }) {
                     if (statusPresensi && statusPresensi.jumlah_keterlambatan) {
                         existingEntry.TT = statusPresensi.jumlah_keterlambatan;
                     }
+                    // Hitung total sakit dan izin
+                    // Tambahkan total sakit dan izin dari data
+                    existingEntry.TS += parseInt(current.total_sakit, 10);
+                    existingEntry.TI += parseInt(current.total_izin, 10);
 
                     return result;
                 },

@@ -79,6 +79,7 @@ Route::middleware(['auth', 'role:admin,superadmin'])->group(function () {
     // Izin / Sakit
     Route::get('/Admin/izin-/-sakit', [PresensiController::class,'showIzinSakit'])->name('izin.show');
     Route::post('/izin-sakit/${id}/update', [PresensiController::class, 'approvalIzin'])->name('izin.update');
+    Route::get('izin-sakit/file/{id}',[PresensiController::class, 'showSuratIzin'])->name('izin.showfile');
 
     // User update role and password
     Route::get('/user/{id}/edit-role', [UserConstroller::class, 'index'])->name('userrole.edit');

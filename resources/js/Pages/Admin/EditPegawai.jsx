@@ -267,16 +267,16 @@ export default function EditPegawai({ pegawai }) {
                                                         <option value="">
                                                             Pilih Jabatan
                                                         </option>
-                                                        <option value="Staff">
+                                                        <option value="staff">
                                                             Staff
                                                         </option>
-                                                        <option value="Operator">
+                                                        <option value="operator">
                                                             Operator
                                                         </option>
-                                                        <option value="Cleaning Service">
+                                                        <option value="cleaning service">
                                                             Cleaning Service
                                                         </option>
-                                                        <option value="Security">
+                                                        <option value="security">
                                                             Security
                                                         </option>
                                                     </select>

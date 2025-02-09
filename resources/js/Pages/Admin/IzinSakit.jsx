@@ -7,12 +7,8 @@ import { toast } from "sonner";
 export default function IzinSakit({ dataIzinSakit }) {
     const [searchTerm, setSearchTerm] = useState("");
 
-    const filtered = dataIzinSakit.filter(
-        (data) =>
-            data.nama_lengkap
-                .toLowerCase()
-                .includes(searchTerm.toLowerCase()) ||
-            data.tanggal_izin.toLowerCase().includes(searchTerm.toLowerCase())
+    const filtered = dataIzinSakit.filter((data) =>
+        data.tanggal_izin.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const handleApproval = async (id, status) => {
@@ -75,29 +71,32 @@ export default function IzinSakit({ dataIzinSakit }) {
                                             Status Approved
                                         </th>
                                         <th className="px-4 py-2 whitespace-nowrap">
+                                            Bukti Surat
+                                        </th>
+                                        <th className="px-4 py-2 whitespace-nowrap">
                                             Aksi
                                         </th>
                                     </tr>
                                 </thead>
 
                                 <tbody>
-                                    {filtered.map((data, index) => (
+                                    {dataIzinSakit.map((data, index) => (
                                         <tr
                                             key={data.id}
-                                            className="even:bg-gray-50"
+                                            className="even:bg-gray-50 border-b border-gray-300"
                                         >
                                             <td className="px-4 py-2 text-center">
                                                 {index + 1}
                                             </td>
                                             <td className="px-4 py-2 whitespace-nowrap">
-                                                {data.nama_lengkap}
+                                                {data.namaPengaju}
                                             </td>
                                             <td className="px-2 py-2">
                                                 {data.tanggal_izin}
                                             </td>
                                             <td className="px-4 py-2 whitespace-nowrap">
                                                 {data.status == "i" ? (
-                                                    <span className="bg-orange-500 px-4 py-1 text-white rounded-lg">
+                                                    <span className="bg-yellow-500 px-4 py-1 text-white rounded-lg">
                                                         Izin
                                                     </span>
                                                 ) : (
@@ -109,7 +108,7 @@ export default function IzinSakit({ dataIzinSakit }) {
                                             <td className="px-4 py-2">
                                                 {data.keterangan}
                                             </td>
-                                            <td className="px-4 py-2">
+                                            <td className="px-4 py-2 ">
                                                 {data.status_approved ? (
                                                     data.status_approved ==
                                                     0 ? (
@@ -132,30 +131,63 @@ export default function IzinSakit({ dataIzinSakit }) {
                                                     </span>
                                                 )}
                                             </td>
-                                            <td className="px-4 py-2 flex">
-                                                <button
-                                                    onClick={() =>
-                                                        handleApproval(
-                                                            data.id,
-                                                            "1"
-                                                        )
-                                                    }
-                                                    className="bg-green-500 px-4 py-1 text-white rounded-lg hover:bg-green-700 mr-2"
-                                                >
-                                                    Setujui
-                                                </button>
+                                            <td>
+                                                {data.file_path ? (
+                                                    <a
+                                                        className="bg-blue-800 text-white px-3 py-1 rounded-lg hover:bg-blue-900"
+                                                        href={route(
+                                                            "izin.showfile",
 
-                                                <button
-                                                    onClick={() =>
-                                                        handleApproval(
-                                                            data.id,
-                                                            "2"
-                                                        )
-                                                    }
-                                                    className="bg-red-500 px-4 py-1 text-white rounded-lg hover:bg-red-700"
-                                                >
-                                                    Tolak
-                                                </button>
+                                                            data.id
+                                                        )}
+                                                    >
+                                                        Download
+                                                    </a>
+                                                ) : (
+                                                    <span></span>
+                                                )}
+                                            </td>
+                                            <td className="px-4 py-2 flex justify-center">
+                                                {data.status_approved === "1" ||
+                                                data.status_approved === "2" ? (
+                                                    <button
+                                                        onClick={() =>
+                                                            handleApproval(
+                                                                data.id,
+                                                                "0"
+                                                            )
+                                                        }
+                                                        className="bg-red-500 px-4 py-1 text-white rounded-lg hover:bg-red-700"
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                ) : (
+                                                    <div>
+                                                        <button
+                                                            onClick={() =>
+                                                                handleApproval(
+                                                                    data.id,
+                                                                    "1"
+                                                                )
+                                                            }
+                                                            className="bg-green-500 px-4 py-1 text-white rounded-lg hover:bg-green-700 mr-2"
+                                                        >
+                                                            Setujui{" "}
+                                                        </button>
+
+                                                        <button
+                                                            onClick={() =>
+                                                                handleApproval(
+                                                                    data.id,
+                                                                    "2"
+                                                                )
+                                                            }
+                                                            className="bg-red-500 px-4 py-1 text-white rounded-lg hover:bg-red-700"
+                                                        >
+                                                            Tolak
+                                                        </button>
+                                                    </div>
+                                                )}
                                             </td>
                                         </tr>
                                     ))}

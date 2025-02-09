@@ -4,9 +4,8 @@ export default function CetakRekap({
     bulan,
     tahun,
 }) {
-    const rowsPerPage = 10;
+    const rowsPerPage = 5;
 
-    // Kelompokkan data presensi berdasarkan kode_pegawai
     const groupedData = rekapPresensi.reduce((acc, item) => {
         const {
             kode_pegawai,
@@ -14,12 +13,16 @@ export default function CetakRekap({
             tanggal_presensi,
             jam_in,
             jam_out,
+            total_izin,
+            total_sakit,
         } = item;
 
         if (!acc[kode_pegawai]) {
             acc[kode_pegawai] = {
                 kode_pegawai,
                 nama_lengkap,
+                total_izin,
+                total_sakit,
                 presensi: Array(31).fill({ jam_in: "-", jam_out: "-" }),
             };
         }
@@ -35,7 +38,6 @@ export default function CetakRekap({
 
     const combinedData = Object.values(groupedData).map((data) => {
         const keterlambatan = rekapKeterlambatan[data.kode_pegawai];
-
         return {
             ...data,
             total_presensi: keterlambatan ? keterlambatan.total_presensi : 0,
@@ -61,31 +63,33 @@ export default function CetakRekap({
         "Agustus",
         "September",
         "Oktober",
-        "Novermber",
+        "November",
         "Desember",
     ];
 
     const getNamaBulan = (bulan) => namabulan[bulan - 1];
+
+    console.log(rekapPresensi);
 
     return (
         <div className="flex flex-col items-center bg-gray-100 py-10">
             {pages.map((pageData, pageIndex) => (
                 <div
                     key={pageIndex}
-                    className="bg-white shadow-lg p-4 mb-10"
+                    className="bg-white shadow-lg p-4 page"
                     style={{
                         width: "297mm",
-                        height: "210mm", // Landscape A4
-                        boxShadow: "0px 0px 10px rgba(0,0,0,0.1)",
+                        height: "210mm",
                         overflow: "hidden",
+                        pageBreakAfter: "always",
                     }}
                 >
                     {/* Header Laporan */}
-                    <div className="flex -mb-4 p-10">
+                    <div className="flex mb-4">
                         <div className="w-24 h-24 mr-2">
                             <img
                                 src="/assets/img/login/sms.jpg"
-                                alt="Login Image"
+                                alt="Logo"
                                 className="w-full h-full object-contain"
                             />
                         </div>
@@ -98,7 +102,7 @@ export default function CetakRekap({
                                 {tahun}
                             </h1>
                             <h1 className="font-bold text-base">
-                                PT.SIDOREJO MAKMUR SEJAHTERA
+                                PT. SIDOREJO MAKMUR SEJAHTERA
                             </h1>
                             <h1 className="text-xs text-slate-600 italic">
                                 Jl. Raya Semarang - Demak Km. 13, Bandungrejo,
@@ -108,81 +112,212 @@ export default function CetakRekap({
                         </div>
                     </div>
 
-                    {/* Tabel Presensi */}
-                    <div className="overflow-auto max-h-[170mm] p-8">
-                        <table className="table-auto border-collapse border border-gray-400 w-full text-xs">
+                    {/* Bagian Tabel Presensi */}
+                    <div>
+                        {/* Tabel Tanggal 1-15 */}
+                        <table
+                            className="table-auto border-collapse w-full text-xs mb-8"
+                            style={{ pageBreakInside: "avoid" }}
+                        >
                             <thead>
                                 <tr className="bg-gray-200 text-center">
                                     <th
-                                        className="border border-gray-400 px-1 py-1"
+                                        className="border px-1 py-1"
                                         rowSpan="2"
                                     >
                                         No
                                     </th>
-
                                     <th
-                                        className="border border-gray-400 px-1 py-1"
+                                        className="border px-1 py-1"
                                         rowSpan="2"
                                     >
                                         Nama Karyawan
                                     </th>
                                     <th
-                                        className="border border-gray-400 px-1 py-1"
-                                        colSpan={31}
+                                        className="border px-1 py-1"
+                                        colSpan={15}
                                     >
                                         Tanggal
                                     </th>
                                     <th
-                                        className="border border-gray-400 px-1 py-1"
+                                        className="border px-1 py-1"
                                         rowSpan="2"
                                     >
                                         TH
                                     </th>
                                     <th
-                                        className="border border-gray-400 px-1 py-1"
+                                        className="border px-1 py-1"
                                         rowSpan="2"
                                     >
                                         TT
                                     </th>
+                                    <th
+                                        className="border px-1 py-1"
+                                        rowSpan="2"
+                                    >
+                                        TS
+                                    </th>
+                                    <th
+                                        className="border px-1 py-1"
+                                        rowSpan="2"
+                                    >
+                                        TI
+                                    </th>
                                 </tr>
                                 <tr className="bg-gray-200 text-center">
-                                    {Array.from({ length: 31 }, (_, i) => (
+                                    {Array.from({ length: 15 }, (_, i) => (
                                         <th
                                             key={i + 1}
-                                            className="border border-gray-400 px-1 py-1"
+                                            className="border px-1 py-1"
                                         >
                                             {i + 1}
                                         </th>
                                     ))}
                                 </tr>
                             </thead>
-
                             <tbody>
                                 {pageData.map((presensi, index) => (
                                     <tr key={index} className="text-center">
-                                        <td className="border border-gray-400 px-1 py-1">
+                                        <td className="border px-1 py-1">
                                             {index + 1}
                                         </td>
-                                        <td className="border border-gray-400 px-1 py-1 text-left">
+                                        <td className="border px-1 py-1 text-left">
                                             {presensi.nama_lengkap}
                                         </td>
-                                        {presensi.presensi.map((pres, i) => (
-                                            <td
-                                                key={`in-${i}`}
-                                                className="border border-gray-400 px-1 py-1"
-                                            >
-                                                {pres.jam_in}
-                                                <br />
-                                                <span className="text-gray-600 text-xxs">
-                                                    {pres.jam_out}
-                                                </span>
-                                            </td>
-                                        ))}
-                                        <td className="border border-gray-400 px-1 py-1">
+                                        {presensi.presensi
+                                            .slice(0, 15)
+                                            .map((pres, i) => (
+                                                <td
+                                                    key={`in-${i}`}
+                                                    className="border px-1 py-1"
+                                                >
+                                                    {pres.jam_in}
+                                                    <br />
+                                                    <span className="text-gray-600 text-xxs">
+                                                        {pres.jam_out}
+                                                    </span>
+                                                </td>
+                                            ))}
+                                        <td className="border px-1 py-1">
                                             {presensi.total_presensi}
                                         </td>
-                                        <td className="border border-gray-400 px-1 py-1">
+                                        <td className="border px-1 py-1">
                                             {presensi.jumlah_keterlambatan}
+                                        </td>
+                                        <td className="border px-1 py-1">
+                                            {presensi.total_sakit === "1"
+                                                ? presensi.total_sakit
+                                                : "-"}
+                                        </td>
+                                        <td className="border px-1 py-1">
+                                            {presensi.total_izin === "1"
+                                                ? presensi.total_izin
+                                                : "-"}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+
+                        {/* Tabel Tanggal 16-31 */}
+                        <table
+                            className="table-auto border-collapse w-full text-xs"
+                            style={{ pageBreakInside: "avoid" }}
+                        >
+                            <thead>
+                                <tr className="bg-gray-200 text-center">
+                                    <th
+                                        className="border px-1 py-1"
+                                        rowSpan="2"
+                                    >
+                                        No
+                                    </th>
+                                    <th
+                                        className="border px-1 py-1"
+                                        rowSpan="2"
+                                    >
+                                        Nama Karyawan
+                                    </th>
+                                    <th
+                                        className="border px-1 py-1"
+                                        colSpan={16}
+                                    >
+                                        Tanggal
+                                    </th>
+                                    <th
+                                        className="border px-1 py-1"
+                                        rowSpan="2"
+                                    >
+                                        TH
+                                    </th>
+                                    <th
+                                        className="border px-1 py-1"
+                                        rowSpan="2"
+                                    >
+                                        TT
+                                    </th>
+                                    <th
+                                        className="border px-1 py-1"
+                                        rowSpan="2"
+                                    >
+                                        TS
+                                    </th>
+                                    <th
+                                        className="border px-1 py-1"
+                                        rowSpan="2"
+                                    >
+                                        TI
+                                    </th>
+                                </tr>
+                                <tr className="bg-gray-200 text-center">
+                                    {Array.from({ length: 16 }, (_, i) => (
+                                        <th
+                                            key={i + 16}
+                                            className="border px-1 py-1"
+                                        >
+                                            {i + 16}
+                                        </th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {pageData.map((presensi, index) => (
+                                    <tr key={index} className="text-center">
+                                        <td className="border px-1 py-1">
+                                            {index + 1}
+                                        </td>
+                                        <td className="border px-1 py-1 text-left">
+                                            {presensi.nama_lengkap}
+                                        </td>
+                                        {presensi.presensi
+                                            .slice(15)
+                                            .map((pres, i) => (
+                                                <td
+                                                    key={`out-${i + 15}`}
+                                                    className="border px-1 py-1"
+                                                >
+                                                    {pres.jam_in}
+                                                    <br />
+                                                    <span className="text-gray-600 text-xxs">
+                                                        {pres.jam_out}
+                                                    </span>
+                                                </td>
+                                            ))}
+                                        <td className="border px-1 py-1">
+                                            {presensi.total_presensi}
+                                        </td>
+                                        <td className="border px-1 py-1">
+                                            {presensi.jumlah_keterlambatan}
+                                        </td>
+                                        <td className="border px-1 py-1">
+                                            {presensi.total_sakit === "1"
+                                                ? presensi.total_sakit
+                                                : "-"}
+                                        </td>
+                                        <td className="border px-1 py-1">
+                                            {presensi.total_izin === "1"
+                                                ? presensi.total_izin
+                                                : "-"}
                                         </td>
                                     </tr>
                                 ))}
@@ -192,28 +327,51 @@ export default function CetakRekap({
                 </div>
             ))}
 
-            {/* Tambahkan gaya untuk mencetak */}
+            {/* CSS tambahan */}
             <style>
                 {`
-                  @media print {
-                    div, table {
-                        page-break-inside: avoid;
-                        overflow: visible !important;
+                @media print {
+                    .page {
+                        
+                        page-break-before: auto;
+                        
                     }
+                    .page:last-child {
+                        page-break-after: auto;
+                    }
+
+                    .page-empty {
+                        display: none;
+                    }
+
 
                     table {
                         width: 100%;
+                        max-width: 290mm;
+                    }
+
+                    th, td {
+                        border: 1px solid #000;
+                        page-break-inside: avoid;
+                        page-break-before: auto;
+                        padding: 2px;
+                        border: 1px solid #000;
+                        page-break-inside: avoid;
+
+                    }
+
+                    .content {
+                        margin: 0;
+                        padding: 0;
+                        border: 0;
                     }
 
                     @page {
                         size: A4 landscape;
-                        margin: 10mm;
-                    }
-
-                    body {
-                        -webkit-print-color-adjust: exact;
+                        margin: 5mm;
                     }
                 }
+
 
                 `}
             </style>
