@@ -402,7 +402,7 @@ export default function listPegawai({ pegawai }) {
                                                 (pgw, index) => (
                                                     <tr
                                                         key={pgw.id}
-                                                        className="odd:bg-white even:bg-gray-50 hover:bg-gray-100"
+                                                        className="odd:bg-white even:bg-gray-50 hover:bg-gray-100 border-b border-gray-300"
                                                     >
                                                         <td className="px-4 py-2 text-center">
                                                             {currentPage *

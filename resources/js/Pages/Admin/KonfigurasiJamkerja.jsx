@@ -47,11 +47,7 @@ export default function KonfigurasiJamkerja({ jadwalShift }) {
     return (
         <>
             <AuthenticatedLayout
-                header={
-                    <>
-                        <h1>Konfigurasi jam kerja</h1>
-                    </>
-                }
+                header={<>Konfigurasi jam kerja</>}
                 children={
                     <>
                         <Head title="Konfigurasi Jam kerja" />

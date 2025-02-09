@@ -32,5 +32,10 @@ class pegawai extends Model
         return $this->hasOne(set_jam_kerja::class, 'id', 'id');
     }
 
+    public function pengajuanIzin()
+    {
+        return $this->hasMany(pengajuan_izin::class,'id','kode_pegawai');
+    }
+
     
 }

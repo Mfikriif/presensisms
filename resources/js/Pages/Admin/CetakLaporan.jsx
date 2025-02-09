@@ -55,12 +55,14 @@ export default function CetakLaporan({
 
         return {
             ...hst,
+            jam_pulang: status.jam_pulang,
             akhir_jam_masuk: akhirJamMasuk,
             status_terlambat: statusTerlambat,
             jam_keterlambatan: hitungJamKeterlambatan(
                 hst.jam_in,
                 akhirJamMasuk
             ),
+            // jam_pulang,
         };
     });
 
@@ -165,15 +167,9 @@ export default function CetakLaporan({
                                             className="h-12 w-12 object-cover"
                                         />
                                     </td>
-                                    <td style={styles.td}>
+                                    <td>
                                         {!item.jam_out
-                                            ? new Date() -
-                                                  new Date(
-                                                      item.tanggal_presensi
-                                                  ) >
-                                              24 * 60 * 60 * 1000
-                                                ? "Tidak absen pulang"
-                                                : "Belum absen pulang"
+                                            ? item.jam_pulang
                                             : item.jam_out}
                                     </td>
                                     <td style={styles.td}>
@@ -200,7 +196,10 @@ export default function CetakLaporan({
                                     </td>
                                     <td style={styles.td}>
                                         {!item.jam_out
-                                            ? 0
+                                            ? calculateTimeDifference(
+                                                  item.jam_in,
+                                                  item.jam_pulang
+                                              )
                                             : calculateTimeDifference(
                                                   item.jam_in,
                                                   item.jam_out
