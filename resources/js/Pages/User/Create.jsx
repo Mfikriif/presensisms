@@ -50,7 +50,7 @@ export default function Create({ cek }) {
                     ]).addTo(map);
 
                     // Lokasi Kantor -7.023826563310556, 110.50695887209068
-                    L.circle([-7.059935504906368, 110.42837090396569], {
+                    L.circle([-7.020083672655566, 110.42742316137034], {
                         color: "red",
                         fillColor: "#f03",
                         fillOpacity: 0.5,
@@ -127,7 +127,7 @@ export default function Create({ cek }) {
                         timer: 3000,
                         timerProgressBar: true,
                         didClose: () => {
-                            window.location.href = "/dashboard";
+                            window.location.href = "/dashboardop";
                         },
                     });
 

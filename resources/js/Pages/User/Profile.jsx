@@ -1,23 +1,65 @@
 import React, { useState, useEffect } from "react";
 import MainLayout from "@/Layouts/MainLayout";
-import toast, { Toaster } from "react-hot-toast";
+import Swal from "sweetalert2";
 
 export default function Profile({ pegawai, successMessage, errorMessage }) {
     const [namaLengkap, setNamaLengkap] = useState(pegawai.nama_lengkap || "");
     const [noHp, setNoHp] = useState(pegawai.no_hp || "");
+    const [password, setPassword] = useState("");
 
-    // Menampilkan notifikasi saat ada pesan
+    // Menampilkan notifikasi saat ada pesan sukses atau error
     useEffect(() => {
-        if (successMessage) toast.success(successMessage);
-        if (errorMessage) toast.error(errorMessage);
+        if (successMessage) {
+            Swal.fire({
+                icon: "success",
+                title: "Berhasil",
+                text: successMessage,
+                timer: 3000,
+                showConfirmButton: false,
+                timerProgressBar: true,
+            });
+        }
+
+        if (errorMessage) {
+            Swal.fire({
+                icon: "error",
+                title: "Gagal",
+                text: errorMessage,
+                timer: 3000,
+                showConfirmButton: false,
+                timerProgressBar: true,
+            });
+        }
     }, [successMessage, errorMessage]);
+
+    const handleFormSubmit = (e) => {
+        e.preventDefault();
+
+        // Cek apakah data tidak berubah
+        if (
+            namaLengkap === pegawai.nama_lengkap &&
+            noHp === pegawai.no_hp &&
+            !password
+        ) {
+            Swal.fire({
+                icon: "info",
+                title: "Tidak Ada Perubahan",
+                text: "Data tidak ada yang diubah.",
+                timer: 3000,
+                showConfirmButton: false,
+                timerProgressBar: true,
+            });
+            return;
+        }
+
+        // Kirim data jika ada perubahan
+        const form = e.target;
+        form.submit();
+    };
 
     return (
         <MainLayout>
-            <div className="bg-gray-100 min-h-screen overflow-y-auto">
-                {/* Toaster untuk Notifikasi */}
-                <Toaster position="top-center" reverseOrder={false} />
-
+            <div className="bg-gray-100 min-h-screen overflow-y-auto pb-52">
                 {/* Header */}
                 <div className="bg-blue-950 text-white flex items-center justify-between px-4 py-3 shadow-md">
                     <button
@@ -37,7 +79,7 @@ export default function Profile({ pegawai, successMessage, errorMessage }) {
                 <form
                     action={`/presensi/${pegawai.id}/updateprofile`}
                     method="POST"
-                    encType="multipart/form-data"
+                    onSubmit={handleFormSubmit}
                     className="mt-6 px-4 flex-grow"
                 >
                     {/* CSRF Token */}
@@ -49,6 +91,29 @@ export default function Profile({ pegawai, successMessage, errorMessage }) {
                                 .content
                         }
                     />
+
+                    {/* Foto Profil */}
+                    <div className="mb-4">
+                        <label
+                            htmlFor="foto"
+                            className="block text-sm font-medium text-gray-700 text-center"
+                        >
+                            Foto Profil
+                        </label>
+                        <div className="flex justify-center items-center mt-2">
+                            <div className="relative w-28 h-28">
+                                <img
+                                    src={
+                                        pegawai.foto
+                                            ? `/storage/${pegawai.foto}`
+                                            : "/assets/img/sample/avatar/avatar1.jpg"
+                                    }
+                                    alt="Foto Profil"
+                                    className="w-full h-full rounded-full border-4 border-blue-950 shadow-lg object-cover"
+                                />
+                            </div>
+                        </div>
+                    </div>
 
                     {/* Input Nama Lengkap */}
                     <div className="mb-4">
@@ -90,6 +155,42 @@ export default function Profile({ pegawai, successMessage, errorMessage }) {
                         />
                     </div>
 
+                    {/* Tempat Lahir */}
+                    <div className="mb-4">
+                        <label
+                            htmlFor="tempat_lahir"
+                            className="block text-sm font-medium text-gray-700"
+                        >
+                            Tempat Lahir
+                        </label>
+                        <input
+                            type="text"
+                            id="tempat_lahir"
+                            name="tempat_lahir"
+                            className="mt-1 block w-full rounded-lg border-gray-300 shadow bg-gray-200 cursor-not-allowed"
+                            value={pegawai.tempat_lahir || ""}
+                            disabled
+                        />
+                    </div>
+
+                    {/* Tanggal Lahir */}
+                    <div className="mb-4">
+                        <label
+                            htmlFor="tanggal_lahir"
+                            className="block text-sm font-medium text-gray-700"
+                        >
+                            Tanggal Lahir
+                        </label>
+                        <input
+                            type="date"
+                            id="tanggal_lahir"
+                            name="tanggal_lahir"
+                            className="mt-1 block w-full rounded-lg border-gray-300 shadow bg-gray-200 cursor-not-allowed"
+                            value={pegawai.tanggal_lahir || ""}
+                            disabled
+                        />
+                    </div>
+
                     {/* Input Password */}
                     <div className="mb-4">
                         <label
@@ -105,6 +206,8 @@ export default function Profile({ pegawai, successMessage, errorMessage }) {
                             className="mt-1 block w-full rounded-lg border-gray-300 shadow focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                             placeholder="Password"
                             autoComplete="off"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
                         />
                     </div>
 

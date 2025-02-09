@@ -127,14 +127,15 @@ export default function BuatIzin() {
         const file = e.target.files[0];
 
         if (file) {
-            // Validasi ekstensi file
-            const allowedTypes = ["application/pdf", "image/jpeg", "image/png"];
-            if (!allowedTypes.includes(file.type)) {
+            // Validasi hanya memperbolehkan PDF
+            if (file.type !== "application/pdf") {
                 Swal.fire({
                     title: "Format File Tidak Didukung",
-                    text: "Hanya diperbolehkan file PDF, JPG, atau PNG.",
+                    text: "Hanya diperbolehkan file dalam format PDF.",
                     icon: "error",
                 });
+                e.target.value = ""; // Reset input file
+                setFileIzin(null); // Reset state file
                 return;
             }
 
@@ -145,6 +146,8 @@ export default function BuatIzin() {
                     text: "Maksimal ukuran file adalah 2MB.",
                     icon: "error",
                 });
+                e.target.value = ""; // Reset input file
+                setFileIzin(null); // Reset state file
                 return;
             }
 
@@ -230,7 +233,7 @@ export default function BuatIzin() {
 
                         {/* Upload File Izin */}
                         <div className="form-group">
-                            <label className="block text-sm font-medium text-gray-700">
+                            <label className="block text-md font-medium text-gray-700 mt-1 mb-1">
                                 Upload Bukti Sakit (PDF){" "}
                                 {status === "s" && (
                                     <span className="text-red-500">*</span>
@@ -252,12 +255,13 @@ export default function BuatIzin() {
                                 </p>
                             )}
 
-                            {/* Tampilkan nama file jika sudah dipilih */}
-                            {fileIzin && (
-                                <p className="text-green-600 text-sm mt-1">
-                                    File terpilih: {fileIzin.name}
-                                </p>
-                            )}
+                            {/* Tampilkan nama file hanya jika sudah dipilih dan formatnya PDF */}
+                            {fileIzin &&
+                                fileIzin.type === "application/pdf" && (
+                                    <p className="text-green-600 text-sm mt-1">
+                                        File terpilih: {fileIzin.name}
+                                    </p>
+                                )}
                         </div>
 
                         {/* Tombol Kirim */}

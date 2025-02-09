@@ -38,6 +38,9 @@ class PresensiController extends Controller
         $tanggal_presensi = date("Y-m-d");
         $jam = date("H:i:s");
     
+        // Lokasi Kantor -7.023826563310556, 110.50695887209068
+        $latitudekantor = -7.020083672655566;
+        $longitudekantor = 110.42742316137034;
         // Lokasi Kantor -7.023826563310556, 110.50695887209068 //artefak -7.059935504906368, 110.42837090396569
         $latitudekantor = -7.059935504906368;
         $longitudekantor = 110.42837090396569;
@@ -108,8 +111,8 @@ class PresensiController extends Controller
     
         if (!$shiftKerja) {
             return response()->json([
-                'error' => 'Konfigurasi shift tidak ditemukan!',
-                'message' => 'Silakan hubungi administrator untuk konfigurasi shift kerja.',
+                'error' => 'Konfigurasi shift tidak ditemukan.',
+                'message' => 'Silakan pilih jam kerja dahulu.',
             ], 500);
         }
     

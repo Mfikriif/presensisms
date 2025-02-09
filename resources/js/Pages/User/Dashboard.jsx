@@ -13,9 +13,10 @@ export default function Dashboard({
     bulanini,
     rekapPresensi,
     user,
+    posisi,
     shift,
-    jadwalShift,
     shiftKerjaTerisi,
+    shiftKerja,
 }) {
     // Fungsi untuk mendapatkan minggu ke-berapa dalam bulan
     const getCurrentWeekOfMonth = () => {
@@ -201,9 +202,15 @@ export default function Dashboard({
                                     {user.nama_lengkap}
                                 </h3>
                                 <p className="text-white text-sm mt-1">
-                                    {user.posisi === "operator"
+                                    {posisi.posisi === "operator"
                                         ? "Operator"
-                                        : user.posisi}{" "}
+                                        : user.posisi === "staff"
+                                        ? "Staff"
+                                        : user.posisi === "security"
+                                        ? "Security"
+                                        : user.posisi === "cleaning service"
+                                        ? "Cleaning Service"
+                                        : "Jabatan Tidak Diketahui"}{" "}
                                     -{" "}
                                     <span className="font-medium text-blue-300">
                                         44.595.18
@@ -568,7 +575,7 @@ export default function Dashboard({
                     {activeTab === "shiftKerja" && (
                         <div className="p-4">
                             <h3 className="text-lg font-semibold mb-4 text-center text-gray-800">
-                                Shift Kerja - {currentWeek}
+                                Shift Kerja {currentWeek}
                             </h3>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -605,7 +612,7 @@ export default function Dashboard({
                                             <option value="">
                                                 Pilih Shift Kerja
                                             </option>
-                                            {jadwalShift
+                                            {shiftKerja
                                                 .sort((a, b) =>
                                                     a.nama_jamkerja.localeCompare(
                                                         b.nama_jamkerja

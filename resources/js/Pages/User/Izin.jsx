@@ -119,9 +119,9 @@ export default function Izin({ dataizin, errorMessage, successMessage }) {
                 <div className="flex-1 overflow-y-auto p-6 pb-32">
                     {izinList.length > 0 ? (
                         <SwipeableList fullSwipe={false}>
-                            {izinList.map((izin, index) => (
+                            {izinList.map((izin) => (
                                 <SwipeableListItem
-                                    key={index}
+                                    key={izin.id}
                                     trailingActions={trailingActions(
                                         izin.id,
                                         izin.status_approved
