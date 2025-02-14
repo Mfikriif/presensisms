@@ -6,10 +6,29 @@ import { toast } from "sonner";
 
 export default function IzinSakit({ dataIzinSakit }) {
     const [searchTerm, setSearchTerm] = useState("");
+    const [today, setToday] = useState(true);
 
-    const filtered = dataIzinSakit.filter((data) =>
-        data.tanggal_izin.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const getCurrentDate = () => {
+        const today = new Date();
+        return today.toISOString().split("T")[0];
+    };
+
+    const filtered = dataIzinSakit.filter((data) => {
+        const createdDate = data.created_at?.split("T")[0];
+        const matchesSearchTerm =
+            data.tanggal_izin
+                .toLowerCase()
+                .includes(searchTerm.toLowerCase()) ||
+            data.namaPengaju.toLowerCase().includes(searchTerm.toLowerCase());
+
+        // Jika sedang menampilkan hari ini, tampilkan hanya yang tanggalnya hari ini
+        if (today) {
+            return createdDate === getCurrentDate();
+        }
+
+        // Jika sedang mencari, tampilkan hasil pencarian tanpa filter hari ini
+        return matchesSearchTerm;
+    });
 
     const handleApproval = async (id, status) => {
         // Simpan promise dari axios
@@ -48,9 +67,13 @@ export default function IzinSakit({ dataIzinSakit }) {
                                     type="text"
                                     placeholder="Cari berdasarkan nama atau tanggal izin"
                                     value={searchTerm}
-                                    onChange={(e) =>
-                                        setSearchTerm(e.target.value)
-                                    }
+                                    onChange={(e) => {
+                                        setSearchTerm(e.target.value);
+                                        // Ubah state isToday menjadi false saat sedang mencari
+                                        setToday(
+                                            e.target.value === "" ? true : false
+                                        );
+                                    }}
                                 />
                             </div>
                             <table className="w-full border-collapse text-center">
@@ -80,7 +103,7 @@ export default function IzinSakit({ dataIzinSakit }) {
                                 </thead>
 
                                 <tbody>
-                                    {dataIzinSakit.map((data, index) => (
+                                    {filtered.map((data, index) => (
                                         <tr
                                             key={data.id}
                                             className="even:bg-gray-50 border-b border-gray-300"
@@ -96,11 +119,11 @@ export default function IzinSakit({ dataIzinSakit }) {
                                             </td>
                                             <td className="px-4 py-2 whitespace-nowrap">
                                                 {data.status == "i" ? (
-                                                    <span className="bg-yellow-500 px-4 py-1 text-white rounded-lg">
+                                                    <span className="bg-yellow-200 px-4 py-1 text-yellow-600 font-semibold rounded-lg">
                                                         Izin
                                                     </span>
                                                 ) : (
-                                                    <span className="bg-red-500 px-4 py-1 text-white rounded-lg">
+                                                    <span className="bg-red-300 px-4 py-1 text-red-600 font-semibold rounded-lg">
                                                         Sakit
                                                     </span>
                                                 )}
@@ -112,21 +135,21 @@ export default function IzinSakit({ dataIzinSakit }) {
                                                 {data.status_approved ? (
                                                     data.status_approved ==
                                                     0 ? (
-                                                        <span className="bg-orange-500 px-4 py-1 rounded-lg text-white">
+                                                        <span className="bg-orange-300 px-4 py-1 rounded-lg text-orange-600 font-semibold">
                                                             pending
                                                         </span>
                                                     ) : data.status_approved ==
                                                       1 ? (
-                                                        <span className="bg-green-500 px-4 py-1 rounded-lg text-white">
+                                                        <span className="bg-green-200 px-4 py-1 rounded-lg text-green-600 font-semibold">
                                                             Disetujui
                                                         </span>
                                                     ) : (
-                                                        <span className="bg-red-500 px-4 py-1 rounded-lg text-white">
+                                                        <span className="bg-red-200 px-4 py-1 rounded-lg text-red-600 font-semibold">
                                                             Ditolak
                                                         </span>
                                                     )
                                                 ) : (
-                                                    <span className="bg-red-500 px-4 py-1 rounded-lg text-white">
+                                                    <span className="bg-red-300 px-4 py-1 rounded-lg text-red-600 font-semibold">
                                                         Ditolak
                                                     </span>
                                                 )}

@@ -51,14 +51,14 @@ export default function KonfigurasiJamkerja({ jadwalShift }) {
                     <>
                         <Head title="Konfigurasi Jam kerja" />
                         <div className="p-6 bg-white shadow-md rounded-lg">
-                            <button
-                                className="bg-blue-950 px-4 py-2 text-sm flex text-white rounded-md ml-14"
-                                onClick={openModal}
-                            >
-                                <FaPlus className="my-auto mr-2" />
-                                Tambah Data
-                            </button>
                             <div className="max-w-screen-xl mx-auto p-6 rounded-md ">
+                                <button
+                                    className="bg-blue-950 px-4 py-2 text-sm flex text-white rounded-md mb-3"
+                                    onClick={openModal}
+                                >
+                                    <FaPlus className="my-auto mr-2" />
+                                    Tambah Data
+                                </button>
                                 <table>
                                     <thead>
                                         <tr>

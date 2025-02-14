@@ -897,6 +897,7 @@ class PresensiController extends Controller
                 'status' => $dataIzinSakit->status,
                 'keterangan' => $dataIzinSakit->keterangan,
                 'status_approved' => $dataIzinSakit->status_approved,
+                'created_at' => $dataIzinSakit->created_at ,
                 'namaPengaju' => $dataIzinSakit->namaPengaju->nama_lengkap ?? 'Tidak di temukan' ,
                 'file_path' => $dataIzinSakit->file_path ? Storage::url($dataIzinSakit->file_path) : null,
             ];

@@ -69,8 +69,6 @@ export default function CetakRekap({
 
     const getNamaBulan = (bulan) => namabulan[bulan - 1];
 
-    console.log(rekapPresensi);
-
     return (
         <div className="flex flex-col items-center bg-gray-100 py-10">
             {pages.map((pageData, pageIndex) => (

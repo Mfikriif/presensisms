@@ -84,8 +84,6 @@ export default function CetakLaporan({
         return `${hours} jam ${minutes} menit`;
     };
 
-    console.log(statusPresensi);
-
     return (
         <div style={styles.page}>
             <div className="flex mb-10 w-3/4">
