@@ -266,9 +266,9 @@ export default function listPegawai({ pegawai }) {
                                                             }
                                                         />
                                                     </div>
-                                                    {errors.no_Hp && (
+                                                    {errors.no_hp && (
                                                         <p className="error ml-12">
-                                                            {errors.no_Hp}
+                                                            {errors.no_hp}
                                                         </p>
                                                     )}
 
