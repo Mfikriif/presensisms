@@ -6,4 +6,56 @@
     .error {
         @apply text-xs text-red-500 mt-1;
     }
+
+    /* Ukuran SweetAlert Lebih Besar untuk Mobile */
+    .custom-swal-popup {
+        @apply rounded-xl p-6 text-base shadow-lg;
+        width: 280px !important;
+        font-size: 16px !important;
+        padding: 20px !important;
+    }
+
+    .custom-swal-title {
+        @apply font-bold text-xl;
+        font-size: 18px !important;
+        margin-bottom: 12px !important;
+    }
+
+    .custom-swal-content {
+        @apply text-lg leading-relaxed;
+        font-size: 15px !important;
+    }
+
+    .custom-swal-confirm {
+        @apply px-5 py-3 text-base rounded-lg font-semibold;
+        font-size: 14px !important;
+    }
+
+    .custom-swal-cancel {
+        @apply px-5 py-3 text-base rounded-lg font-semibold;
+        font-size: 14px !important;
+    }
+}
+
+/* Responsive Style: Sedikit Perbesar di Mobile */
+@media (max-width: 480px) {
+    .custom-swal-popup {
+        width: 250px !important;
+        font-size: 14px !important;
+        padding: 16px !important;
+    }
+
+    .custom-swal-title {
+        font-size: 24px !important;
+    }
+
+    .custom-swal-content {
+        font-size: 13px !important;
+    }
+
+    .custom-swal-confirm,
+    .custom-swal-cancel {
+        font-size: 13px !important;
+        padding: 8px 14px !important;
+    }
 }

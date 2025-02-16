@@ -80,6 +80,11 @@ export default function Create({ cek }) {
                     showConfirmButton: false,
                     timerProgressBar: true,
                     timer: 3000,
+                    customClass: {
+                        popup: "custom-swal-popup",
+                        title: "custom-swal-title",
+                        content: "custom-swal-content",
+                    },
                 });
                 return;
             }
@@ -92,6 +97,11 @@ export default function Create({ cek }) {
                     showConfirmButton: false,
                     timerProgressBar: true,
                     timer: 3000,
+                    customClass: {
+                        popup: "custom-swal-popup",
+                        title: "custom-swal-title",
+                        content: "custom-swal-content",
+                    },
                 });
                 return;
             }
@@ -126,6 +136,11 @@ export default function Create({ cek }) {
                         showConfirmButton: false,
                         timer: 3000,
                         timerProgressBar: true,
+                        customClass: {
+                            popup: "custom-swal-popup",
+                            title: "custom-swal-title",
+                            content: "custom-swal-content",
+                        },
                         didClose: () => {
                             window.location.href = "/dashboardop";
                         },
@@ -146,6 +161,11 @@ export default function Create({ cek }) {
                         showConfirmButton: false,
                         timerProgressBar: true,
                         timer: 3000,
+                        customClass: {
+                            popup: "custom-swal-popup",
+                            title: "custom-swal-title",
+                            content: "custom-swal-content",
+                        },
                     });
                 }
             } finally {

@@ -17,6 +17,11 @@ export default function Profile({ pegawai, successMessage, errorMessage }) {
                 timer: 3000,
                 showConfirmButton: false,
                 timerProgressBar: true,
+                customClass: {
+                    popup: "custom-swal-popup",
+                    title: "custom-swal-title",
+                    content: "custom-swal-content",
+                },
             });
         }
 
@@ -28,6 +33,11 @@ export default function Profile({ pegawai, successMessage, errorMessage }) {
                 timer: 3000,
                 showConfirmButton: false,
                 timerProgressBar: true,
+                customClass: {
+                    popup: "custom-swal-popup",
+                    title: "custom-swal-title",
+                    content: "custom-swal-content",
+                },
             });
         }
     }, [successMessage, errorMessage]);
@@ -46,15 +56,39 @@ export default function Profile({ pegawai, successMessage, errorMessage }) {
                 title: "Tidak Ada Perubahan",
                 text: "Data tidak ada yang diubah.",
                 timer: 3000,
-                showConfirmButton: false,
                 timerProgressBar: true,
+                showConfirmButton: false,
+                customClass: {
+                    popup: "custom-swal-popup",
+                    title: "custom-swal-title",
+                    content: "custom-swal-content",
+                },
             });
             return;
         }
 
-        // Kirim data jika ada perubahan
-        const form = e.target;
-        form.submit();
+        // Konfirmasi sebelum mengirim data
+        Swal.fire({
+            title: "Apakah Anda Yakin?",
+            text: "Perubahan akan disimpan.",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: "Ya, Simpan",
+            cancelButtonText: "Batal",
+            customClass: {
+                popup: "custom-swal-popup",
+                title: "custom-swal-title",
+                content: "custom-swal-content",
+                confirmButton: "custom-swal-confirm",
+                cancelButton: "custom-swal-cancel",
+            },
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Kirim data jika ada perubahan
+                const form = e.target;
+                form.submit();
+            }
+        });
     };
 
     return (
