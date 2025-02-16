@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import MainLayout from "@/Layouts/MainLayout";
 import Swal from "sweetalert2";
+import { Inertia } from "@inertiajs/inertia";
 
 export default function Profile({ pegawai, successMessage, errorMessage }) {
     const [namaLengkap, setNamaLengkap] = useState(pegawai.nama_lengkap || "");
@@ -84,9 +85,17 @@ export default function Profile({ pegawai, successMessage, errorMessage }) {
             },
         }).then((result) => {
             if (result.isConfirmed) {
-                // Kirim data jika ada perubahan
-                const form = e.target;
-                form.submit();
+                Inertia.visit(`/presensi/${pegawai.id}/updateprofile`, {
+                    method: "post",
+                    data: {
+                        nama_lengkap: namaLengkap,
+                        no_hp: noHp,
+                        password: password,
+                    },
+                    only: ["pegawai"], // ← Hanya ambil data pegawai
+                    replace: true,
+                    preserveState: true,
+                });
             }
         });
     };
