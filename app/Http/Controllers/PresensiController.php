@@ -375,6 +375,7 @@ class PresensiController extends Controller
         return response()->json($izinAda ? 1 : 0);
     }
 
+    // Pembatalan Izin
     public function batalkanIzin($id)
     {
         // Ambil data izin berdasarkan ID
@@ -402,11 +403,22 @@ class PresensiController extends Controller
         ], 200);
     }
 
+    /*************  ✨ Codeium Command ⭐  *************/
+    /**
+     * Render the page for creating a new leave request.
+     *
+     * This method returns the Inertia response to render the 'User/BuatIzin' 
+     * page, which allows users to fill out the form for submitting a new
+     * leave request.
+     */
+
+    /******  73db5cff-53b8-446e-9b24-74341686e9e6  *******/     
     public function buatizin(){
         return Inertia::render('User/BuatIzin',[
     ]);
     }
 
+    // Mengirimkan data Izin
     public function storeizin(Request $request)
     {
         $user = Auth::user();

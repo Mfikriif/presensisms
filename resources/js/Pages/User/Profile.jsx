@@ -113,9 +113,9 @@ export default function Profile({ pegawai, successMessage, errorMessage }) {
                             name="chevron-back-outline"
                             className="text-2xl"
                         ></ion-icon>
-                        <span className="ml-2 text-sm">Back</span>
+                        <span className="ml-2 text-sm">Kembali</span>
                     </button>
-                    <h1 className="text-lg font-semibold">Edit Profile</h1>
+                    <h1 className="text-lg font-semibold">Ubah Profil</h1>
                 </div>
 
                 {/* Form Edit Profile */}
@@ -264,7 +264,7 @@ export default function Profile({ pegawai, successMessage, errorMessage }) {
                                 name="refresh-outline"
                                 className="text-lg"
                             ></ion-icon>
-                            <span>Update</span>
+                            <span>Ubah</span>
                         </button>
                     </div>
                 </form>

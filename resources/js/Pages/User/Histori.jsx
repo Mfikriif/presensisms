@@ -53,7 +53,7 @@ export default function Histori({ namabulan = [], tahun_awal = 2022 }) {
                             name="chevron-back-outline"
                             className="text-2xl"
                         ></ion-icon>
-                        <span className="ml-2 text-sm">Back</span>
+                        <span className="ml-2 text-sm">Kembali</span>
                     </button>
                     <h1 className="text-lg font-semibold">Histori Presensi</h1>
                 </div>
