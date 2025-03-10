@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import MainLayout from "@/Layouts/MainLayout";
 import Swal from "sweetalert2";
+import { Inertia } from "@inertiajs/inertia";
 
 export default function Profile({ pegawai, successMessage, errorMessage }) {
     const [namaLengkap, setNamaLengkap] = useState(pegawai.nama_lengkap || "");
@@ -17,6 +18,11 @@ export default function Profile({ pegawai, successMessage, errorMessage }) {
                 timer: 3000,
                 showConfirmButton: false,
                 timerProgressBar: true,
+                customClass: {
+                    popup: "custom-swal-popup",
+                    title: "custom-swal-title",
+                    content: "custom-swal-content",
+                },
             });
         }
 
@@ -28,6 +34,11 @@ export default function Profile({ pegawai, successMessage, errorMessage }) {
                 timer: 3000,
                 showConfirmButton: false,
                 timerProgressBar: true,
+                customClass: {
+                    popup: "custom-swal-popup",
+                    title: "custom-swal-title",
+                    content: "custom-swal-content",
+                },
             });
         }
     }, [successMessage, errorMessage]);
@@ -46,15 +57,47 @@ export default function Profile({ pegawai, successMessage, errorMessage }) {
                 title: "Tidak Ada Perubahan",
                 text: "Data tidak ada yang diubah.",
                 timer: 3000,
-                showConfirmButton: false,
                 timerProgressBar: true,
+                showConfirmButton: false,
+                customClass: {
+                    popup: "custom-swal-popup",
+                    title: "custom-swal-title",
+                    content: "custom-swal-content",
+                },
             });
             return;
         }
 
-        // Kirim data jika ada perubahan
-        const form = e.target;
-        form.submit();
+        // Konfirmasi sebelum mengirim data
+        Swal.fire({
+            title: "Apakah Anda Yakin?",
+            text: "Perubahan akan disimpan.",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: "Ya, Simpan",
+            cancelButtonText: "Batal",
+            customClass: {
+                popup: "custom-swal-popup",
+                title: "custom-swal-title",
+                content: "custom-swal-content",
+                confirmButton: "custom-swal-confirm",
+                cancelButton: "custom-swal-cancel",
+            },
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Inertia.visit(`/presensi/${pegawai.id}/updateprofile`, {
+                    method: "post",
+                    data: {
+                        nama_lengkap: namaLengkap,
+                        no_hp: noHp,
+                        password: password,
+                    },
+                    only: ["pegawai"], // ← Hanya ambil data pegawai
+                    replace: true,
+                    preserveState: true,
+                });
+            }
+        });
     };
 
     return (
@@ -70,9 +113,9 @@ export default function Profile({ pegawai, successMessage, errorMessage }) {
                             name="chevron-back-outline"
                             className="text-2xl"
                         ></ion-icon>
-                        <span className="ml-2 text-sm">Back</span>
+                        <span className="ml-2 text-sm">Kembali</span>
                     </button>
-                    <h1 className="text-lg font-semibold">Edit Profile</h1>
+                    <h1 className="text-lg font-semibold">Ubah Profil</h1>
                 </div>
 
                 {/* Form Edit Profile */}
@@ -221,7 +264,7 @@ export default function Profile({ pegawai, successMessage, errorMessage }) {
                                 name="refresh-outline"
                                 className="text-lg"
                             ></ion-icon>
-                            <span>Update</span>
+                            <span>Ubah</span>
                         </button>
                     </div>
                 </form>

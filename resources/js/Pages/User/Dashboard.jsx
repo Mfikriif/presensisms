@@ -4,6 +4,7 @@ import { Inertia } from "@inertiajs/inertia";
 import Swal from "sweetalert2";
 import PullToRefresh from "react-pull-to-refresh";
 import debounce from "lodash/debounce";
+import "../../../css/app.css";
 
 export default function Dashboard({
     rekapizin,
@@ -104,16 +105,21 @@ export default function Dashboard({
         const updatedShiftData = { ...shiftData, [day]: value };
         setShiftData(updatedShiftData);
 
-        // Menampilkan SweetAlert sebelum simpan
+        // Menampilkan SweetAlert
         Swal.fire({
-            title: "Konfirmasi",
+            title: "Shift Diperbarui",
             text: `Shift untuk hari ${
                 day.charAt(0).toUpperCase() + day.slice(1)
             } telah diubah.`,
             icon: "success",
-            confirmButtonText: "OK",
             timer: 2000,
             timerProgressBar: true,
+            showConfirmButton: false,
+            customClass: {
+                popup: "custom-swal-popup",
+                title: "custom-swal-title",
+                content: "custom-swal-content",
+            },
         }).then(() => {
             // Simpan shift setelah SweetAlert ditutup
             saveShift(updatedShiftData);
@@ -235,6 +241,13 @@ export default function Dashboard({
                                     cancelButtonColor: "#3085d6",
                                     confirmButtonText: "Ya, Logout",
                                     cancelButtonText: "Batal",
+                                    customClass: {
+                                        popup: "custom-swal-popup",
+                                        title: "custom-swal-title",
+                                        content: "custom-swal-content",
+                                        confirmButton: "custom-swal-confirm",
+                                        cancelButton: "custom-swal-cancel",
+                                    },
                                 }).then((result) => {
                                     if (result.isConfirmed) {
                                         Inertia.post(route("logout"));

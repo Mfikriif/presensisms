@@ -38,12 +38,9 @@ class PresensiController extends Controller
         $tanggal_presensi = date("Y-m-d");
         $jam = date("H:i:s");
     
-        // Lokasi Kantor -7.023826563310556, 110.50695887209068
-        $latitudekantor = -7.020083672655566;
-        $longitudekantor = 110.42742316137034;
-        // Lokasi Kantor -7.023826563310556, 110.50695887209068 //artefak -7.059935504906368, 110.42837090396569
-        $latitudekantor = -7.059935504906368;
-        $longitudekantor = 110.42837090396569;
+        // Lokasi Kantor -7.023826563310556, 110.50695887209068 //artefak -7.059935504906368, 110.42837090396569 //arya : -6.990826334014022, 110.4610780394645
+        $latitudekantor = -6.990826334014022;
+        $longitudekantor = 110.4610780394645;
     
         // Lokasi User
         $lokasi = $request->lokasi;
@@ -132,7 +129,7 @@ class PresensiController extends Controller
         }
     
         // Cek radius lokasi kantor
-        if ($radius > 25) {
+        if ($radius > 90) {
             return response()->json([
                 'error' => 'Anda berada di luar radius kantor!',
                 'message' => 'Maaf, Anda tidak dapat melakukan presensi karena berada di luar radius yang diizinkan. (' . $radius . ' meter)',
@@ -246,7 +243,7 @@ class PresensiController extends Controller
     ]);
     }
 
-
+    // Update Profile User
 
     public function updateprofile(Request $request)
     {
@@ -254,33 +251,39 @@ class PresensiController extends Controller
     
         // Validasi input
         $validated = $request->validate([
-            'nama_lengkap' => 'required|string|max:255', // Nama lengkap wajib
-            'no_hp' => 'required|string|max:20',        // Nomor HP wajib
-            'password' => 'nullable|string|min:6',      // Password opsional, minimal 6 karakter
+            'nama_lengkap' => 'required|string|max:255',
+            'no_hp' => 'required|string|max:20',
+            'password' => 'nullable|string|min:6',
         ]);
     
-        // Update data di tabel pegawais
-        $updatePegawai = DB::table('pegawais')
-            ->where('email', $user->email)
-            ->update([
-                'nama_lengkap' => $request->nama_lengkap,
-                'no_hp' => $request->no_hp,
-            ]);
+        DB::beginTransaction();
     
-        // Update data di tabel users
-        $user->name = $request->nama_lengkap; // Update nama lengkap di tabel `users`
+        try {
+            // Update data di tabel pegawais
+            $updatePegawai = DB::table('pegawais')
+                ->where('email', $user->email)
+                ->update([
+                    'nama_lengkap' => $validated['nama_lengkap'],
+                    'no_hp' => $validated['no_hp'],
+                ]);
     
-        // Jika password diisi, hash dan simpan
-        if ($request->filled('password')) {
-            $user->password = Hash::make($request->password);
-        }
+            // Update data di tabel users
+            $user->name = $validated['nama_lengkap'];
+            if ($request->filled('password')) {
+                $user->password = Hash::make($validated['password']);
+            }
+            $updateUser = $user->isDirty() ? $user->save() : false;
     
-        $updateUser = $user->save(); // Simpan perubahan di tabel `users`
-    
-        // Redirect dengan pesan sukses atau error
-        if ($updatePegawai || $updateUser) {
-            return redirect()->back()->with('success', 'Profil berhasil diperbarui.');
-        } else {
+            // Commit transaksi jika salah satu update berhasil
+            if ($updatePegawai || $updateUser) {
+                DB::commit();
+                return redirect()->back()->with('success', 'Profil berhasil diperbarui.');
+            } else {
+                DB::rollBack();
+                return redirect()->back()->with('error', 'Tidak ada perubahan yang dilakukan.');
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
             return redirect()->back()->with('error', 'Terjadi kesalahan saat memperbarui profil.');
         }
     }
@@ -292,7 +295,6 @@ class PresensiController extends Controller
             'namabulan' => $namabulan,
     ]);
     }
-
     public function getHistori(Request $request)
     {
         try {
@@ -355,6 +357,25 @@ class PresensiController extends Controller
         ]);
     }
 
+    /**
+     * Cek apakah pengguna sudah mengajukan izin pada tanggal tertentu
+     */
+    public function cekPengajuanIzin(Request $request)
+    {
+        $tanggal = $request->input('tanggal_izin');
+        $kodePegawai = Auth::user()->kode_pegawai; // Ambil kode pegawai dari user yang login
+
+        // Cek di tabel pengajuan_izin berdasarkan kode pegawai dan tanggal
+        $izinAda = DB::table('pengajuan_izin')
+                    ->where('kode_pegawai', $kodePegawai)
+                    ->where('tanggal_izin', $tanggal)
+                    ->exists();
+
+        // Jika ada izin, kirim 1; jika tidak, kirim 0
+        return response()->json($izinAda ? 1 : 0);
+    }
+
+    // Pembatalan Izin
     public function batalkanIzin($id)
     {
         // Ambil data izin berdasarkan ID
@@ -382,11 +403,22 @@ class PresensiController extends Controller
         ], 200);
     }
 
+    /*************  ✨ Codeium Command ⭐  *************/
+    /**
+     * Render the page for creating a new leave request.
+     *
+     * This method returns the Inertia response to render the 'User/BuatIzin' 
+     * page, which allows users to fill out the form for submitting a new
+     * leave request.
+     */
+
+    /******  73db5cff-53b8-446e-9b24-74341686e9e6  *******/     
     public function buatizin(){
         return Inertia::render('User/BuatIzin',[
     ]);
     }
 
+    // Mengirimkan data Izin
     public function storeizin(Request $request)
     {
         $user = Auth::user();
