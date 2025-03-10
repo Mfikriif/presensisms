@@ -28,4 +28,4 @@ app()->make(Schedule::class)->call(function () {
                 ->update(['status_approved' => 2]);
 
         }
-})->everyMinute();
+})->daily();
