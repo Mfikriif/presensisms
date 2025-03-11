@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Head, useForm } from "@inertiajs/react";
+import { useForm } from "@inertiajs/react";
 
 export default function Login({ status, errors }) {
     const { data, setData, post, processing } = useForm({

@@ -33,15 +33,36 @@ export default function BuatIzin() {
                     title: "Oops!",
                     text: "Anda sudah mengajukan izin pada tanggal ini! Silakan pilih tanggal lain.",
                     icon: "warning",
-                    confirmButtonText: "Oke",
-                }).then(() => {
-                    setTglIzin(""); // Reset input jika sudah ada izin
+                    timer: 3000,
+                    timerProgressBar: true,
+                    showConfirmButton: false,
+                    customClass: {
+                        popup: "custom-swal-popup",
+                        title: "custom-swal-title",
+                        content: "custom-swal-content",
+                    },
+                    didClose: () => {
+                        setTglIzin(""); // Reset input jika sudah ada izin
+                    },
                 });
             } else {
                 setIzinSudahAda(false);
             }
         } catch (error) {
             console.error("Error checking date:", error);
+            Swal.fire({
+                title: "Error!",
+                text: "Terjadi kesalahan saat memeriksa tanggal izin.",
+                icon: "error",
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+                customClass: {
+                    popup: "custom-swal-popup",
+                    title: "custom-swal-title",
+                    content: "custom-swal-content",
+                },
+            });
         }
     };
 
@@ -55,6 +76,14 @@ export default function BuatIzin() {
                 title: "Gagal!",
                 text: "Anda sudah mengajukan izin untuk tanggal ini.",
                 icon: "error",
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+                customClass: {
+                    popup: "custom-swal-popup",
+                    title: "custom-swal-title",
+                    content: "custom-swal-content",
+                },
             });
             return;
         }
@@ -64,6 +93,14 @@ export default function BuatIzin() {
                 title: "Oops!",
                 text: "Semua field wajib diisi.",
                 icon: "warning",
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+                customClass: {
+                    popup: "custom-swal-popup",
+                    title: "custom-swal-title",
+                    content: "custom-swal-content",
+                },
             });
             return;
         }
@@ -73,6 +110,14 @@ export default function BuatIzin() {
                 title: "Oops!",
                 text: "Bukti sakit wajib diunggah!",
                 icon: "warning",
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+                customClass: {
+                    popup: "custom-swal-popup",
+                    title: "custom-swal-title",
+                    content: "custom-swal-content",
+                },
             });
             return;
         }
@@ -104,14 +149,31 @@ export default function BuatIzin() {
                     title: "Berhasil!",
                     text: data.message,
                     icon: "success",
-                }).then(() => {
-                    window.location.href = "/presensi/izin";
+                    timer: 3000,
+                    timerProgressBar: true,
+                    showConfirmButton: false,
+                    customClass: {
+                        popup: "custom-swal-popup",
+                        title: "custom-swal-title",
+                        content: "custom-swal-content",
+                    },
+                    didClose: () => {
+                        window.location.href = "/presensi/izin";
+                    },
                 });
             } else {
                 Swal.fire({
                     title: "Gagal!",
                     text: data.message || "Terjadi kesalahan.",
                     icon: "error",
+                    timer: 3000,
+                    timerProgressBar: true,
+                    showConfirmButton: false,
+                    customClass: {
+                        popup: "custom-swal-popup",
+                        title: "custom-swal-title",
+                        content: "custom-swal-content",
+                    },
                 });
             }
         } catch (error) {
@@ -119,6 +181,14 @@ export default function BuatIzin() {
                 title: "Error!",
                 text: "Terjadi kesalahan saat mengirim data.",
                 icon: "error",
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+                customClass: {
+                    popup: "custom-swal-popup",
+                    title: "custom-swal-title",
+                    content: "custom-swal-content",
+                },
             });
         }
     };
@@ -133,6 +203,14 @@ export default function BuatIzin() {
                     title: "Format File Tidak Didukung",
                     text: "Hanya diperbolehkan file dalam format PDF.",
                     icon: "error",
+                    timer: 3000,
+                    timerProgressBar: true,
+                    showConfirmButton: false,
+                    customClass: {
+                        popup: "custom-swal-popup",
+                        title: "custom-swal-title",
+                        content: "custom-swal-content",
+                    },
                 });
                 e.target.value = ""; // Reset input file
                 setFileIzin(null); // Reset state file
@@ -145,6 +223,14 @@ export default function BuatIzin() {
                     title: "Ukuran File Terlalu Besar",
                     text: "Maksimal ukuran file adalah 2MB.",
                     icon: "error",
+                    timer: 3000,
+                    timerProgressBar: true,
+                    showConfirmButton: false,
+                    customClass: {
+                        popup: "custom-swal-popup",
+                        title: "custom-swal-title",
+                        content: "custom-swal-content",
+                    },
                 });
                 e.target.value = ""; // Reset input file
                 setFileIzin(null); // Reset state file
