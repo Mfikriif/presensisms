@@ -131,17 +131,30 @@ export default function listPegawai({ pegawai }) {
                 header={<>Daftar Pegawai</>}
                 children={
                     <>
-                        <div className="p-6 bg-white shadow-md rounded-lg">
+                        <div className="bg-white/20 backdrop-blur-md border border-white/30 p-6 rounded-2xl">
                             <Head title="List Pegawai" />
-                            <div className="max-w-screen-xl mx-auto p-6 rounded-md">
+                            <div className="flex p-6 justify-between">
+                                <button
+                                    className="bg-blue-950 text-white my-auto py-2 px-4 rounded-lg flex text-sm"
+                                    onClick={openModal}
+                                >
+                                    <FaPlus className="my-auto mr-2" />
+                                    Tambah Pegawai
+                                </button>
+                                {/* Input Search */}
+                                <input
+                                    type="text"
+                                    placeholder="Cari pegawai..."
+                                    className="border border-gray-300 rounded-2xl p-2 w-full sm:w-1/3"
+                                    value={searchTerm}
+                                    onChange={(e) => {
+                                        setSearchTerm(e.target.value);
+                                        setCurrentPage(0); // Reset halaman ke 0 saat pencarian berubah
+                                    }}
+                                />
+                            </div>
+                            <div className="mx-auto border rounded-2xl shadow-2xl">
                                 <div className="mb-6 flex justify-between">
-                                    <button
-                                        className="bg-blue-950 text-white my-auto py-2 px-4 rounded-lg flex text-sm"
-                                        onClick={openModal}
-                                    >
-                                        <FaPlus className="my-auto mr-2" />
-                                        Tambah Pegawai
-                                    </button>
                                     {/* Modal */}
                                     <Modal
                                         show={showModal}
@@ -368,21 +381,10 @@ export default function listPegawai({ pegawai }) {
                                             </div>
                                         </div>
                                     </Modal>
-                                    {/* Input Search */}
-                                    <input
-                                        type="text"
-                                        placeholder="Cari pegawai..."
-                                        className="border border-gray-300 rounded-md p-2 w-full sm:w-1/3"
-                                        value={searchTerm}
-                                        onChange={(e) => {
-                                            setSearchTerm(e.target.value);
-                                            setCurrentPage(0); // Reset halaman ke 0 saat pencarian berubah
-                                        }}
-                                    />
                                 </div>
 
                                 {/* Tabel Data Pegawai */}
-                                <table className="w-full border-collapse text-left">
+                                <table className="w-full border-collapse text-left mb-3">
                                     <thead className="bg-gray-100">
                                         <tr>
                                             <th className="px-4 py-2">No</th>
@@ -434,14 +436,16 @@ export default function listPegawai({ pegawai }) {
                                                             />
                                                         </td>
                                                         <td className=" text-center">
-                                                            <div className="flex justify-center">
+                                                            <div className="flex justify-evenly">
                                                                 <Link
                                                                     href={route(
                                                                         "pegawai.edit",
                                                                         pgw
                                                                     )}
                                                                 >
-                                                                    <FaEdit className="h-5 w-5 text-slate-500 hover:text-blue-500" />
+                                                                    <div className="bg-green-300 p-1 rounded-lg text-green-600  items-center">
+                                                                        <FaEdit className="h-5 w-5" />
+                                                                    </div>
                                                                 </Link>
                                                                 <Link
                                                                     href={route(
@@ -449,14 +453,18 @@ export default function listPegawai({ pegawai }) {
                                                                         pgw
                                                                     )}
                                                                 >
-                                                                    <IoIosSettings className="h-5 w-5 ml-1 text-slate-500 hover:text-blue-500" />
+                                                                    <div className="bg-blue-300 p-1 rounded-lg text-blue-600  items-center">
+                                                                        <IoIosSettings className="h-5 w-5 " />
+                                                                    </div>
                                                                 </Link>
                                                                 <button
                                                                     onClick={
                                                                         handleDestroy
                                                                     }
                                                                 >
-                                                                    <MdDelete className="text-xl text-slate-500 hover:text-blue-500" />
+                                                                    <div className="bg-red-300 p-1 rounded-lg text-red-600  items-center">
+                                                                        <MdDelete className="text-xl " />
+                                                                    </div>
                                                                 </button>
                                                             </div>
                                                         </td>
@@ -476,25 +484,24 @@ export default function listPegawai({ pegawai }) {
                                         )}
                                     </tbody>
                                 </table>
-
-                                {/* Pagination */}
-                                <div className="mt-6 ">
-                                    <ReactPaginate
-                                        previousLabel={"← Sebelumnya"}
-                                        nextLabel={"Selanjutnya →"}
-                                        pageCount={pageCount}
-                                        onPageChange={handlePageChange}
-                                        containerClassName={
-                                            "flex justify-center space-x-2"
-                                        }
-                                        pageClassName={"px-4 py-2"}
-                                        previousClassName={"px-4 py-2"}
-                                        nextClassName={"px-4 py-2"}
-                                        activeClassName={
-                                            "bg-blue-500 text-white font-bold"
-                                        }
-                                    />
-                                </div>
+                            </div>
+                            {/* Pagination */}
+                            <div className="my-6 ">
+                                <ReactPaginate
+                                    previousLabel={"← Sebelumnya"}
+                                    nextLabel={"Selanjutnya →"}
+                                    pageCount={pageCount}
+                                    onPageChange={handlePageChange}
+                                    containerClassName={
+                                        "flex justify-center space-x-2"
+                                    }
+                                    pageClassName={"px-4 py-2"}
+                                    previousClassName={"px-4 py-2"}
+                                    nextClassName={"px-4 py-2"}
+                                    activeClassName={
+                                        "bg-blue-500 text-white font-bold"
+                                    }
+                                />
                             </div>
                         </div>
                     </>
