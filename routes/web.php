@@ -56,6 +56,7 @@ Route::middleware(['auth', 'role:admin,superadmin'])->group(function () {
     Route::get('/admin/presensi-monitoring', [PresensiController::class,'presensiMonitoring'])->name('pegawai.presensi');
 
     // Konfigurasi Jam Kerja
+    Route::get('/api/shift-pegawai',[KonfigurasiShiftKerjaController::class,'getApiShiftKerja']);
     Route::get('/Admin/konfigurasi-shift_kerja',[KonfigurasiShiftKerjaController::class,'index'])->name('konfigurasi.index');
     Route::post('/Admin/konfigurasi-shift_kerja/set_jam_kerja',[KonfigurasiShiftKerjaController::class, 'store'])->name('konfigurasi.store');
     Route::post('/Admin/konfigurasi-jam_kerja/set_jam_kerja',[KonfigurasiShiftKerjaController::class, 'store'])->name('konfigurasi.store');

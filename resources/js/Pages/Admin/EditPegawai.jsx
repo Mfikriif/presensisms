@@ -1,14 +1,18 @@
 import Modal from "@/Components/Modal";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { Head, Link, useForm } from "@inertiajs/react";
+import { Head, Link, useForm, usePage } from "@inertiajs/react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { AlertTriangle } from "lucide-react";
 
-export default function EditPegawai({ pegawai }) {
+export default function EditPegawai({ pegawai, userRole }) {
     const [showEditModal, setShowEditModal] = useState(false); // State untuk mengontrol modal untuk modal edit pegawai
     const openEditModal = () => setShowEditModal(true); // Buka modal
     const closeEditModal = () => setShowEditModal(false); // Tutup modal
+
+    const { auth } = usePage().props;
+
+    console.log(auth.user.role);
 
     const {
         data,
@@ -183,14 +187,18 @@ export default function EditPegawai({ pegawai }) {
                                             Hapus
                                         </button>
                                     </form>
-                                    <Link
-                                        href={route("userrole.edit", {
-                                            id: pegawai.id,
-                                        })}
-                                        className="bg-green-600 hover:bg-green-700 text-white px-5 py-1 rounded ml-4"
-                                    >
-                                        Edit User
-                                    </Link>
+                                    {auth.user.role == "superadmin" ? (
+                                        <Link
+                                            href={route("userrole.edit", {
+                                                id: pegawai.id,
+                                            })}
+                                            className="bg-green-600 hover:bg-green-700 text-white px-5 py-1 rounded ml-4"
+                                        >
+                                            Edit User
+                                        </Link>
+                                    ) : (
+                                        <span></span>
+                                    )}
                                 </div>
                                 <Modal
                                     show={showEditModal}

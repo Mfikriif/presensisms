@@ -37,5 +37,10 @@ class pegawai extends Model
         return $this->hasMany(pengajuan_izin::class,'id','kode_pegawai');
     }
 
+    public function userRole()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     
 }
