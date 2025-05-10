@@ -1,5 +1,5 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { Head, Link, useForm, usePage } from "@inertiajs/react";
+import { Head, Link, useForm } from "@inertiajs/react";
 import React, { useEffect, useState } from "react";
 import ReactPaginate from "react-paginate";
 import Modal from "@/Components/Modal";

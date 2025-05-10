@@ -96,7 +96,14 @@ class PegawaiController extends Controller
      * Show the form for editing the specified resource.
      */
     public function edit(pegawai $pegawai)
-    {
+    {   
+        $pegawai->load('user');
+        // $pegawai = \App\Models\Pegawai::with('user')->find(3);
+        // $pegawai->user;
+
+
+        // dd($pegawai);
+
         return Inertia::render('Admin/EditPegawai',['pegawai' => $pegawai]);
     }
 
@@ -179,6 +186,13 @@ class PegawaiController extends Controller
             return Inertia::render('Admin/setShiftKerja',['pegawai' => $pegawai, 'jadwalShift' => $jadwalShift,'cekShift' => $cekShift,]);
         }
         
+    }
+
+    public function getRole($id)
+    {
+        $userRole = User::where('id',$id)->get();
+
+        return Inertia::render('Admin/EditPegawai',['userRole' => $userRole]);
     }
 
 }
