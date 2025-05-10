@@ -165,7 +165,7 @@ export default function CetakLaporan({
                                             className="h-12 w-12 object-cover"
                                         />
                                     </td>
-                                    <td>
+                                    <td style={styles.td}>
                                         {!item.jam_out
                                             ? item.jam_pulang
                                             : item.jam_out}

@@ -59,164 +59,158 @@ export default function IzinSakit({ dataIzinSakit }) {
                 header={<>Izin / Sakit</>}
                 children={
                     <>
-                        <div className="p-6 bg-white shadow-md rounded-lg">
-                            <div className="relative flex items-center mb-6 max-w-96">
-                                <FiSearch className="absolute left-3 text-gray-400" />
-                                <input
-                                    className="pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 w-full"
-                                    type="text"
-                                    placeholder="Cari berdasarkan nama atau tanggal izin"
-                                    value={searchTerm}
-                                    onChange={(e) => {
-                                        setSearchTerm(e.target.value);
-                                        // Ubah state isToday menjadi false saat sedang mencari
-                                        setToday(
-                                            e.target.value === "" ? true : false
-                                        );
-                                    }}
-                                />
-                            </div>
-                            <table className="w-full border-collapse text-center">
-                                <thead className="bg-gray-100">
-                                    <tr>
-                                        <th className="px-4 py-2">No</th>
-                                        <th className="px-4 py-2">Nama</th>
-                                        <th className="px-2 py-2 ">
-                                            Tanggal Izin / Sakit
-                                        </th>
-                                        <th className="px-4 py-2 whitespace-nowrap">
-                                            Status
-                                        </th>
-                                        <th className="px-4 py-2 whitespace-nowrap">
-                                            Keterangan
-                                        </th>
-                                        <th className="px-4 py-2 whitespace-nowrap">
-                                            Status Approved
-                                        </th>
-                                        <th className="px-4 py-2 whitespace-nowrap">
-                                            Bukti Surat
-                                        </th>
-                                        <th className="px-4 py-2 whitespace-nowrap">
-                                            Aksi
-                                        </th>
-                                    </tr>
-                                </thead>
+                        <input
+                            className="pl-10 pr-4 py-2 my-4 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-400 w-2/6"
+                            type="text"
+                            placeholder="Cari berdasarkan nama atau tanggal izin"
+                            value={searchTerm}
+                            onChange={(e) => {
+                                setSearchTerm(e.target.value);
+                                // Ubah state isToday menjadi false saat sedang mencari
+                                setToday(e.target.value === "" ? true : false);
+                            }}
+                        />
+                        {/* <div className="p-6 bg-white shadow-md rounded-lg"> */}
+                        <table className="p-6 bg-white shadow-2xl rounded-2xl w-full border-collapse text-center">
+                            <thead className="bg-gray-100">
+                                <tr>
+                                    <th className="px-4 py-2">No</th>
+                                    <th className="px-4 py-2">Nama</th>
+                                    <th className="px-2 py-2 ">
+                                        Tanggal Izin / Sakit
+                                    </th>
+                                    <th className="px-4 py-2 whitespace-nowrap">
+                                        Status
+                                    </th>
+                                    <th className="px-4 py-2 whitespace-nowrap">
+                                        Keterangan
+                                    </th>
+                                    <th className="px-4 py-2 whitespace-nowrap">
+                                        Status Approved
+                                    </th>
+                                    <th className="px-4 py-2 whitespace-nowrap">
+                                        Bukti Surat
+                                    </th>
+                                    <th className="px-4 py-2 whitespace-nowrap">
+                                        Aksi
+                                    </th>
+                                </tr>
+                            </thead>
 
-                                <tbody>
-                                    {filtered.map((data, index) => (
-                                        <tr
-                                            key={data.id}
-                                            className="even:bg-gray-50 border-b border-gray-300"
-                                        >
-                                            <td className="px-4 py-2 text-center">
-                                                {index + 1}
-                                            </td>
-                                            <td className="px-4 py-2 whitespace-nowrap">
-                                                {data.namaPengaju}
-                                            </td>
-                                            <td className="px-2 py-2">
-                                                {data.tanggal_izin}
-                                            </td>
-                                            <td className="px-4 py-2 whitespace-nowrap">
-                                                {data.status == "i" ? (
-                                                    <span className="bg-yellow-200 px-4 py-1 text-yellow-600 font-semibold rounded-lg">
-                                                        Izin
+                            <tbody>
+                                {filtered.map((data, index) => (
+                                    <tr
+                                        key={data.id}
+                                        className="even:bg-gray-50 border-b border-gray-300"
+                                    >
+                                        <td className="px-4 py-2 text-center">
+                                            {index + 1}
+                                        </td>
+                                        <td className="px-4 py-2 whitespace-nowrap">
+                                            {data.namaPengaju}
+                                        </td>
+                                        <td className="px-2 py-2">
+                                            {data.tanggal_izin}
+                                        </td>
+                                        <td className="px-4 py-2 whitespace-nowrap">
+                                            {data.status == "i" ? (
+                                                <span className="bg-yellow-200 px-4 py-1 text-yellow-600 font-semibold rounded-lg">
+                                                    Izin
+                                                </span>
+                                            ) : (
+                                                <span className="bg-red-300 px-4 py-1 text-red-600 font-semibold rounded-lg">
+                                                    Sakit
+                                                </span>
+                                            )}
+                                        </td>
+                                        <td className="px-4 py-2">
+                                            {data.keterangan}
+                                        </td>
+                                        <td className="px-4 py-2 ">
+                                            {data.status_approved ? (
+                                                data.status_approved == 0 ? (
+                                                    <span className="bg-orange-300 px-4 py-1 rounded-lg text-orange-600 font-semibold">
+                                                        pending
+                                                    </span>
+                                                ) : data.status_approved ==
+                                                  1 ? (
+                                                    <span className="bg-green-200 px-4 py-1 rounded-lg text-green-600 font-semibold">
+                                                        Disetujui
                                                     </span>
                                                 ) : (
-                                                    <span className="bg-red-300 px-4 py-1 text-red-600 font-semibold rounded-lg">
-                                                        Sakit
-                                                    </span>
-                                                )}
-                                            </td>
-                                            <td className="px-4 py-2">
-                                                {data.keterangan}
-                                            </td>
-                                            <td className="px-4 py-2 ">
-                                                {data.status_approved ? (
-                                                    data.status_approved ==
-                                                    0 ? (
-                                                        <span className="bg-orange-300 px-4 py-1 rounded-lg text-orange-600 font-semibold">
-                                                            pending
-                                                        </span>
-                                                    ) : data.status_approved ==
-                                                      1 ? (
-                                                        <span className="bg-green-200 px-4 py-1 rounded-lg text-green-600 font-semibold">
-                                                            Disetujui
-                                                        </span>
-                                                    ) : (
-                                                        <span className="bg-red-200 px-4 py-1 rounded-lg text-red-600 font-semibold">
-                                                            Ditolak
-                                                        </span>
-                                                    )
-                                                ) : (
-                                                    <span className="bg-red-300 px-4 py-1 rounded-lg text-red-600 font-semibold">
+                                                    <span className="bg-red-200 px-4 py-1 rounded-lg text-red-600 font-semibold">
                                                         Ditolak
                                                     </span>
-                                                )}
-                                            </td>
-                                            <td>
-                                                {data.file_path ? (
-                                                    <a
-                                                        className="bg-blue-800 text-white px-3 py-1 rounded-lg hover:bg-blue-900"
-                                                        href={route(
-                                                            "izin.showfile",
+                                                )
+                                            ) : (
+                                                <span className="bg-red-300 px-4 py-1 rounded-lg text-red-600 font-semibold">
+                                                    Ditolak
+                                                </span>
+                                            )}
+                                        </td>
+                                        <td>
+                                            {data.file_path ? (
+                                                <a
+                                                    className="bg-blue-800 text-white px-3 py-1 rounded-lg hover:bg-blue-900"
+                                                    href={route(
+                                                        "izin.showfile",
 
-                                                            data.id
-                                                        )}
-                                                    >
-                                                        Download
-                                                    </a>
-                                                ) : (
-                                                    <span></span>
-                                                )}
-                                            </td>
-                                            <td className="px-4 py-2 flex justify-center">
-                                                {data.status_approved === "1" ||
-                                                data.status_approved === "2" ? (
+                                                        data.id
+                                                    )}
+                                                >
+                                                    Download
+                                                </a>
+                                            ) : (
+                                                <span></span>
+                                            )}
+                                        </td>
+                                        <td className="px-4 py-2 flex justify-center">
+                                            {data.status_approved === "1" ||
+                                            data.status_approved === "2" ? (
+                                                <button
+                                                    onClick={() =>
+                                                        handleApproval(
+                                                            data.id,
+                                                            "0"
+                                                        )
+                                                    }
+                                                    className="bg-red-500 px-4 py-1 text-white rounded-lg hover:bg-red-700"
+                                                >
+                                                    Cancel
+                                                </button>
+                                            ) : (
+                                                <div>
                                                     <button
                                                         onClick={() =>
                                                             handleApproval(
                                                                 data.id,
-                                                                "0"
+                                                                "1"
+                                                            )
+                                                        }
+                                                        className="bg-green-500 px-4 py-1 text-white rounded-lg hover:bg-green-700 mr-2"
+                                                    >
+                                                        Setujui{" "}
+                                                    </button>
+
+                                                    <button
+                                                        onClick={() =>
+                                                            handleApproval(
+                                                                data.id,
+                                                                "2"
                                                             )
                                                         }
                                                         className="bg-red-500 px-4 py-1 text-white rounded-lg hover:bg-red-700"
                                                     >
-                                                        Cancel
+                                                        Tolak
                                                     </button>
-                                                ) : (
-                                                    <div>
-                                                        <button
-                                                            onClick={() =>
-                                                                handleApproval(
-                                                                    data.id,
-                                                                    "1"
-                                                                )
-                                                            }
-                                                            className="bg-green-500 px-4 py-1 text-white rounded-lg hover:bg-green-700 mr-2"
-                                                        >
-                                                            Setujui{" "}
-                                                        </button>
-
-                                                        <button
-                                                            onClick={() =>
-                                                                handleApproval(
-                                                                    data.id,
-                                                                    "2"
-                                                                )
-                                                            }
-                                                            className="bg-red-500 px-4 py-1 text-white rounded-lg hover:bg-red-700"
-                                                        >
-                                                            Tolak
-                                                        </button>
-                                                    </div>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                                </div>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                        {/* </div> */}
                     </>
                 }
             />
