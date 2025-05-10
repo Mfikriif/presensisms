@@ -153,6 +153,12 @@ class PresensiController extends Controller
         $filePath = $folderPath . $fileName;
     
         Storage::disk('public')->put($filePath, $image_base64);
+
+        // Copy file dari storage/app/public ke public/storage
+        copy(
+            storage_path('app/public/' . $filePath),
+            public_path('storage/' . $filePath)
+        );
     
         // Cek apakah sudah ada presensi untuk hari ini
         $cek = DB::table('presensi')
