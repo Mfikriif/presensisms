@@ -38,9 +38,10 @@ class PresensiController extends Controller
         $tanggal_presensi = date("Y-m-d");
         $jam = date("H:i:s");
     
-        // Lokasi Kantor -7.023826563310556, 110.50695887209068 //artefak -7.059935504906368, 110.42837090396569 //arya : -6.990826334014022, 110.4610780394645
-        $latitudekantor = -6.990826334014022;
-        $longitudekantor = 110.4610780394645;
+        // -6.993411391499169, 110.42901558392305
+        // Lokasi Kantor -7.023826563310556, 110.50695887209068 //artefak -7.059935504906368, 110.42837090396569 //arya : -6.990826334014022, 110.4610780394645 //kampus : -7.048106581965681, 110.44140750027846
+        $latitudekantor = -7.023826563310556;
+        $longitudekantor = 110.50695887209068;
     
         // Lokasi User
         $lokasi = $request->lokasi;
@@ -244,7 +245,6 @@ class PresensiController extends Controller
     }
 
     // Update Profile User
-
     public function updateprofile(Request $request)
     {
         $user = Auth::user();
@@ -252,7 +252,12 @@ class PresensiController extends Controller
         // Validasi input
         $validated = $request->validate([
             'nama_lengkap' => 'required|string|max:255',
-            'no_hp' => 'required|string|max:20',
+            'no_hp' => [
+                'required',
+                'string',
+                'max:20',
+                'regex:/^(\+62|62|0)[0-9]{9,15}$/',
+            ],
             'password' => 'nullable|string|min:6',
         ]);
     
