@@ -6,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title inertia></title>
+    <title inertia>{{ config('app.name', 'E-Presensi SMS') }}</title>
+    <link rel="icon" type="image/png" href="/assets/img/login/sms.jpg">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">

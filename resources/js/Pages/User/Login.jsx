@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useForm } from "@inertiajs/react";
-import { Head } from "@inertiajs/react";
 
 export default function Login({ status, errors }) {
     const { data, setData, post, processing } = useForm({
         email: "",
         password: "",
     });
-    <Head title="Login | E-Presensi" />;
     const [showPassword, setShowPassword] = useState(false);
     const [showSplash, setShowSplash] = useState(true);
 
