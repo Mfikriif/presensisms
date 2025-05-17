@@ -89,6 +89,29 @@ export default function BuatIzin() {
             return;
         }
 
+        // Cek jika tanggal izin adalah hari kemarin atau sebelumnya
+        const today = new Date();
+        const selectedDate = new Date(tglIzin);
+        today.setHours(0, 0, 0, 0);
+        selectedDate.setHours(0, 0, 0, 0);
+
+        if (selectedDate < today) {
+            Swal.fire({
+                title: "Tanggal Tidak Valid",
+                text: "Tanggal izin tidak boleh di hari kemarin atau sebelumnya.",
+                icon: "warning",
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+                customClass: {
+                    popup: "custom-swal-popup",
+                    title: "custom-swal-title",
+                    content: "custom-swal-content",
+                },
+            });
+            return;
+        }
+
         if (!tglIzin || !status || !keterangan) {
             Swal.fire({
                 title: "Oops!",
