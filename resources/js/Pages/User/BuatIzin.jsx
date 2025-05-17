@@ -281,6 +281,7 @@ export default function BuatIzin() {
                                 id="tanggal_izin"
                                 name="tanggal_izin"
                                 value={tglIzin}
+                                min={new Date().toISOString().split("T")[0]}
                                 onChange={handleTanggalChange}
                                 className={`w-full px-4 py-2 border rounded-md focus:ring ${
                                     izinSudahAda

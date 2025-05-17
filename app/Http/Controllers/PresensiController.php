@@ -474,6 +474,7 @@ class PresensiController extends Controller
             'keterangan' => 'required|string|max:255',
             'file' => ($status === 's') ? 'required|file|mimes:pdf|max:2048' : 'nullable|file|mimes:pdf|max:2048',
         ], [
+            'tanggal_izin.after_or_equal' => 'Tidak boleh mengajukan izin sebelum tanggal hari ini.',
             'file.required' => 'Bukti surat keterangan sakit wajib diunggah jika memilih sakit.',
             'file.mimes' => 'File harus berupa PDF.',
             'file.max' => 'Ukuran file maksimal 2MB.',
