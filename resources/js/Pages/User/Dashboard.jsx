@@ -334,6 +334,11 @@ export default function Dashboard({
                                             timer: 3000,
                                             timerProgressBar: true,
                                             showConfirmButton: false,
+                                            customClass: {
+                                                popup: "custom-swal-popup",
+                                                title: "custom-swal-title",
+                                                content: "custom-swal-content",
+                                            },
                                         });
                                     } else {
                                         window.location.href =
