@@ -1,3 +1,5 @@
 <IfModule mod_rewrite.c>
-    RewriteEngine On RewriteRule ^(.*)$ public/$1 [L]
+    RewriteEngine On # Cek apakah file atau direktori tidak ada RewriteCond
+    %{REQUEST_FILENAME} !-f RewriteCond %{REQUEST_FILENAME} !-d # Redirect ke
+    folder public RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>
