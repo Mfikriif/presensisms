@@ -270,6 +270,12 @@ export default function BuatIzin() {
                     >
                         {/* Tanggal */}
                         <div className="form-group">
+                            <label
+                                htmlFor="tanggal_izin"
+                                className="block text-sm font-medium text-gray-700 mb-1"
+                            >
+                                Tanggal Izin
+                            </label>
                             <input
                                 type="date"
                                 id="tanggal_izin"
@@ -281,7 +287,6 @@ export default function BuatIzin() {
                                         ? "border-red-500 bg-red-100"
                                         : "border-gray-300 focus:ring-blue-200 focus:border-blue-500"
                                 }`}
-                                placeholder="Tanggal"
                             />
                             {izinSudahAda && (
                                 <p className="text-red-500 text-sm mt-1">
