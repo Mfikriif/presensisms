@@ -469,7 +469,7 @@ class PresensiController extends Controller
         
         //  Validasi input
         $request->validate([
-            'tanggal_izin' => 'required|date',
+            'tanggal_izin' => 'required|date|after_or_equal:today',
             'status' => 'required|in:i,s', // 'i' untuk izin, 's' untuk sakit
             'keterangan' => 'required|string|max:255',
             'file' => ($status === 's') ? 'required|file|mimes:pdf|max:2048' : 'nullable|file|mimes:pdf|max:2048',
