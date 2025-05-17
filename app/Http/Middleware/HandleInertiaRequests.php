@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
 use Inertia\Middleware;
+use App\Models\pengajuan_izin;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -34,7 +35,11 @@ class HandleInertiaRequests extends Middleware
             'flash' => [
                 'success' => fn () => $request->session()->get('success')
             ],
-            
+            'izinSakit' => [
+                'izin' => pengajuan_izin::where('status', 'i')->where('status_approved', '0')->get(),
+                'sakit' => pengajuan_izin::where('status', 's')->where('status_approved', '0')->get(),
+            ],
+
         ]);
     }
 }

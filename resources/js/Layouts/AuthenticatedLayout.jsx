@@ -11,11 +11,15 @@ import { RiArrowDropDownLine } from "react-icons/ri";
 import { TbReportSearch } from "react-icons/tb";
 import { TbMessageReport } from "react-icons/tb";
 
-export default function AuthenticatedLayout({ header, children }) {
+export default function AuthenticatedLayout({ header, children, izinSakit }) {
     const user = usePage().props.auth?.user || { name: "Guest" };
+
+    const totalIzin = usePage().props.izinSakit?.izin.length || 0;
+    const totalSakit = usePage().props.izinSakit?.sakit.length || 0;
 
     const [showDropdown, setShowDropdown] = useState(false);
 
+    const totalPengajuanIzin = totalIzin + totalSakit;
     return (
         <div className="min-h-screen flex">
             {/* Sidebar */}
@@ -52,7 +56,14 @@ export default function AuthenticatedLayout({ header, children }) {
                         className="block px-5 py-3 text-lg text-white hover:bg-white rounded-lg transition-all duration-200 ease-in-out"
                     >
                         <TbMessageReport className=" mr-2 w-6 h-6 " />
-                        Izin / Sakit
+                        <div>
+                            <p>Izin / Sakit</p>
+                            {totalPengajuanIzin > 0 && (
+                                <span className="text-red-500 text-sm">
+                                    {totalPengajuanIzin} Pengajuan Baru
+                                </span>
+                            )}
+                        </div>
                     </NavLink>
                     <NavLink
                         href={route("konfigurasi.index")}

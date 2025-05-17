@@ -11,8 +11,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\pengajuan_izin;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
+use Carbon\Carbon;
+use Illuminate\Support\Collection;
 
 class PresensiController extends Controller
 {
@@ -44,6 +44,7 @@ class PresensiController extends Controller
         // Lokasi Kantor -7.023826563310556, 110.50695887209068 //artefak -7.059935504906368, 110.42837090396569 //arya : -6.990826334014022, 110.4610780394645 //kampus : -7.048106581965681, 110.44140750027846
         $latitudekantor = -7.023826563310556;
         $longitudekantor = 110.50695887209068;
+
     
         // Lokasi User
         $lokasi = $request->lokasi;
@@ -557,6 +558,20 @@ class PresensiController extends Controller
         return Inertia::render('Admin/MonitoringPresensi',['presensi' => $presensi,'statusPresensi' => $statusPresensi]);
     }
 
+    private function generateCalender($bulan,$tahun)
+    {
+        $dates = collect();
+        $startDate = Carbon::create($tahun, $bulan, 1);
+        $endDate = $startDate->copy()->endOfMonth();
+
+        while ($startDate->lte($endDate)) {
+            $dates->push($startDate->format('Y-m-d')); // pakai method, bukan offset
+            $startDate->addDay();
+        }
+
+        return $dates;
+    }
+
     public function laporan()
     {   
         $namabulan = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
@@ -567,86 +582,103 @@ class PresensiController extends Controller
     public function cetakLaporanPegawai(Request $request)
     {
         try {
-            // Ambil parameter dari query string
-            $bulan = $request->query('bulan');
-            $tahun = $request->query('tahun');
+            // Ambil data pegawai
+            $dataPegawai = pegawai::where('id', $request->idPegawai)->first();
+    
+            // Ambil bulan dan tahun dari query string atau fallback ke saat ini
+            $bulan = $request->query('bulan', date('m'));
+            $tahun = $request->query('tahun', date('Y'));
             $kode_pegawai = $request->query('idPegawai');
-
-            // Query data presensi
+    
+            // Ambil data presensi pegawai
             $histori = DB::table('presensi')
             ->whereRaw('MONTH(tanggal_presensi) = ?', [$bulan])
             ->whereRaw('YEAR(tanggal_presensi) = ?', [$tahun])
             ->where('kode_pegawai', $kode_pegawai)
-            ->join('pegawais', 'presensi.kode_pegawai', '=', 'pegawais.id') 
-            ->select('presensi.*', 'pegawais.posisi','pegawais.foto','pegawais.no_hp')
-            ->orderBy('tanggal_presensi')
             ->get();
+    
+            // Ambil data izin/sakit pegawai
+            $izinSakit = DB::table('pengajuan_izin')
+                ->where('kode_pegawai', $kode_pegawai)
+                ->whereMonth('tanggal_izin', $bulan)
+                ->whereYear('tanggal_izin', $tahun)
+                ->select('tanggal_izin', 'status', 'keterangan')
+                ->get()
+                ->mapWithKeys(function ($item) {
+                    return [$item->tanggal_izin => [
+                        'status' => $item->status,
+                        'keterangan' => $item->keterangan
+                    ]];
+                });
 
+            $jamKerjaPerHari = DB::table('set_jam_kerja as s')
+                ->where('s.id', $kode_pegawai)
+                ->leftJoin('konfigurasi_shift_kerja as k', 's.kode_jamkerja', '=', 'k.kode_jamkerja')
+                ->select('s.hari', 'k.jam_masuk', 'k.jam_pulang')
+                ->get()
+                ->mapWithKeys(function ($item) {
+                    return [strtolower($item->hari) => [
+                        'jam_masuk' => $item->jam_masuk,
+                        'jam_pulang' => $item->jam_pulang
+                    ]];
+                });
+            
+    
+            // Generate kalender tanggal untuk bulan tersebut
+            $kalender = $this->generateCalender($bulan, $tahun);
+    
+            // Gabungkan presensi dan izin ke dalam kalender
+            $rekapLengkap = $kalender->map(function ($tanggal) use ($histori, $izinSakit, $jamKerjaPerHari) {
+                $tanggalString = is_string($tanggal) ? $tanggal : $tanggal->format('Y-m-d');
+                $presensi = $histori->firstWhere('tanggal_presensi', $tanggalString);
 
+                $hari = strtolower(Carbon::parse($tanggalString)->locale('id')->isoFormat('dddd')); // dapatkan nama hari
+                $jamMasukShift = $jamKerjaPerHari[$hari]['jam_masuk'] ?? null;
 
-            $statusPresensi = DB::table('presensi as p')
-                ->leftJoin('set_jam_kerja as s', function ($join) {
-                $join->on('p.kode_pegawai', '=', 's.id')
-                    ->whereRaw("LOWER(s.hari) = LOWER(
-                        CASE 
-                            WHEN DAYNAME(p.tanggal_presensi) = 'Monday' THEN 'Senin'
-                            WHEN DAYNAME(p.tanggal_presensi) = 'Tuesday' THEN 'Selasa'
-                            WHEN DAYNAME(p.tanggal_presensi) = 'Wednesday' THEN 'Rabu'
-                            WHEN DAYNAME(p.tanggal_presensi) = 'Thursday' THEN 'Kamis'
-                            WHEN DAYNAME(p.tanggal_presensi) = 'Friday' THEN 'Jumat'
-                            WHEN DAYNAME(p.tanggal_presensi) = 'Saturday' THEN 'Sabtu'
-                            WHEN DAYNAME(p.tanggal_presensi) = 'Sunday' THEN 'Minggu'
-                        END
-                    )"); 
-            })
-            ->leftJoin('konfigurasi_shift_kerja as k', 's.kode_jamkerja', '=', 'k.kode_jamkerja')
-            ->select(
-                'p.nama',
-                'p.jam_in',
-                'p.jam_out',
-                'p.tanggal_presensi',
-                's.hari AS shift_hari',
-                's.kode_jamkerja',
-                'k.jam_pulang',
-                DB::raw("COALESCE(k.jam_masuk, 'Tidak ada data') AS akhir_jam_masuk")
-            )
-            ->where('p.kode_pegawai', $kode_pegawai)
-            ->orderBy('p.tanggal_presensi', 'asc')
-            ->get();
+                // Hitung apakah terlambat
+                $terlambat = null;
+                if ($presensi && $presensi->jam_in && $jamMasukShift) {
+                    $terlambat = Carbon::parse($presensi->jam_in)->gt(Carbon::parse($jamMasukShift));
+                }
 
-            // Jika tidak ada data, tampilkan pesan di halaman cetak
-            if ($histori->isEmpty()) {
-                return Inertia::render('Admin/CetakLaporan', [
-                    'histori' => [],
-                    'bulan' => $bulan,
-                    'tahun' => $tahun,
-                    'statusPresensi' => $statusPresensi,
-                    'error' => 'Tidak ada data untuk bulan dan tahun yang dipilih.',
-                ]);
-            }
-
-            // Kirim data ke view untuk dicetak
+                return [
+                    'tanggal' => $tanggalString,
+                    'jam_in' => $presensi->jam_in ?? null,
+                    'jam_out' => $presensi->jam_out ?? null,
+                    'foto_in' => $presensi->foto_in ?? null,
+                    'foto_out' => $presensi->foto_out ?? null,
+                    'status' => $izinSakit[$tanggalString]['status']
+                        ?? ($presensi ? 'Hadir' : 'Alpa'),
+                    'keterangan' => $izinSakit[$tanggalString]['keterangan'] ?? null,
+                    'jam_masuk' => $jamMasukShift,
+                    'terlambat' => $terlambat,
+                ];
+            });
+            
+    
+            // Kirim data ke halaman cetak
             return Inertia::render('Admin/CetakLaporan', [
-                'histori' => $histori,
+                'histori' => $rekapLengkap,
                 'bulan' => $bulan,
                 'tahun' => $tahun,
-                'statusPresensi' => $statusPresensi,
-
+                // 'statusPresensi' => $statusPresensi,
+                'dataPegawai' => $dataPegawai,
+                'rekapLengkap' => $rekapLengkap,
             ]);
         } catch (\Exception $e) {
-            // Tampilkan error jika terjadi masalah
             return Inertia::render('Admin/CetakLaporan', [
                 'histori' => [],
                 'bulan' => null,
                 'tahun' => null,
-                'statusPresensi' => null,
-
+                // 'statusPresensi' => null,
+                'dataPegawai' => null,
+                'rekapLengkap' => null,
                 'error' => 'Terjadi kesalahan: ' . $e->getMessage(),
             ]);
         }
     }
-
-   public function exportExcel(Request $request)
+// export excel laporan presensi
+    public function exportExcel(Request $request)
     {
         try {
             // Validasi input tanpa exists
@@ -656,60 +688,110 @@ class PresensiController extends Controller
                 'idPegawai' => 'required|integer',
             ]);
 
-            $bulan = $request->bulan;
-            $tahun = $request->tahun;
-            $idPegawai = $request->idPegawai;
+            $bulan = $request->query('bulan', date('m'));
+            $tahun = $request->query('tahun', date('Y'));
+            $idPegawai = $request->query('idPegawai');
+
 
             // Ambil data presensi
-            $dataPresensi = presensi::where('kode_pegawai', $idPegawai)
+            $dataPresensi = presensi::with('pegawai')
+                ->where('kode_pegawai', $idPegawai)
                 ->whereYear('tanggal_presensi', $tahun)
                 ->whereMonth('tanggal_presensi', $bulan)
                 ->orderBy('tanggal_presensi', 'asc')
                 ->get();
 
-            $statusPresensi = DB::table('presensi as p')
-                ->leftJoin('set_jam_kerja as s', function ($join) {
-                $join->on('p.kode_pegawai', '=', 's.id')
-                    ->whereRaw("LOWER(s.hari) = LOWER(
-                        CASE 
-                            WHEN DAYNAME(p.tanggal_presensi) = 'Monday' THEN 'Senin'
-                            WHEN DAYNAME(p.tanggal_presensi) = 'Tuesday' THEN 'Selasa'
-                            WHEN DAYNAME(p.tanggal_presensi) = 'Wednesday' THEN 'Rabu'
-                            WHEN DAYNAME(p.tanggal_presensi) = 'Thursday' THEN 'Kamis'
-                            WHEN DAYNAME(p.tanggal_presensi) = 'Friday' THEN 'Jumat'
-                            WHEN DAYNAME(p.tanggal_presensi) = 'Saturday' THEN 'Sabtu'
-                            WHEN DAYNAME(p.tanggal_presensi) = 'Sunday' THEN 'Minggu'
-                        END
-                    )"); 
-            })
-            ->leftJoin('konfigurasi_shift_kerja as k', 's.kode_jamkerja', '=', 'k.kode_jamkerja')
-            ->select(
-                'p.nama',
-                'p.jam_in',
-                'p.jam_out',
-                'p.tanggal_presensi',
-                's.hari AS shift_hari',
-                's.kode_jamkerja',
-                DB::raw("COALESCE(k.jam_masuk, 'Tidak ada data') AS akhir_jam_masuk")
-            )
-            ->where('p.kode_pegawai', $idPegawai)
-            ->orderBy('p.tanggal_presensi', 'asc')
-            ->get();
+                // Ambil data izin/sakit pegawai
+            $izinSakit = DB::table('pengajuan_izin')
+                ->where('kode_pegawai', $idPegawai)
+                ->whereMonth('tanggal_izin', $bulan)
+                ->whereYear('tanggal_izin', $tahun)
+                ->select('tanggal_izin', 'status', 'keterangan')
+                ->get()
+                ->mapWithKeys(function ($item) {
+                    return [$item->tanggal_izin => [
+                        'status' => $item->status,
+                        'keterangan' => $item->keterangan
+                    ]];
+                });
+
+            $jamKerjaPerHari = DB::table('set_jam_kerja as s')
+                ->where('s.id', $idPegawai)
+                ->leftJoin('konfigurasi_shift_kerja as k', 's.kode_jamkerja', '=', 'k.kode_jamkerja')
+                ->select('s.hari', 'k.jam_masuk', 'k.jam_pulang')
+                ->get()
+                ->mapWithKeys(function ($item) {
+                    return [strtolower($item->hari) => [
+                        'jam_masuk' => $item->jam_masuk,
+                        'jam_pulang' => $item->jam_pulang
+                    ]];
+                });
+            
+    
+            // Generate kalender tanggal untuk bulan tersebut
+            $kalender = $this->generateCalender($bulan, $tahun);
+
+            $pegawaiInfo = null;
+
+            if ($dataPresensi->isNotEmpty() && $dataPresensi[0]->pegawai) {
+                $pegawai = $dataPresensi[0]->pegawai;
+                $pegawaiInfo = [
+                    'nama' => $pegawai->nama_lengkap,
+                    'posisi' => $pegawai->posisi ?? 'Tidak Diketahui',
+                    'no_hp' => $pegawai->no_hp ?? 'Tidak Diketahui',
+                ];
+            }
 
             if ($dataPresensi->isEmpty()) {
-                return response()->json(['error' => 'Tidak ada data presensi'], 404);
+                return response()->json([
+                    'message' => 'Tidak ada data presensi',
+                    'dataPresensi' => [],
+                    'rekapLengkap' => [],
+                    'empty' => true,
+                ], 200);
             }
-            if ($statusPresensi->isEmpty()) {
-                return response()->json(['error' => 'Tidak ada data presensi'], 404);
-            }
+    
+            // Gabungkan presensi dan izin ke dalam kalender
+            $rekapLengkap = $kalender->map(function ($tanggal) use ($dataPresensi, $izinSakit, $jamKerjaPerHari) {
+                $tanggalString = is_string($tanggal) ? $tanggal : $tanggal->format('Y-m-d');
+                $presensi = $dataPresensi->firstWhere('tanggal_presensi', $tanggalString);
 
-           return response()->json([
-                'dataPresensi' => $dataPresensi,
-                'statusPresensi' => $statusPresensi,
+                $hari = strtolower(Carbon::parse($tanggalString)->locale('id')->isoFormat('dddd')); // dapatkan nama hari
+                $jamMasukShift = $jamKerjaPerHari[$hari]['jam_masuk'] ?? null;
+
+                // Hitung apakah terlambat
+                $terlambat = null;
+                if ($presensi && $presensi->jam_in && $jamMasukShift) {
+                    $terlambat = Carbon::parse($presensi->jam_in)->gt(Carbon::parse($jamMasukShift));
+                }
+
+                return [
+                    'tanggal' => $tanggalString,
+                    'jam_in' => $presensi->jam_in ?? null,
+                    'jam_out' => $presensi->jam_out ?? null,
+                    'foto_in' => $presensi->foto_in ?? null,
+                    'foto_out' => $presensi->foto_out ?? null,
+                    'status' => $izinSakit[$tanggalString]['status']
+                        ?? ($presensi ? 'Hadir' : 'Alpa'),
+                    'keterangan' => $izinSakit[$tanggalString]['keterangan'] ?? null,
+                    'jam_masuk' => $jamMasukShift,
+                    'terlambat' => $terlambat,
+                ];
+            });
+            // dd($rekapLengkap);            
+    
+            return response()->json([
+                'dataPresensi' => $pegawaiInfo ? [$pegawaiInfo] : [],
+                'rekapLengkap' => $rekapLengkap,
             ]);
 
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+              // Untuk development: tampilkan line error
+                return response()->json([
+                    'error' => $e->getMessage(),
+                    'line' => $e->getLine(),
+                    'file' => $e->getFile()
+                ], 500);
         }
     }
 
