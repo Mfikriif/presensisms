@@ -36,6 +36,7 @@
         "primeflex": "^3.3.1",
         "primeicons": "^7.0.0",
         "primereact": "^10.9.2",
+        "react-helmet": "^6.1.0",
         "react-hot-toast": "^2.5.1",
         "react-icons": "^5.4.0",
         "react-leaflet": "^4.2.1",
