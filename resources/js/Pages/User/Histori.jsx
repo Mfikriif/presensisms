@@ -3,8 +3,13 @@ import MainLayout from "@/Layouts/MainLayout";
 import axios from "axios";
 import GetHistori from "@/Pages/User/GetHistori";
 import toast, { Toaster } from "react-hot-toast";
+import { Helmet } from "react-helmet";
 
 export default function Histori({ namabulan = [], tahun_awal = 2022 }) {
+    <Helmet>
+        <link rel="icon" type="image/png" href="/assets/img/login/sms.jpg" />
+        <title>Histori | E-Presensi</title>
+    </Helmet>;
     const tanggalSekarang = new Date();
     const bulanSekarang = tanggalSekarang.getMonth() + 1;
     const tahunSekarang = tanggalSekarang.getFullYear();
