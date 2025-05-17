@@ -29,7 +29,7 @@ class SuperAdminSeeder extends Seeder
             'email' => 'superadmin@gmail.com',
             'posisi' => 'Administrator',
             'no_hp' => '081234567890',
-            'foto' => '/assets/img/sample/avatar/avatar1.jpg',
+            'foto' => '/assets/img/nophoto.png',
             'tempat_lahir' => 'Semarang',
             'tanggal_lahir' => '1990-01-01',
             'created_at' => now(),
