@@ -1,18 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useForm } from "@inertiajs/react";
-import { Helmet } from "react-helmet";
+import { Head } from "@inertiajs/react";
 
 export default function Login({ status, errors }) {
     const { data, setData, post, processing } = useForm({
         email: "",
         password: "",
     });
-
-    <Helmet>
-        <link rel="icon" type="image/png" href="/assets/img/login/sms.jpg" />
-        <title>Login | E-Presensi</title>
-    </Helmet>;
-
+    <Head title="Login | E-Presensi" />;
     const [showPassword, setShowPassword] = useState(false);
     const [showSplash, setShowSplash] = useState(true);
 

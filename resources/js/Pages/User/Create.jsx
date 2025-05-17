@@ -3,13 +3,8 @@ import MainLayout from "@/Layouts/MainLayout";
 import Webcam from "react-webcam";
 import axios from "axios";
 import Swal from "sweetalert2";
-import { Helmet } from "react-helmet";
 
 export default function Create({ cek }) {
-    <Helmet>
-        <link rel="icon" type="image/png" href="/assets/img/login/sms.jpg" />
-        <title>Absen | E-Presensi</title>
-    </Helmet>;
     const [isLoading, setIsLoading] = useState(false);
     const [setWebcamReady] = useState(false);
     const [location, setLocation] = useState(null);

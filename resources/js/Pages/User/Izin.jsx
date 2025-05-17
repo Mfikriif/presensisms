@@ -10,13 +10,8 @@ import {
 } from "react-swipeable-list";
 import "react-swipeable-list/dist/styles.css";
 import toast, { Toaster } from "react-hot-toast";
-import { Helmet } from "react-helmet";
 
 export default function Izin({ dataizin, errorMessage, successMessage }) {
-    <Helmet>
-        <link rel="icon" type="image/png" href="/assets/img/login/sms.jpg" />
-        <title>Izin | E-Presensi</title>
-    </Helmet>;
     const [izinList, setIzinList] = useState(dataizin);
     const [dibatalkan, setDibatalkan] = useState({});
 

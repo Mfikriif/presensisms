@@ -1,13 +1,8 @@
 import React, { useState } from "react";
 import MainLayout from "@/Layouts/MainLayout";
 import Swal from "sweetalert2";
-import { Helmet } from "react-helmet";
 
 export default function BuatIzin() {
-    <Helmet>
-        <link rel="icon" type="image/png" href="/assets/img/login/sms.jpg" />
-        <title>Buat Izin | E-Presensi</title>
-    </Helmet>;
     const [tglIzin, setTglIzin] = useState("");
     const [status, setStatus] = useState("");
     const [keterangan, setKeterangan] = useState("");

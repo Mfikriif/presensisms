@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import MainLayout from "@/Layouts/MainLayout";
 import Swal from "sweetalert2";
 import { Inertia } from "@inertiajs/inertia";
-import { Helmet } from "react-helmet";
 
 export default function Profile({
     pegawai,
@@ -10,10 +9,6 @@ export default function Profile({
     errorMessage,
     errors,
 }) {
-    <Helmet>
-        <link rel="icon" type="image/png" href="/assets/img/login/sms.jpg" />
-        <title>Profil | E-Presensi</title>
-    </Helmet>;
     const [namaLengkap, setNamaLengkap] = useState(pegawai.nama_lengkap || "");
     const [noHp, setNoHp] = useState(pegawai.no_hp || "");
     const [password, setPassword] = useState("");

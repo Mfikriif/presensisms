@@ -4,7 +4,6 @@ import { Inertia } from "@inertiajs/inertia";
 import Swal from "sweetalert2";
 import debounce from "lodash/debounce";
 import "../../../css/app.css";
-import { Helmet } from "react-helmet";
 
 export default function Dashboard({
     rekapizin,
@@ -18,10 +17,6 @@ export default function Dashboard({
     shiftKerjaTerisi,
     shiftKerja,
 }) {
-    <Helmet>
-        <link rel="icon" type="image/png" href="/assets/img/login/sms.jpg" />
-        <title>Dasbor | E-Presensi</title>
-    </Helmet>;
     // Fungsi untuk mendapatkan minggu ke-berapa dalam bulan
     const getCurrentWeekOfMonth = () => {
         const today = new Date(); // Tanggal hari ini
