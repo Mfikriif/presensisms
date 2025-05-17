@@ -9,9 +9,10 @@ class presensi extends Model
     protected $table = 'presensi';
 
     protected $fillable = [
-        'Nama',
+        'kode_pegawai',
+        'nama',
         'email',
-        'Tanggal_presensi',
+        'tanggal_presensi',
         'jam_in',
         'jam_out',
         'foto_in',
@@ -28,6 +29,11 @@ class presensi extends Model
     public function set_jam_kerja()
     {
         return $this->hasOne(set_jam_kerja::class, 'nama', 'Nama');
+    }
+
+    public function pegawai()
+    {
+        return $this->belongsTo(Pegawai::class, 'kode_pegawai', 'id');
     }
 }
 

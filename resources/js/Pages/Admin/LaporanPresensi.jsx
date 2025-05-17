@@ -32,17 +32,37 @@ export default function LaporanPresensi({
         window.open(url, "_blank");
     };
 
+    const parseTimeToSeconds = (timeStr) => {
+        if (!timeStr) return 0;
+        const [hours, minutes, seconds] = timeStr.split(":").map(Number);
+        return hours * 3600 + minutes * 60 + (seconds || 0);
+    };
+
+    const hitungJamKeterlambatan = (jamIn, batasJamMasuk) => {
+        const selisih =
+            parseTimeToSeconds(jamIn) - parseTimeToSeconds(batasJamMasuk);
+        return selisih > 0
+            ? `terlambat ${Math.floor(selisih / 60)} menit`
+            : "Tepat waktu";
+    };
+
     const calculateTimeDifference = (jamMasuk, jamKeluar) => {
-        if (!jamMasuk || !jamKeluar) {
-            return "0 jam";
-        }
+        if (!jamMasuk || !jamKeluar) return "-";
 
-        const masuk = new Date(`1970-01-01T${jamMasuk}Z`);
-        const keluar = new Date(`1970-01-01T${jamKeluar}Z`);
+        const convertToMinutes = (time) => {
+            const [hours, minutes] = time.split(":").map(Number);
+            return hours * 60 + minutes;
+        };
 
-        const selisih = (keluar - masuk) / (1000 * 60 * 60); // Konversi ke jam
+        const totalMinutes =
+            convertToMinutes(jamKeluar) - convertToMinutes(jamMasuk);
 
-        return `${selisih.toFixed(2)} jam`;
+        if (totalMinutes < 0) return "Waktu tidak valid"; // Handle jam_out lebih kecil dari jam_in
+
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+
+        return `${hours} jam ${minutes} menit`;
     };
 
     const exportFileToExcel = async () => {
@@ -67,19 +87,12 @@ export default function LaporanPresensi({
             }
 
             const responseData = await response.json(); // Data JSON yang berisi dua array
-
-            // Pastikan kedua data tidak kosong
+            // Cek apakah ada data presensi
             if (
+                !responseData.rekapLengkap ||
+                responseData.rekapLengkap.length === 0 ||
                 !responseData.dataPresensi ||
                 responseData.dataPresensi.length === 0
-            ) {
-                alert("Tidak ada data presensi untuk kriteria yang dipilih.");
-                setLoadingData(false);
-                return;
-            }
-            if (
-                !responseData.statusPresensi ||
-                responseData.statusPresensi.length === 0
             ) {
                 alert(
                     "Tidak ada data status presensi untuk kriteria yang dipilih."
@@ -89,38 +102,65 @@ export default function LaporanPresensi({
             }
 
             // Format data untuk Excel
-            const formattedData = responseData.dataPresensi.map(
+            const formattedData = responseData.rekapLengkap.map(
                 (item, index) => {
-                    const status = responseData.statusPresensi.find(
-                        (statusItem) =>
-                            statusItem.tanggal_presensi ===
-                            item.tanggal_presensi
-                    );
-
                     return {
                         No: index + 1,
-                        "Nama Pegawai": item.nama || "Tidak Diketahui",
-                        "Tanggal Presensi": item.tanggal_presensi || "-",
-                        "Jam Presensi": item.jam_in || "Tidak Hadir",
-                        "Jam Pulang": item.jam_out || "Belum absen pulang",
-                        "Akhir Jam Masuk":
-                            status.akhir_jam_masuk || "Belum absen pulang",
-                        "Status Presensi": status
-                            ? status.akhir_jam_masuk
-                                ? item.jam_in > status.akhir_jam_masuk
-                                    ? "Terlambat"
+                        Tanggal: item.tanggal || "-",
+                        "Jam Presensi": item.jam_in || "-",
+                        "Jam Pulang": item.jam_out || "-",
+                        "Status ":
+                            !item.jam_in && !item.jam_out
+                                ? item.status === "i"
+                                    ? "Izin"
+                                    : item.status === "s"
+                                    ? "Sakit"
+                                    : "Tidak Hadir"
+                                : item.jam_in && item.jam_out
+                                ? item.jam_in > item.jam_masuk
+                                    ? hitungJamKeterlambatan(
+                                          item.jam_in,
+                                          item.jam_masuk
+                                      )
                                     : "Tepat Waktu"
-                                : "Tidak ada data"
-                            : "Tidak ada data",
+                                : "Data Tidak Lengkap",
                         "Jumlah Jam": item.jam_out
                             ? calculateTimeDifference(item.jam_in, item.jam_out)
-                            : "0 jam",
+                            : "-",
                     };
                 }
             );
 
-            // Generate file Excel
-            const worksheet = XLSX.utils.json_to_sheet(formattedData);
+            // Informasi tambahan pegawai
+            const namaPegawai =
+                responseData.dataPresensi[0]?.nama || "Tidak Diketahui";
+            const posisi =
+                responseData.dataPresensi[0]?.posisi || "Tidak Diketahui";
+            const nomorHp =
+                responseData.dataPresensi[0]?.no_hp || "Tidak Diketahui";
+
+            // Buat worksheet kosong
+            const worksheet = XLSX.utils.aoa_to_sheet([]);
+
+            // Tambahkan baris info pegawai ke atas worksheet
+            XLSX.utils.sheet_add_aoa(
+                worksheet,
+                [
+                    ["Nama Pegawai", namaPegawai],
+                    ["Posisi", posisi],
+                    ["Nomor HP", nomorHp],
+                    [], // Baris kosong pemisah
+                ],
+                { origin: "A1" }
+            );
+
+            // Tambahkan data presensi mulai dari baris ke-5
+            XLSX.utils.sheet_add_json(worksheet, formattedData, {
+                origin: "A5",
+                skipHeader: false, // Tampilkan header kolom
+            });
+
+            // Buat dan simpan workbook
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(
                 workbook,
@@ -136,16 +176,12 @@ export default function LaporanPresensi({
             const fileData = new Blob([excelBuffer], {
                 type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             });
-            const namaPegawai =
-                responseData.dataPresensi.length > 0
-                    ? responseData.dataPresensi[0].nama || "Tidak Diketahui"
-                    : "Tidak Diketahui";
 
             const namaFile = `Laporan_Presensi_${namaPegawai}_${bulan}_${tahun}.xlsx`;
             saveAs(fileData, namaFile);
         } catch (error) {
             console.error("Error fetching data:", error);
-            alert("Terjadi kesalahan saat mengambil data.");
+            alert(`Terjadi kesalahan saat mengambil data. ${error.message}`);
         }
 
         setLoadingData(false);

@@ -3,7 +3,9 @@ export default function CetakLaporan({
     bulan,
     tahun,
     error,
-    statusPresensi,
+    // statusPresensi,
+    dataPegawai,
+    rekapLengkap,
 }) {
     const pegawai = histori[0];
     const namabulan = [
@@ -21,6 +23,8 @@ export default function CetakLaporan({
         "Desember",
     ];
 
+    // console.log("status Presensi", statusPresensi);
+    console.log("rekap Lengkap", rekapLengkap);
     const getNamaBulan = (bulan) => namabulan[bulan - 1];
 
     // Fungsi untuk mengonversi waktu ke detik total
@@ -35,39 +39,12 @@ export default function CetakLaporan({
         const selisih =
             parseTimeToSeconds(jamIn) - parseTimeToSeconds(batasJamMasuk);
         return selisih > 0
-            ? `${Math.floor(selisih / 60)} menit`
+            ? `terlambat ${Math.floor(selisih / 60)} menit`
             : "Tepat waktu";
     };
 
-    // Menggabungkan data histori dengan status presensi
-    const combinedData = histori.map((hst) => {
-        const status = statusPresensi.find(
-            (status) =>
-                status.nama === hst.nama &&
-                status.tanggal_presensi === hst.tanggal_presensi
-        );
-
-        const akhirJamMasuk = status?.akhir_jam_masuk || "23:59:59";
-        const statusTerlambat =
-            parseTimeToSeconds(hst.jam_in) > parseTimeToSeconds(akhirJamMasuk)
-                ? "Terlambat"
-                : "Tepat Waktu";
-
-        return {
-            ...hst,
-            jam_pulang: status.jam_pulang,
-            akhir_jam_masuk: akhirJamMasuk,
-            status_terlambat: statusTerlambat,
-            jam_keterlambatan: hitungJamKeterlambatan(
-                hst.jam_in,
-                akhirJamMasuk
-            ),
-            // jam_pulang,
-        };
-    });
-
-    const calculateTimeDifference = (jamIn, jamOut) => {
-        if (!jamIn || !jamOut) return "Waktu tidak valid";
+    const menghitungTotalJam = (jamIn, jamOut) => {
+        if (!jamIn || !jamOut) return "-";
 
         const convertToMinutes = (time) => {
             const [hours, minutes] = time.split(":").map(Number);
@@ -102,35 +79,38 @@ export default function CetakLaporan({
                     </h1>
                 </div>
             </div>
-
+            {dataPegawai && (
+                <div className="flex -mt-4" style={styles.info}>
+                    <div className="w-24 h-24 overflow-hidden mr-3 mt-2">
+                        <img src={`storage/${dataPegawai.foto}`} alt="" />
+                    </div>
+                    <div className="flex flex-col justify-evenly">
+                        <p>
+                            Kode Pegawai <span className="ml-1">:</span>
+                            <span className="ml-2">{dataPegawai.id}</span>
+                        </p>
+                        <p>
+                            Nama <span className="ml-14">:</span>
+                            <span className="ml-2">
+                                {dataPegawai.nama_lengkap}
+                            </span>
+                        </p>
+                        <p>
+                            Posisi <span className="ml-14">:</span>
+                            <span className="ml-2">{dataPegawai.posisi}</span>
+                        </p>
+                        <p>
+                            No Hp <span className="ml-14">:</span>
+                            <span className="ml-2">{dataPegawai.no_hp}</span>
+                        </p>
+                    </div>
+                </div>
+            )}
             {error ? (
                 <p style={styles.error}>{error}</p>
             ) : (
                 <>
-                    <div className="flex -mt-4" style={styles.info}>
-                        <div className="w-24 h-24 overflow-hidden mr-3 mt-2">
-                            <img src={`storage/${pegawai.foto}`} alt="" />
-                        </div>
-                        <div className="flex flex-col justify-evenly">
-                            <p>
-                                Kode pegawai <span className="ml-1">:</span>
-                                <span className="ml-2">{pegawai.id}</span>
-                            </p>
-                            <p>
-                                Nama <span className="ml-14">:</span>
-                                <span className="ml-2">{pegawai.nama}</span>
-                            </p>
-                            <p>
-                                Posisi <span className="ml-14">:</span>
-                                <span className="ml-2">{pegawai.posisi}</span>
-                            </p>
-                            <p>
-                                No Hp <span className="ml-14">:</span>
-                                <span className="ml-2">{pegawai.no_hp}</span>
-                            </p>
-                        </div>
-                    </div>
-                    <table style={styles.table}>
+                    <table className="text-center" style={styles.table}>
                         <thead>
                             <tr>
                                 <th style={styles.th}>No</th>
@@ -140,18 +120,19 @@ export default function CetakLaporan({
                                 <th style={styles.th}>Jam Keluar</th>
                                 <th style={styles.th}>Foto</th>
                                 <th style={styles.th}>Status</th>
+                                {/* <th style={styles.th}>Izin / Sakit</th> */}
                                 <th style={styles.th}>Jml Jam</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {combinedData.map((item, index) => (
+                            {rekapLengkap.map((item, index) => (
                                 <tr className="text-center" key={index}>
                                     <td style={styles.td}>{index + 1}</td>
                                     <td
                                         className="whitespace-nowrap"
                                         style={styles.td}
                                     >
-                                        {item.tanggal_presensi}
+                                        {item.tanggal}
                                     </td>
                                     <td style={styles.td}>{item.jam_in}</td>
                                     <td style={styles.td}>
@@ -182,23 +163,37 @@ export default function CetakLaporan({
                                         />
                                     </td>
                                     <td style={styles.td}>
-                                        {item.status_terlambat ===
-                                        "Terlambat" ? (
-                                            <span>
-                                                Terlambat{" "}
-                                                {item.jam_keterlambatan}
-                                            </span>
+                                        {!item.jam_in && !item.jam_out ? (
+                                            item.status === "i" ? (
+                                                <span>Izin</span>
+                                            ) : item.status === "s" ? (
+                                                <span>Sakit</span>
+                                            ) : (
+                                                <span>-</span> // Tidak absen tanpa keterangan
+                                            )
+                                        ) : item.jam_in && item.jam_out ? (
+                                            item.jam_in > item.jam_masuk ? (
+                                                <span>
+                                                    {hitungJamKeterlambatan(
+                                                        item.jam_in,
+                                                        item.jam_masuk
+                                                    )}
+                                                </span>
+                                            ) : (
+                                                <span>Tepat Waktu</span>
+                                            )
                                         ) : (
-                                            <span>Tepat waktu</span>
+                                            <span>-</span> // Data tidak lengkap
                                         )}
                                     </td>
+
                                     <td style={styles.td}>
                                         {!item.jam_out
-                                            ? calculateTimeDifference(
+                                            ? menghitungTotalJam(
                                                   item.jam_in,
                                                   item.jam_pulang
                                               )
-                                            : calculateTimeDifference(
+                                            : menghitungTotalJam(
                                                   item.jam_in,
                                                   item.jam_out
                                               )}
