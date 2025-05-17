@@ -387,12 +387,8 @@ class PresensiController extends Controller
     
         $dataizin = DB::table('pengajuan_izin')
             ->where('kode_pegawai', $kode_pegawai)
-            ->orderByRaw("CASE 
-                            WHEN status_approved = 0 THEN 0 
-                            WHEN status_approved = 2 THEN 1 
-                            WHEN status_approved = 1 THEN 2 
-                        END")
-            ->orderBy('tanggal_izin', 'asc')
+            ->orderByRaw("CASE WHEN status_approved = 0 THEN 0 ELSE 1 END") // pending dulu
+            ->orderBy('tanggal_izin', 'asc') // lalu urut tanggal
             ->get();
         
         return Inertia::render('User/Izin', [
