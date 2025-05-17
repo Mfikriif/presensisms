@@ -24,7 +24,6 @@ export default function CetakLaporan({
     ];
 
     // console.log("status Presensi", statusPresensi);
-    console.log("rekap Lengkap", rekapLengkap);
     const getNamaBulan = (bulan) => namabulan[bulan - 1];
 
     // Fungsi untuk mengonversi waktu ke detik total
