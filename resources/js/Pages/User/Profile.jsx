@@ -24,6 +24,11 @@ export default function Profile({
                 timer: 3000,
                 showConfirmButton: false,
                 timerProgressBar: true,
+                customClass: {
+                    popup: "custom-swal-popup",
+                    title: "custom-swal-title",
+                    content: "custom-swal-content",
+                },
             });
         }
 
@@ -35,6 +40,11 @@ export default function Profile({
                 timer: 3000,
                 showConfirmButton: false,
                 timerProgressBar: true,
+                customClass: {
+                    popup: "custom-swal-popup",
+                    title: "custom-swal-title",
+                    content: "custom-swal-content",
+                },
             });
         }
 
@@ -46,6 +56,11 @@ export default function Profile({
                 title: "Validasi Gagal",
                 text: pesanError,
                 confirmButtonText: "Tutup",
+                customClass: {
+                    popup: "custom-swal-popup",
+                    title: "custom-swal-title",
+                    content: "custom-swal-content",
+                },
             });
         }
     }, [successMessage, errorMessage, errors]);
