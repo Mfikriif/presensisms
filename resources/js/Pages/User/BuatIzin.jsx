@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import MainLayout from "@/Layouts/MainLayout";
 import Swal from "sweetalert2";
+import { Head } from "@inertiajs/react";
 
 export default function BuatIzin() {
     const [tglIzin, setTglIzin] = useState("");
@@ -243,6 +244,7 @@ export default function BuatIzin() {
 
     return (
         <MainLayout>
+            <Head title="Buat Izin | E-Presensi SMS" />
             <div className="bg-gray-100 min-h-screen overflow-y-auto relative">
                 {/* Header */}
                 <div className="bg-blue-950 text-white flex items-center justify-between px-4 py-3 shadow-md">
@@ -268,6 +270,12 @@ export default function BuatIzin() {
                     >
                         {/* Tanggal */}
                         <div className="form-group">
+                            <label
+                                htmlFor="tanggal_izin"
+                                className="block text-sm font-medium text-gray-700 mb-1"
+                            >
+                                Tanggal Izin
+                            </label>
                             <input
                                 type="date"
                                 id="tanggal_izin"
@@ -279,7 +287,6 @@ export default function BuatIzin() {
                                         ? "border-red-500 bg-red-100"
                                         : "border-gray-300 focus:ring-blue-200 focus:border-blue-500"
                                 }`}
-                                placeholder="Tanggal"
                             />
                             {izinSudahAda && (
                                 <p className="text-red-500 text-sm mt-1">

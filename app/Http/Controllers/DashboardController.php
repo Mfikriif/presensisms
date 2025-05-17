@@ -187,17 +187,19 @@ class DashboardController extends Controller
             'shift' => 'required|array',
             'shift.*' => 'nullable|string|max:255',
         ]);
-    
+
         $id = $validated['id'];
         $nama = $validated['nama'];
         $shiftData = $validated['shift'];
-    
+
         try {
-            // Hapus data lama jika ada
-            set_jam_kerja::where('id', $id)->delete();
-    
-            // Simpan shift baru
             foreach ($shiftData as $day => $kodeJamKerja) {
+                // Hapus data lama jika ada kombinasi nama dan hari yang sama
+                set_jam_kerja::where('nama', $nama)
+                    ->where('hari', ucfirst($day))
+                    ->delete();
+
+                // Simpan shift baru jika diisi
                 if ($kodeJamKerja) {
                     set_jam_kerja::create([
                         'id' => $id,
@@ -207,17 +209,13 @@ class DashboardController extends Controller
                     ]);
                 }
             }
-    
-            // Mengembalikan respons sukses untuk Inertia
+
             return back()->with('success', 'Shift berhasil disimpan!');
         } catch (\Exception $e) {
             \Log::error("Error menyimpan shift: " . $e->getMessage());
-    
-            // Mengembalikan respons error untuk Inertia
             return back()->with('error', 'Terjadi kesalahan saat menyimpan shift kerja.');
         }
     }
-
 
     // Dashboard Admin
     public function dashboardAdmin()

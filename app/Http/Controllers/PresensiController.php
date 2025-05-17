@@ -11,8 +11,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\pengajuan_izin;
-use Carbon\Carbon;
-use Illuminate\Support\Collection;
 
 class PresensiController extends Controller
 {
@@ -133,7 +131,7 @@ class PresensiController extends Controller
         }
     
         // Cek radius lokasi kantor
-        if ($radius > 90) {
+        if ($radius > 20) { // Default : 20
             return response()->json([
                 'error' => 'Anda berada di luar radius kantor!',
                 'message' => 'Maaf, Anda tidak dapat melakukan presensi karena berada di luar radius yang diizinkan. (' . $radius . ' meter)',
@@ -257,38 +255,61 @@ class PresensiController extends Controller
     public function updateprofile(Request $request)
     {
         $user = Auth::user();
-    
-        // Validasi input
-        $validated = $request->validate([
-            'nama_lengkap' => 'required|string|max:255',
+
+        $validator = Validator::make($request->all(), [
+            'nama_lengkap' => [
+                'required',
+                'string',
+                'max:255',
+                'regex:/^[a-zA-Z\s]+$/',
+                Rule::unique('pegawais', 'nama_lengkap')->ignore($user->email, 'email'),
+            ],
             'no_hp' => [
                 'required',
                 'string',
                 'max:20',
-                'regex:/^(\+62|62|0)[0-9]{9,15}$/',
+                'regex:/^(\+62|62|0)[0-9]{9,13}$/',
+                Rule::unique('pegawais', 'no_hp')->ignore($user->email, 'email'),
             ],
-            'password' => 'nullable|string|min:6',
+            'password' => [
+                'nullable',
+                'string',
+                'min:8',
+                'max:100',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/',
+            ],
+        ], [
+            'nama_lengkap.regex' => 'Nama lengkap hanya boleh berisi huruf dan spasi.',
+            'no_hp.regex' => 'Nomor HP harus sesuai format Indonesia dan hanya berisi angka.',
+            'password.regex' => 'Password harus mengandung minimal satu huruf besar, satu angka, dan satu simbol',
+            'password.min' => 'Password minimal terdiri dari 8 karakter',
+            'nama_lengkap.unique' => 'Nama lengkap sudah digunakan.',
+            'no_hp.unique' => 'Nomor HP sudah digunakan.',
         ]);
-    
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        $validated = $validator->validated();
+
         DB::beginTransaction();
-    
+
         try {
-            // Update data di tabel pegawais
             $updatePegawai = DB::table('pegawais')
                 ->where('email', $user->email)
                 ->update([
                     'nama_lengkap' => $validated['nama_lengkap'],
                     'no_hp' => $validated['no_hp'],
                 ]);
-    
-            // Update data di tabel users
+
             $user->name = $validated['nama_lengkap'];
             if ($request->filled('password')) {
                 $user->password = Hash::make($validated['password']);
             }
+
             $updateUser = $user->isDirty() ? $user->save() : false;
-    
-            // Commit transaksi jika salah satu update berhasil
+
             if ($updatePegawai || $updateUser) {
                 DB::commit();
                 return redirect()->back()->with('success', 'Profil berhasil diperbarui.');

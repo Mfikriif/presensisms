@@ -10,6 +10,7 @@ import {
 } from "react-swipeable-list";
 import "react-swipeable-list/dist/styles.css";
 import toast, { Toaster } from "react-hot-toast";
+import { Head } from "@inertiajs/react";
 
 export default function Izin({ dataizin, errorMessage, successMessage }) {
     const [izinList, setIzinList] = useState(dataizin);
@@ -96,6 +97,7 @@ export default function Izin({ dataizin, errorMessage, successMessage }) {
 
     return (
         <MainLayout>
+            <Head title="Izin | E-Presensi SMS" />
             <div className="bg-gray-50 h-screen flex flex-col relative">
                 {/* Toaster untuk Notifikasi */}
                 <Toaster position="top-center" reverseOrder={false} />

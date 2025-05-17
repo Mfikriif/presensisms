@@ -2,13 +2,19 @@ import React, { useState, useEffect } from "react";
 import MainLayout from "@/Layouts/MainLayout";
 import Swal from "sweetalert2";
 import { Inertia } from "@inertiajs/inertia";
+import { Head } from "@inertiajs/react";
 
-export default function Profile({ pegawai, successMessage, errorMessage }) {
+export default function Profile({
+    pegawai,
+    successMessage,
+    errorMessage,
+    errors,
+}) {
     const [namaLengkap, setNamaLengkap] = useState(pegawai.nama_lengkap || "");
     const [noHp, setNoHp] = useState(pegawai.no_hp || "");
     const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
 
-    // Menampilkan notifikasi saat ada pesan sukses atau error
     useEffect(() => {
         if (successMessage) {
             Swal.fire({
@@ -41,12 +47,27 @@ export default function Profile({ pegawai, successMessage, errorMessage }) {
                 },
             });
         }
-    }, [successMessage, errorMessage]);
+
+        // Tampilkan semua pesan error validasi
+        if (errors && Object.keys(errors).length > 0) {
+            const pesanError = Object.values(errors).join("\n");
+            Swal.fire({
+                icon: "error",
+                title: "Validasi Gagal",
+                text: pesanError,
+                confirmButtonText: "Tutup",
+                customClass: {
+                    popup: "custom-swal-popup",
+                    title: "custom-swal-title",
+                    content: "custom-swal-content",
+                },
+            });
+        }
+    }, [successMessage, errorMessage, errors]);
 
     const handleFormSubmit = (e) => {
         e.preventDefault();
 
-        // Cek apakah data tidak berubah
         if (
             namaLengkap === pegawai.nama_lengkap &&
             noHp === pegawai.no_hp &&
@@ -68,7 +89,6 @@ export default function Profile({ pegawai, successMessage, errorMessage }) {
             return;
         }
 
-        // Konfirmasi sebelum mengirim data
         Swal.fire({
             title: "Apakah Anda Yakin?",
             text: "Perubahan akan disimpan.",
@@ -92,7 +112,7 @@ export default function Profile({ pegawai, successMessage, errorMessage }) {
                         no_hp: noHp,
                         password: password,
                     },
-                    only: ["pegawai"], // ← Hanya ambil data pegawai
+                    only: ["pegawai"],
                     replace: true,
                     preserveState: true,
                 });
@@ -102,8 +122,8 @@ export default function Profile({ pegawai, successMessage, errorMessage }) {
 
     return (
         <MainLayout>
+            <Head title="Profil | E-Presensi SMS" />
             <div className="bg-gray-100 min-h-screen overflow-y-auto pb-52">
-                {/* Header */}
                 <div className="bg-blue-950 text-white flex items-center justify-between px-4 py-3 shadow-md">
                     <button
                         onClick={() => (window.location.href = "/dashboardop")}
@@ -118,14 +138,12 @@ export default function Profile({ pegawai, successMessage, errorMessage }) {
                     <h1 className="text-lg font-semibold">Ubah Profil</h1>
                 </div>
 
-                {/* Form Edit Profile */}
                 <form
                     action={`/presensi/${pegawai.id}/updateprofile`}
                     method="POST"
                     onSubmit={handleFormSubmit}
                     className="mt-6 px-4 flex-grow"
                 >
-                    {/* CSRF Token */}
                     <input
                         type="hidden"
                         name="_token"
@@ -135,14 +153,7 @@ export default function Profile({ pegawai, successMessage, errorMessage }) {
                         }
                     />
 
-                    {/* Foto Profil */}
                     <div className="mb-4">
-                        <label
-                            htmlFor="foto"
-                            className="block text-sm font-medium text-gray-700 text-center"
-                        >
-                            Foto Profil
-                        </label>
                         <div className="flex justify-center items-center mt-2">
                             <div className="relative w-28 h-28">
                                 <img
@@ -158,7 +169,6 @@ export default function Profile({ pegawai, successMessage, errorMessage }) {
                         </div>
                     </div>
 
-                    {/* Input Nama Lengkap */}
                     <div className="mb-4">
                         <label
                             htmlFor="nama_lengkap"
@@ -170,7 +180,11 @@ export default function Profile({ pegawai, successMessage, errorMessage }) {
                             type="text"
                             id="nama_lengkap"
                             name="nama_lengkap"
-                            className="mt-1 block w-full rounded-lg border-gray-300 shadow focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                            className={`mt-1 block w-full rounded-lg border shadow ${
+                                errors.nama_lengkap
+                                    ? "border-red-500"
+                                    : "border-gray-300"
+                            } focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50`}
                             placeholder="Nama Lengkap"
                             autoComplete="off"
                             value={namaLengkap}
@@ -178,7 +192,45 @@ export default function Profile({ pegawai, successMessage, errorMessage }) {
                         />
                     </div>
 
-                    {/* Input No HP */}
+                    <div className="mb-4">
+                        <label
+                            htmlFor="email"
+                            className="block text-sm font-medium text-gray-700"
+                        >
+                            Email
+                        </label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            className="mt-1 block w-full rounded-lg border-gray-300 shadow bg-gray-200 cursor-not-allowed"
+                            value={pegawai.email}
+                            disabled
+                        />
+                    </div>
+
+                    <div className="mb-4">
+                        <label
+                            htmlFor="posisi"
+                            className="block text-sm font-medium text-gray-700"
+                        >
+                            Posisi
+                        </label>
+                        <input
+                            type="text"
+                            id="posisi"
+                            name="posisi"
+                            className="mt-1 block w-full rounded-lg border-gray-300 shadow bg-gray-200 cursor-not-allowed"
+                            value={
+                                pegawai.posisi
+                                    ? pegawai.posisi.charAt(0).toUpperCase() +
+                                      pegawai.posisi.slice(1)
+                                    : ""
+                            }
+                            disabled
+                        />
+                    </div>
+
                     <div className="mb-4">
                         <label
                             htmlFor="no_hp"
@@ -190,7 +242,11 @@ export default function Profile({ pegawai, successMessage, errorMessage }) {
                             type="text"
                             id="no_hp"
                             name="no_hp"
-                            className="mt-1 block w-full rounded-lg border-gray-300 shadow focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                            className={`mt-1 block w-full rounded-lg border shadow ${
+                                errors.no_hp
+                                    ? "border-red-500"
+                                    : "border-gray-300"
+                            } focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50`}
                             placeholder="No. HP"
                             autoComplete="off"
                             value={noHp}
@@ -198,7 +254,6 @@ export default function Profile({ pegawai, successMessage, errorMessage }) {
                         />
                     </div>
 
-                    {/* Tempat Lahir */}
                     <div className="mb-4">
                         <label
                             htmlFor="tempat_lahir"
@@ -216,7 +271,6 @@ export default function Profile({ pegawai, successMessage, errorMessage }) {
                         />
                     </div>
 
-                    {/* Tanggal Lahir */}
                     <div className="mb-4">
                         <label
                             htmlFor="tanggal_lahir"
@@ -234,8 +288,8 @@ export default function Profile({ pegawai, successMessage, errorMessage }) {
                         />
                     </div>
 
-                    {/* Input Password */}
-                    <div className="mb-4">
+                    {/* Input Password + Show/Hide */}
+                    <div className="mb-4 relative">
                         <label
                             htmlFor="password"
                             className="block text-sm font-medium text-gray-700"
@@ -243,18 +297,35 @@ export default function Profile({ pegawai, successMessage, errorMessage }) {
                             Password
                         </label>
                         <input
-                            type="password"
+                            type={showPassword ? "text" : "password"}
                             id="password"
                             name="password"
-                            className="mt-1 block w-full rounded-lg border-gray-300 shadow focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                            className={`mt-1 block w-full rounded-lg border shadow ${
+                                errors.password
+                                    ? "border-red-500"
+                                    : "border-gray-300"
+                            } focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 pr-10`}
                             placeholder="Password"
                             autoComplete="off"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                         />
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-9 text-gray-600 hover:text-gray-900"
+                        >
+                            <ion-icon
+                                name={
+                                    showPassword
+                                        ? "eye-off-outline"
+                                        : "eye-outline"
+                                }
+                                className="text-xl"
+                            ></ion-icon>
+                        </button>
                     </div>
 
-                    {/* Submit Button */}
                     <div>
                         <button
                             type="submit"

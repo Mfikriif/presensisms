@@ -2,9 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\pegawai;
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -14,8 +11,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // // User::factory(10)->create();
-
         // pegawai::factory(20)->create();
+
+        // Jalankan seeder untuk Super Admin
+        $this->call(SuperAdminSeeder::class);
     }
 }

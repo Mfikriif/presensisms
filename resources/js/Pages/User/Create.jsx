@@ -3,10 +3,11 @@ import MainLayout from "@/Layouts/MainLayout";
 import Webcam from "react-webcam";
 import axios from "axios";
 import Swal from "sweetalert2";
+import { Head } from "@inertiajs/react";
 
 export default function Create({ cek }) {
     const [isLoading, setIsLoading] = useState(false);
-    const [webcamReady, setWebcamReady] = useState(false);
+    const [setWebcamReady] = useState(false);
     const [location, setLocation] = useState(null);
     const [errorMessage, setErrorMessage] = useState("");
     const lokasiInputRef = useRef(null);
@@ -176,6 +177,7 @@ export default function Create({ cek }) {
 
     return (
         <MainLayout>
+            <Head title="Absen | E-Presensi SMS" />
             <div className="bg-gray-100 min-h-screen flex flex-col pb-20 relative">
                 {/* Header */}
                 <div className="bg-blue-950 text-white flex items-center justify-between px-4 py-3 shadow-md">
@@ -211,6 +213,7 @@ export default function Create({ cek }) {
                             style={{
                                 width: "250px",
                                 height: "250px",
+                                transform: "scaleX(-1)",
                             }}
                         />
                         <p className="text-sm text-gray-500 mt-2">

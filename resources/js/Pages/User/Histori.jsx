@@ -3,6 +3,7 @@ import MainLayout from "@/Layouts/MainLayout";
 import axios from "axios";
 import GetHistori from "@/Pages/User/GetHistori";
 import toast, { Toaster } from "react-hot-toast";
+import { Head } from "@inertiajs/react";
 
 export default function Histori({ namabulan = [], tahun_awal = 2022 }) {
     const tanggalSekarang = new Date();
@@ -39,7 +40,8 @@ export default function Histori({ namabulan = [], tahun_awal = 2022 }) {
     };
 
     return (
-        <MainLayout title="Histori Absensi">
+        <MainLayout>
+            <Head title="Histori Absensi | E-Presensi SMS" />
             <div className="bg-gray-100 min-h-screen pb-10">
                 {/* Toaster untuk notifikasi */}
                 <Toaster position="top-center" reverseOrder={false} />
