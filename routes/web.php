@@ -9,11 +9,11 @@ use App\Http\Controllers\UserConstroller;
 use App\Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 // Operator
-Route::get('/', function () {
-    return Inertia::render('User/Login');
-});
+
+Route::get('/', [AuthenticatedSessionController::class, 'create'])->name('login');
+
 Route::middleware(['auth', 'operator'])->group(function () {
     Route::get('/dashboardop',[DashboardController::class, 'index'])->name("dashboardop");
     // Presensi

@@ -4,6 +4,7 @@ import { Inertia } from "@inertiajs/inertia";
 import Swal from "sweetalert2";
 import debounce from "lodash/debounce";
 import "../../../css/app.css";
+import { Head } from "@inertiajs/react";
 
 export default function Dashboard({
     rekapizin,
@@ -179,6 +180,7 @@ export default function Dashboard({
 
     return (
         <MainLayout>
+            <Head title="Dasbor | E-Presensi SMS" />
             <div className="bg-gray-100 min-h-screen overflow-y-auto pb-24">
                 {/* User Section */}
                 <div className="bg-blue-950 shadow-md rounded-b-sm p-4 flex items-center justify-between overflow-hidden">

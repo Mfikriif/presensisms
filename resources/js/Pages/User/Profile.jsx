@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import MainLayout from "@/Layouts/MainLayout";
 import Swal from "sweetalert2";
 import { Inertia } from "@inertiajs/inertia";
+import { Head } from "@inertiajs/react";
 
 export default function Profile({
     pegawai,
@@ -106,6 +107,7 @@ export default function Profile({
 
     return (
         <MainLayout>
+            <Head title="Login | E-Presensi SMS" />
             <div className="bg-gray-100 min-h-screen overflow-y-auto pb-52">
                 <div className="bg-blue-950 text-white flex items-center justify-between px-4 py-3 shadow-md">
                     <button

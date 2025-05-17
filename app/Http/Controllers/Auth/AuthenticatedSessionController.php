@@ -8,14 +8,25 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Http\RedirectResponse;
+use Inertia\Response as InertiaResponse;
 
 class AuthenticatedSessionController extends Controller
 {
     /**
      * Display the login view.
      */
-    public function create(): Response
+    public function create(): InertiaResponse|RedirectResponse
     {
+        if (auth()->check()) {
+            $user = auth()->user();
+            if ($user->role === 'superadmin' || $user->role === 'admin') {
+                return redirect()->route('dashboard');
+            } elseif ($user->role === 'operator') {
+                return redirect()->route('dashboardop');
+            }
+        }
+
         return Inertia::render('User/Login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => session('status'),

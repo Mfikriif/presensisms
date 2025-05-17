@@ -32,7 +32,7 @@ export default function Login({ status, errors }) {
 
     return (
         <>
-            <Head title="Login | E-Presensi" />
+            <Head title="Login | E-Presensi SMS" />
             <div
                 className="min-h-screen flex items-center justify-center bg-cover bg-center px-6 relative"
                 style={{
