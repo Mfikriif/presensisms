@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\pengajuan_izin;
+use Carbon\Carbon;
+use Illuminate\Support\Collection;
 
 class PresensiController extends Controller
 {
