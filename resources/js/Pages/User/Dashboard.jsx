@@ -14,7 +14,6 @@ export default function Dashboard({
     bulanini,
     rekapPresensi,
     user,
-    posisi,
     shift,
     shiftKerjaTerisi,
     shiftKerja,
@@ -208,7 +207,7 @@ export default function Dashboard({
                                     {user.nama_lengkap}
                                 </h3>
                                 <p className="text-white text-sm mt-1">
-                                    {posisi.posisi === "operator"
+                                    {user.posisi === "operator"
                                         ? "Operator"
                                         : user.posisi === "staff"
                                         ? "Staff"
