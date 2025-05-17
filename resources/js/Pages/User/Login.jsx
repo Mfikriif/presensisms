@@ -129,22 +129,6 @@ export default function Login({ status, errors }) {
                             </span>
                         </div>
 
-                        {/* Form Links */}
-                        <div className="flex justify-between text-xs">
-                            <a
-                                href="/register"
-                                className="text-blue-600 hover:underline"
-                            >
-                                Register Now
-                            </a>
-                            <a
-                                href="/forgot-password"
-                                className="text-blue-600 hover:underline"
-                            >
-                                Forgot Password?
-                            </a>
-                        </div>
-
                         {/* Submit Button */}
                         <button
                             type="submit"
@@ -155,7 +139,7 @@ export default function Login({ status, errors }) {
                             }`}
                             disabled={processing}
                         >
-                            {processing ? "Loading..." : "Log in"}
+                            {processing ? "Loading..." : "Login"}
                         </button>
                     </form>
                 </div>

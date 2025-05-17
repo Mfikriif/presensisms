@@ -6,7 +6,7 @@ import Swal from "sweetalert2";
 
 export default function Create({ cek }) {
     const [isLoading, setIsLoading] = useState(false);
-    const [webcamReady, setWebcamReady] = useState(false);
+    const [setWebcamReady] = useState(false);
     const [location, setLocation] = useState(null);
     const [errorMessage, setErrorMessage] = useState("");
     const lokasiInputRef = useRef(null);
@@ -50,7 +50,7 @@ export default function Create({ cek }) {
                     ]).addTo(map);
 
                     // Lokasi Kantor -7.023826563310556, 110.50695887209068
-                    L.circle([-7.020083672655566, 110.42742316137034], {
+                    L.circle([-7.023826563310556, 110.50695887209068], {
                         color: "red",
                         fillColor: "#f03",
                         fillOpacity: 0.5,
@@ -211,6 +211,7 @@ export default function Create({ cek }) {
                             style={{
                                 width: "250px",
                                 height: "250px",
+                                transform: "scaleX(-1)",
                             }}
                         />
                         <p className="text-sm text-gray-500 mt-2">

@@ -36,50 +36,60 @@ class PegawaiController extends Controller
 
     public function store(Request $request)
     {
-        // sleep(2); // Simulasi delay (boleh dihapus jika tidak diperlukan)
-
-        // store ke table pegawai
+        // Validasi input
         $inputPegawai = $request->validate([
-            'nama_lengkap' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'posisi' => 'required|string|max:100',
-            'no_hp' => 'required|string|max:15',
-            'foto' => 'required|image|mimes:jpeg,png,jpg|max:2048',
-            'tempat_lahir' => 'required|string|max:100',
-            'tanggal_lahir' => 'required|date',
+            'nama_lengkap'   => 'required|string|max:255',
+            'email'          => 'required|email|max:255',
+            'posisi'         => 'required|string|max:100',
+            'no_hp'          => 'required|string|max:15',
+            'foto'           => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'tempat_lahir'   => 'required|string|max:100',
+            'tanggal_lahir'  => 'required|date',
         ]); 
 
         if ($request->hasFile('foto')) {
-            // Generate nama unik untuk file 
+            // Generate nama unik untuk file
             $fileName = time() . '_' . $request->file('foto')->getClientOriginalName();
-            
-            // Folder tujuan
+
+            // Path tujuan di storage
             $destinationPath = storage_path('app/public/pegawai');
 
+            // Buat folder jika belum ada
             if (!file_exists($destinationPath)) {
                 mkdir($destinationPath, 0755, true);
             }
 
-            // Pindahkan file dari folder temp ke folder tujuan
+            // Pindahkan file ke storage
             $request->file('foto')->move($destinationPath, $fileName);
 
-            // Simpan path ke database tanpa 'public/'
-            $inputPegawai['foto'] = 'pegawai/' . $fileName;
+            // Path relatif untuk disimpan di DB
+            $filePath = 'pegawai/' . $fileName;
+            $inputPegawai['foto'] = $filePath;
+
+            // Buat folder public jika belum ada
+            $publicPath = public_path('storage/pegawai');
+            if (!file_exists($publicPath)) {
+                mkdir($publicPath, 0755, true);
+            }
+
+            // Copy file dari storage ke public agar bisa diakses secara publik
+            copy(
+                storage_path('app/public/' . $filePath),
+                public_path('storage/' . $filePath)
+            );
         }
 
-        // Simpan data pegawai ke database
+        // Simpan data ke tabel pegawai
         pegawai::create($inputPegawai);
-        
-        // logic store ke table users
+
+        // Simpan data user default
         User::create([
-            'name' => $inputPegawai['nama_lengkap'],
-            'email' => $inputPegawai['email'],
+            'name'     => $inputPegawai['nama_lengkap'],
+            'email'    => $inputPegawai['email'],
             'password' => bcrypt('12345'),
-            'role' => 'operator',
+            'role'     => 'operator',
         ]);
 
-        
-        
         return redirect()->route('pegawai.index')->with('success', 'Data pegawai berhasil ditambahkan');
     }
 
