@@ -13,6 +13,9 @@ use Inertia\Inertia;
 use App\Models\pengajuan_izin;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
+
 
 class PresensiController extends Controller
 {
@@ -377,13 +380,19 @@ class PresensiController extends Controller
         }
     }
 
+    // Menampilkan Izin
     public function izin() {
         $user = Auth::user();
         $kode_pegawai = $user->id;
     
         $dataizin = DB::table('pengajuan_izin')
             ->where('kode_pegawai', $kode_pegawai)
-            ->orderBy('tanggal_izin', 'asc') // Mengurutkan berdasarkan tanggal izin secara ascending
+            ->orderByRaw("CASE 
+                            WHEN status_approved = 0 THEN 0 
+                            WHEN status_approved = 2 THEN 1 
+                            WHEN status_approved = 1 THEN 2 
+                        END")
+            ->orderBy('tanggal_izin', 'asc')
             ->get();
         
         return Inertia::render('User/Izin', [
