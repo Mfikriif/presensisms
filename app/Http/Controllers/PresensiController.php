@@ -91,7 +91,7 @@ class PresensiController extends Controller
         if ($izinDisetujui) {
             return response()->json([
                 'error' => 'Anda tidak perlu presensi!',
-                'message' => 'Anda sudah mendapatkan izin ' . ($izinDisetujui->status == 'i' ? 'Izin' : 'Sakit') . '. Tidak perlu melakukan presensi.',
+                'message' => 'Anda sudah mendapatkan ' . ($izinDisetujui->status == 'i' ? 'Izin' : 'izin Sakit') . '. Tidak perlu melakukan presensi.',
             ], 403);
         }
     
