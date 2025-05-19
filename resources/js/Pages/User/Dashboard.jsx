@@ -188,12 +188,12 @@ export default function Dashboard({
     return (
         <MainLayout>
             <Head title="Dasbor | E-Presensi SMS" />
-            <div className="bg-gray-100 min-h-screen overflow-y-auto pb-24 pt-16">
+            <div className="bg-gray-100 min-h-screen overflow-y-auto pb-24 pt-20">
                 {/* User Section */}
                 <div className="fixed top-0 left-0 right-0 z-50 bg-blue-950 shadow-md rounded-b-sm p-4 flex items-center justify-between overflow-hidden">
                     <div className="flex items-center">
                         {/* Avatar */}
-                        <div className="rounded-full overflow-hidden w-16 h-16 border-4 border-blue-500">
+                        <div className="rounded-full overflow-hidden w-16 h-16 border-4 border-red-500">
                             <img
                                 src={
                                     user.foto

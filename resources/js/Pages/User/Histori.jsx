@@ -28,11 +28,13 @@ export default function Histori({ namabulan = [], tahun_awal = 2022 }) {
                 setShowHistori("Tidak ada data untuk bulan dan tahun ini.");
             } else {
                 setShowHistori(response.data);
+                toast.dismiss();
                 toast.success("Data berhasil ditampilkan!");
             }
         } catch (error) {
             console.error("Error saat mengambil data:", error);
             setShowHistori("Terjadi kesalahan saat mengambil data.");
+            toast.dismiss();
             toast.error("Gagal mengambil data. Silakan coba lagi.");
         } finally {
             setLoading(false);
@@ -43,7 +45,15 @@ export default function Histori({ namabulan = [], tahun_awal = 2022 }) {
         <MainLayout>
             <Head title="Histori Absensi | E-Presensi SMS" />
             <div className="flex flex-col min-h-screen bg-gray-100 pt-16">
-                <Toaster position="top-center" reverseOrder={false} />
+                <Toaster
+                    position="top-center"
+                    reverseOrder={false}
+                    toastOptions={{
+                        style: {
+                            marginTop: "48px", // Sesuaikan dengan tinggi header kamu
+                        },
+                    }}
+                />
 
                 {/* Header */}
                 <div className="fixed top-0 left-0 right-0 z-50 bg-blue-950 text-white flex items-center justify-between px-4 py-3 shadow-md">
