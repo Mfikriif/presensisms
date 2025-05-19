@@ -42,11 +42,11 @@ export default function Histori({ namabulan = [], tahun_awal = 2022 }) {
     return (
         <MainLayout>
             <Head title="Histori Absensi | E-Presensi SMS" />
-            <div className="flex flex-col min-h-screen bg-gray-100">
+            <div className="flex flex-col min-h-screen bg-gray-100 pt-16">
                 <Toaster position="top-center" reverseOrder={false} />
 
                 {/* Header */}
-                <div className="bg-blue-950 text-white flex items-center justify-between px-4 py-3 shadow-md">
+                <div className="fixed top-0 left-0 right-0 z-50 bg-blue-950 text-white flex items-center justify-between px-4 py-3 shadow-md">
                     <button
                         onClick={() => (window.location.href = "/dashboardop")}
                         className="flex items-center text-white"

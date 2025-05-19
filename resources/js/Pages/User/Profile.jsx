@@ -125,8 +125,8 @@ export default function Profile({
     return (
         <MainLayout>
             <Head title="Profil | E-Presensi SMS" />
-            <div className="bg-gray-100 min-h-screen overflow-y-auto pb-52">
-                <div className="bg-blue-950 text-white flex items-center justify-between px-4 py-3 shadow-md">
+            <div className="bg-gray-100 min-h-screen overflow-y-auto pb-52 pt-16">
+                <div className="fixed top-0 left-0 right-0 z-50 bg-blue-950 text-white flex items-center justify-between px-4 py-3 shadow-md">
                     <button
                         onClick={() => (window.location.href = "/dashboardop")}
                         className="flex items-center text-white"

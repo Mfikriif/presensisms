@@ -178,9 +178,9 @@ export default function Create({ cek }) {
     return (
         <MainLayout>
             <Head title="Absen | E-Presensi SMS" />
-            <div className="bg-gray-100 min-h-screen flex flex-col pb-20 relative">
+            <div className="bg-gray-100 min-h-screen flex flex-col pb-20 relative pt-16">
                 {/* Header */}
-                <div className="bg-blue-950 text-white flex items-center justify-between px-4 py-3 shadow-md">
+                <div className="fixed top-0 left-0 right-0 z-50 bg-blue-950 text-white flex items-center justify-between px-4 py-3 shadow-md">
                     <button
                         onClick={() => window.history.back()}
                         className="flex items-center text-white hover:text-gray-200"

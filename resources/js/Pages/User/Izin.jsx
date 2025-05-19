@@ -98,12 +98,12 @@ export default function Izin({ dataizin, errorMessage, successMessage }) {
     return (
         <MainLayout>
             <Head title="Izin | E-Presensi SMS" />
-            <div className="bg-gray-50 h-screen flex flex-col relative">
+            <div className="bg-gray-50 h-screen flex flex-col relative pt-16">
                 {/* Toaster untuk Notifikasi */}
                 <Toaster position="top-center" reverseOrder={false} />
 
                 {/* Header */}
-                <div className="bg-blue-950 text-white flex items-center justify-between px-4 py-3 shadow-md">
+                <div className="fixed top-0 left-0 right-0 z-50 bg-blue-950 text-white flex items-center justify-between px-4 py-3 shadow-md">
                     <button
                         onClick={() => (window.location.href = "/dashboardop")}
                         className="flex items-center text-white"
