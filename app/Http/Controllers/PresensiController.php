@@ -45,8 +45,8 @@ class PresensiController extends Controller
     
         // -6.993411391499169, 110.42901558392305
         // Lokasi Kantor -7.023826563310556, 110.50695887209068 //artefak -7.059935504906368, 110.42837090396569 //arya : -6.990826334014022, 110.4610780394645 //kampus : -7.048106581965681, 110.44140750027846
-        $latitudekantor = -7.023826563310556;
-        $longitudekantor = 110.50695887209068;
+        $latitudekantor = -6.991042093179359;
+        $longitudekantor = 110.4609062818664;
 
     
         // Lokasi User
@@ -204,6 +204,7 @@ class PresensiController extends Controller
                     'kode_pegawai' => $kode_pegawai,
                     'email' => $email,
                     'tanggal_presensi' => $tanggal_presensi,
+                    'kode_jam_kerja' => $shiftKerja->kode_jamkerja,
                     'jam_in' => $jam,
                     'foto_in' => $fileName,
                     'lokasi_in' => $lokasi,
@@ -284,7 +285,9 @@ class PresensiController extends Controller
                 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/',
             ],
         ], [
+            'nama_lengkap.required' => 'Nama lengkap harus diisi.',
             'nama_lengkap.regex' => 'Nama lengkap hanya boleh berisi huruf dan spasi.',
+            'no_hp.required' => 'Nomor HP harus diisi.',
             'no_hp.regex' => 'Nomor HP harus sesuai format Indonesia dan hanya berisi angka.',
             'password.regex' => 'Password harus mengandung minimal satu huruf besar, satu angka, dan satu simbol',
             'password.min' => 'Password minimal terdiri dari 8 karakter',
@@ -342,16 +345,39 @@ class PresensiController extends Controller
             $tahun = $request->tahun;
             $user = Auth::user();
             $kode_pegawai = $user->id;
-    
+
+            // Ambil referensi semua shift kerja
+            $shiftRef = DB::table('konfigurasi_shift_kerja')
+                ->get()
+                ->keyBy('kode_jamkerja');
+
             // Ambil data presensi
             $presensi = DB::table('presensi')
                 ->whereRaw('MONTH(tanggal_presensi) = ?', [$bulan])
                 ->whereRaw('YEAR(tanggal_presensi) = ?', [$tahun])
                 ->where('kode_pegawai', $kode_pegawai)
                 ->orderBy('tanggal_presensi')
-                ->get();
-    
-            // Ambil data pengajuan izin hanya yang disetujui (status_approved = 1)
+                ->get()
+                ->map(function ($item) use ($shiftRef) {
+                    $item->status = 'h'; // Hadir
+                    $item->keterangan = null;
+                    $item->terlambat = false;
+                    $item->terlambat_menit = null;
+
+                    if ($item->jam_in && $item->kode_jam_kerja && isset($shiftRef[$item->kode_jam_kerja])) {
+                        $jamIn = strtotime($item->jam_in);
+                        $jamMasuk = strtotime($shiftRef[$item->kode_jam_kerja]->jam_masuk);
+
+                        if ($jamIn > $jamMasuk) {
+                            $item->terlambat = true;
+                            $item->terlambat_menit = round(($jamIn - $jamMasuk) / 60);
+                        }
+                    }
+
+                    return $item;
+                });
+
+            // Ambil data pengajuan izin yang disetujui
             $izin = DB::table('pengajuan_izin')
                 ->select(
                     'tanggal_izin AS tanggal_presensi',
@@ -359,21 +385,24 @@ class PresensiController extends Controller
                     'keterangan',
                     'status_approved',
                     DB::raw('NULL as jam_in'),
-                    DB::raw('NULL as jam_out')
+                    DB::raw('NULL as jam_out'),
+                    DB::raw('NULL as kode_jam_kerja'),
+                    DB::raw('false as terlambat'),
+                    DB::raw('NULL as terlambat_menit'),
+                    DB::raw('NULL as foto_in')
                 )
                 ->whereRaw('MONTH(tanggal_izin) = ?', [$bulan])
                 ->whereRaw('YEAR(tanggal_izin) = ?', [$tahun])
                 ->where('kode_pegawai', $kode_pegawai)
-                ->where('status_approved', 1) // Filter hanya yang disetujui
+                ->where('status_approved', 1)
                 ->orderBy('tanggal_izin')
                 ->get();
-    
-            // Gabungkan hasil presensi dan izin
+
+            // Gabungkan presensi dan izin
             $histori = collect($presensi)->merge($izin)->sortBy('tanggal_presensi')->values();
-    
+
             return response()->json($histori);
         } catch (\Exception $e) {
-            // Debug error
             return response()->json([
                 'error' => $e->getMessage(),
             ], 500);

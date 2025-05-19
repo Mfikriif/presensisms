@@ -56,6 +56,7 @@ export default function Profile({
                 title: "Validasi Gagal",
                 text: pesanError,
                 confirmButtonText: "Tutup",
+                confirmButtonColor: "#0c1e4f",
                 customClass: {
                     popup: "custom-swal-popup",
                     title: "custom-swal-title",
@@ -96,6 +97,7 @@ export default function Profile({
             showCancelButton: true,
             confirmButtonText: "Ya, Simpan",
             cancelButtonText: "Batal",
+            confirmButtonColor: "#0c1e4f",
             customClass: {
                 popup: "custom-swal-popup",
                 title: "custom-swal-title",

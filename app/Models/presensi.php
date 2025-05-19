@@ -13,6 +13,7 @@ class presensi extends Model
         'nama',
         'email',
         'tanggal_presensi',
+        'kode_jam_kerja',
         'jam_in',
         'jam_out',
         'foto_in',
@@ -29,6 +30,12 @@ class presensi extends Model
     public function set_jam_kerja()
     {
         return $this->hasOne(set_jam_kerja::class, 'nama', 'Nama');
+    }
+
+    // Relasi ke tabel `konfigurasi_shift_kerja`
+    public function konfigurasi_shift_kerja()
+    {
+        return $this->belongsTo(konfigurasi_shift_kerja::class, 'kode_jam_kerja', 'kode_jamkerja');
     }
 
     public function pegawai()

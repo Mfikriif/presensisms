@@ -75,9 +75,8 @@ class DashboardController extends Controller
             ->where('email', $email)
             ->where('tanggal_presensi', $hariini)
             ->first();
-    
-        // Ambil histori presensi bulan ini termasuk izin/sakit
-        $historibulanini = DB::table('presensi')
+
+        $rawPresensi = DB::table('presensi')
             ->where('email', $email)
             ->whereRaw('MONTH(tanggal_presensi) = ?', [$bulanini])
             ->whereRaw('YEAR(tanggal_presensi) = ?', [$tahunini])
@@ -85,25 +84,49 @@ class DashboardController extends Controller
                 'tanggal_presensi',
                 'jam_in',
                 'jam_out',
+                'kode_jam_kerja',
                 DB::raw("'h' as status"),
                 DB::raw("NULL as keterangan")
-            )
-            ->unionAll(
-                DB::table('pengajuan_izin')
-                    ->where('kode_pegawai', $user->id)
-                    ->where('status_approved', 1)
-                    ->whereRaw('MONTH(tanggal_izin) = ?', [$bulanini])
-                    ->whereRaw('YEAR(tanggal_izin) = ?', [$tahunini])
-                    ->select(
-                        'tanggal_izin as tanggal_presensi',
-                        DB::raw("NULL as jam_in"),
-                        DB::raw("NULL as jam_out"),
-                        'status',
-                        'keterangan'
-                    )
-            )
+            );
+
+        $izin = DB::table('pengajuan_izin')
+            ->where('kode_pegawai', $user->id)
+            ->where('status_approved', 1)
+            ->whereRaw('MONTH(tanggal_izin) = ?', [$bulanini])
+            ->whereRaw('YEAR(tanggal_izin) = ?', [$tahunini])
+            ->select(
+                'tanggal_izin as tanggal_presensi',
+                DB::raw("NULL as jam_in"),
+                DB::raw("NULL as jam_out"),
+                DB::raw("NULL as kode_jam_kerja"),
+                'status',
+                'keterangan'
+            );
+
+        $historibulanini = $rawPresensi->unionAll($izin)
             ->orderBy('tanggal_presensi', 'desc')
             ->get();
+
+        // Ambil referensi shift lengkap
+        $shiftRef = DB::table('konfigurasi_shift_kerja')->get()->keyBy('kode_jamkerja');
+
+        // Tambahkan informasi keterlambatan ke setiap entri
+        $historibulanini = $historibulanini->map(function ($item) use ($shiftRef) {
+            $item->terlambat = false;
+            $item->terlambat_menit = null;
+
+            if ($item->jam_in && $item->kode_jam_kerja && isset($shiftRef[$item->kode_jam_kerja])) {
+                $jamIn = strtotime($item->jam_in);
+                $jamMasuk = strtotime($shiftRef[$item->kode_jam_kerja]->jam_masuk);
+
+                if ($jamIn > $jamMasuk) {
+                    $item->terlambat = true;
+                    $item->terlambat_menit = round(($jamIn - $jamMasuk) / 60);
+                }
+            }
+
+            return $item;
+        });
     
         // Ambil shift kerja pegawai untuk seluruh minggu
         $jadwalMingguan = DB::table('set_jam_kerja')

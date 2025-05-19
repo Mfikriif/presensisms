@@ -21,4 +21,9 @@ class konfigurasi_shift_kerja extends Model
         'jam_masuk',
         'jam_pulang',
     ];
+
+    public function presensi()
+    {
+        return $this->hasMany(Presensi::class, 'kode_jam_kerja', 'kode_jamkerja');
+    }
 }

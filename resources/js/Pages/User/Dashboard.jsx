@@ -18,6 +18,13 @@ export default function Dashboard({
     shiftKerjaTerisi,
     shiftKerja,
 }) {
+    const [filterStatus, setFilterStatus] = useState("semua");
+    const filteredHistori = historibulanini.filter((item) => {
+        if (filterStatus === "semua") return true;
+        if (filterStatus === "hadir") return item.status === "h";
+        if (filterStatus === "izin") return item.status === "i";
+        if (filterStatus === "sakit") return item.status === "s";
+    });
     // Fungsi untuk mendapatkan minggu ke-berapa dalam bulan
     const getCurrentWeekOfMonth = () => {
         const today = new Date(); // Tanggal hari ini
@@ -254,7 +261,6 @@ export default function Dashboard({
                         <ion-icon name="exit" className="text-xl"></ion-icon>
                     </a>
                 </div>
-
                 {/* Absensi Hari Ini */}
                 <div className="relative w-full overflow-hidden pb-8">
                     {/* Background Image */}
@@ -375,7 +381,6 @@ export default function Dashboard({
                         </div>
                     </div>
                 </div>
-
                 {/* Tabs Navigation */}
                 <div className="flex justify-between border-b bg-white">
                     {tabs.map((tab) => (
@@ -392,7 +397,6 @@ export default function Dashboard({
                         </button>
                     ))}
                 </div>
-
                 {/* Tab Content */}
                 {activeTab === "bulanIni" && (
                     <div>
@@ -402,30 +406,52 @@ export default function Dashboard({
                                 <h3 className="text-lg font-semibold mb-4 text-center">
                                     Rekap Presensi Bulan {namabulan[bulanini]}
                                 </h3>
-                                <div className="grid grid-cols-3 gap-3">
+
+                                <div className="grid grid-cols-2 sm:flex sm:flex-wrap justify-center gap-3">
+                                    {/* Tombol filter "Semua" */}
+                                    <button
+                                        onClick={() => setFilterStatus("semua")}
+                                        className={`w-full sm:w-auto px-4 py-2 rounded-lg text-sm font-semibold border transition text-center
+            ${
+                filterStatus === "semua"
+                    ? "bg-blue-950 text-white border-blue-950"
+                    : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+            }`}
+                                    >
+                                        Semua
+                                    </button>
+
                                     {rekapItems.map((item, index) => (
-                                        <div
+                                        <button
                                             key={index}
-                                            className="relative bg-white shadow rounded-lg p-3 flex flex-col items-center justify-center"
+                                            onClick={() =>
+                                                setFilterStatus(
+                                                    item.type.toLowerCase()
+                                                )
+                                            }
+                                            className={`relative w-full sm:w-auto rounded-lg px-4 py-2 text-sm font-semibold flex flex-col items-center justify-center shadow-md transition duration-200 border
+                ${
+                    filterStatus === item.type.toLowerCase()
+                        ? "border-blue-950 ring-2 ring-blue-200"
+                        : "border-transparent bg-white hover:bg-gray-100"
+                }`}
                                         >
-                                            {/* Custom Badge */}
+                                            {/* Badge jumlah */}
                                             {item.count > 0 && (
                                                 <span className="absolute top-1 right-1 bg-red-500 text-white rounded-full text-xs font-bold px-2 py-0.5 shadow-lg">
                                                     {item.count}
                                                 </span>
                                             )}
 
-                                            {/* Icon */}
+                                            {/* Icon dan Label */}
                                             <ion-icon
                                                 name={item.iconName}
-                                                className={`${item.iconColor} text-4xl mb-2`}
+                                                className={`${item.iconColor} text-3xl mb-1`}
                                             ></ion-icon>
-
-                                            {/* Label */}
-                                            <span className="text-sm font-medium text-gray-700 mt-2">
+                                            <span className="text-xs">
                                                 {item.type}
                                             </span>
-                                        </div>
+                                        </button>
                                     ))}
                                 </div>
                             </div>
@@ -436,44 +462,14 @@ export default function Dashboard({
                                 Histori Bulan Ini
                             </h3>
 
-                            {historibulanini.length > 0 ? (
-                                historibulanini
+                            {filteredHistori.length > 0 ? (
+                                filteredHistori
                                     .sort(
                                         (a, b) =>
                                             new Date(a.tanggal_presensi) -
                                             new Date(b.tanggal_presensi)
                                     )
                                     .map((data, index) => {
-                                        const terlambat = (() => {
-                                            // Validasi data jam_in dan shift
-                                            if (
-                                                !data.jam_in ||
-                                                !shift ||
-                                                !shift.jam_masuk
-                                            ) {
-                                                return null;
-                                            }
-
-                                            // Format waktu dengan tanggal default
-                                            const jamIn = new Date(
-                                                `1970-01-01T${data.jam_in}`
-                                            );
-                                            const jamMasuk = new Date(
-                                                `1970-01-01T${shift.jam_masuk}`
-                                            );
-
-                                            // Validasi apakah waktu valid
-                                            if (
-                                                isNaN(jamIn.getTime()) ||
-                                                isNaN(jamMasuk.getTime())
-                                            ) {
-                                                return null;
-                                            }
-
-                                            // Perbandingan waktu
-                                            return jamIn > jamMasuk;
-                                        })();
-
                                         return (
                                             <div
                                                 key={index}
@@ -509,62 +505,87 @@ export default function Dashboard({
                                                         ).toLocaleDateString(
                                                             "id-ID",
                                                             {
-                                                                weekday: "long", // Tambahkan ini untuk menampilkan nama hari
+                                                                weekday: "long",
                                                                 day: "2-digit",
                                                                 month: "long",
                                                                 year: "numeric",
                                                             }
                                                         )}
                                                     </h5>
+
                                                     <p className="text-xs text-gray-600 mb-1">
                                                         {data.keterangan ||
                                                             "Hadir"}
                                                     </p>
 
-                                                    {/* Jam Masuk */}
-                                                    <div className="text-xs flex items-center">
-                                                        <span className="text-green-700 font-semibold mr-1">
-                                                            Jam Masuk:
-                                                        </span>
-                                                        <span
-                                                            className={`text-gray-700 ${
-                                                                terlambat
-                                                                    ? "text-red-500 font-semibold"
-                                                                    : ""
-                                                            }`}
-                                                        >
-                                                            {data.jam_in || (
-                                                                <span className="italic text-gray-500">
-                                                                    Belum Absen
+                                                    {data.status === "h" && (
+                                                        <>
+                                                            {/* Jam Masuk */}
+                                                            <div className="text-xs flex items-center">
+                                                                <span className="text-green-700 font-semibold mr-1">
+                                                                    Jam Masuk:
                                                                 </span>
-                                                            )}
-                                                        </span>
-                                                        {terlambat && (
-                                                            <span className="ml-1 text-[9px] font-semibold bg-red-500 text-white px-1 rounded">
-                                                                Terlambat
-                                                            </span>
-                                                        )}
-                                                    </div>
+                                                                <span className="text-gray-700">
+                                                                    {data.jam_in || (
+                                                                        <span className="italic text-gray-500">
+                                                                            Belum
+                                                                            Absen
+                                                                        </span>
+                                                                    )}
+                                                                </span>
 
-                                                    {/* Jam Pulang */}
-                                                    <p className="text-xs flex items-center mt-1">
-                                                        <strong className="text-red-700 mr-1">
-                                                            Jam Pulang:
-                                                        </strong>{" "}
-                                                        <span className="text-gray-700">
-                                                            {data.jam_out || (
-                                                                <span className="italic text-gray-500">
-                                                                    Belum Absen
+                                                                {/* Keterangan Terlambat */}
+                                                                {data.terlambat && (
+                                                                    <span className="ml-1 text-[9px] font-semibold bg-red-500 text-white px-1 rounded">
+                                                                        Terlambat{" "}
+                                                                        {Math.floor(
+                                                                            data.terlambat_menit /
+                                                                                60
+                                                                        ) >
+                                                                            0 && (
+                                                                            <>
+                                                                                {Math.floor(
+                                                                                    data.terlambat_menit /
+                                                                                        60
+                                                                                )}{" "}
+                                                                                jam{" "}
+                                                                            </>
+                                                                        )}
+                                                                        {data.terlambat_menit %
+                                                                            60}{" "}
+                                                                        menit
+                                                                    </span>
+                                                                )}
+                                                                {!data.terlambat &&
+                                                                    data.jam_in && (
+                                                                        <span className="ml-1 text-[9px] font-semibold bg-green-500 text-white px-1 rounded">
+                                                                            Tepat
+                                                                            Waktu
+                                                                        </span>
+                                                                    )}
+                                                            </div>
+
+                                                            {/* Jam Pulang */}
+                                                            <p className="text-xs flex items-center mt-1">
+                                                                <strong className="text-red-700 mr-1">
+                                                                    Jam Pulang:
+                                                                </strong>{" "}
+                                                                <span className="text-gray-700">
+                                                                    {data.jam_out || (
+                                                                        <span className="italic text-gray-500">
+                                                                            Belum
+                                                                            Absen
+                                                                        </span>
+                                                                    )}
                                                                 </span>
-                                                            )}
-                                                        </span>
-                                                    </p>
+                                                            </p>
+                                                        </>
+                                                    )}
                                                 </div>
                                             </div>
                                         );
                                     })
                             ) : (
-                                // Jika Tidak Ada Data
                                 <div className="text-center py-4">
                                     <p className="text-gray-500 text-sm">
                                         Belum ada data absensi bulan ini.
@@ -574,10 +595,9 @@ export default function Dashboard({
                         </div>
                     </div>
                 )}
-
                 {/* Shift Kerja */}
                 {activeTab === "shiftKerja" && (
-                    <div className="p-4">
+                    <div className="p-4 pb-16">
                         <h3 className="text-lg font-semibold mb-4 text-center text-gray-800">
                             Shift Kerja {currentWeek}
                         </h3>
@@ -594,21 +614,21 @@ export default function Dashboard({
                             ].map((day) => (
                                 <div
                                     key={day}
-                                    className="bg-white shadow-md rounded-lg p-4 border border-gray-200 active:shadow-sm active:scale-95 transition"
+                                    className="bg-white shadow-sm rounded-xl p-4 border border-gray-200 hover:shadow-md transition duration-200"
                                 >
                                     {/* Nama Hari */}
-                                    <h4 className="text-gray-700 font-semibold capitalize mb-2">
+                                    <h4 className="text-sm font-semibold capitalize text-gray-700 mb-2">
                                         {day}
                                     </h4>
 
-                                    {/* Dropdown */}
+                                    {/* Dropdown Shift */}
                                     <select
                                         name={day}
                                         value={shiftData[day] || ""}
                                         onChange={(e) =>
                                             handleChange(day, e.target.value)
                                         }
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring focus:ring-blue-400 focus:border-blue-500 transition"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500"
                                     >
                                         <option value="">
                                             Pilih Shift Kerja
@@ -618,7 +638,7 @@ export default function Dashboard({
                                                 a.nama_jamkerja.localeCompare(
                                                     b.nama_jamkerja
                                                 )
-                                            ) // Mengurutkan berdasarkan nama shift
+                                            )
                                             .map((shift) => (
                                                 <option
                                                     key={shift.kode_jamkerja}
