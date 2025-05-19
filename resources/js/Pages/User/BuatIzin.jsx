@@ -270,7 +270,7 @@ export default function BuatIzin() {
             <Head title="Buat Izin | E-Presensi SMS" />
             <div className="bg-gray-100 min-h-screen overflow-y-auto relative pt-16">
                 {/* Header */}
-                <div className="fixed top-0 left-0 right-0 z-50 bg-blue-950 text-white flex items-center justify-between px-4 py-3 shadow-md">
+                <div className="fixed top-0 left-0 right-0 z-50 bg-blue-950 text-white flex items-center justify-between px-4 py-5 shadow-md">
                     <button
                         onClick={() => window.history.back()}
                         className="flex items-center text-white"
@@ -279,7 +279,7 @@ export default function BuatIzin() {
                             name="chevron-back-outline"
                             className="text-2xl"
                         ></ion-icon>
-                        <span className="ml-2 text-sm">Kembali</span>
+                        <span className="ml-2 text-base">Kembali</span>
                     </button>
                     <h1 className="text-lg font-semibold">Form Izin</h1>
                 </div>

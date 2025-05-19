@@ -193,7 +193,7 @@ export default function Dashboard({
                 <div className="fixed top-0 left-0 right-0 z-50 bg-blue-950 shadow-md rounded-b-sm p-4 flex items-center justify-between overflow-hidden">
                     <div className="flex items-center">
                         {/* Avatar */}
-                        <div className="rounded-full overflow-hidden w-16 h-16 border-4 border-red-500">
+                        <div className="rounded-full overflow-hidden w-16 h-16 border-2 border-red-500">
                             <img
                                 src={
                                     user.foto

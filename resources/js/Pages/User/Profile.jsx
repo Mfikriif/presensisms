@@ -126,7 +126,7 @@ export default function Profile({
         <MainLayout>
             <Head title="Profil | E-Presensi SMS" />
             <div className="bg-gray-100 min-h-screen overflow-y-auto pb-52 pt-16">
-                <div className="fixed top-0 left-0 right-0 z-50 bg-blue-950 text-white flex items-center justify-between px-4 py-3 shadow-md">
+                <div className="fixed top-0 left-0 right-0 z-50 bg-blue-950 text-white flex items-center justify-between px-4 py-5 shadow-md">
                     <button
                         onClick={() => (window.location.href = "/dashboardop")}
                         className="flex items-center text-white"
@@ -135,7 +135,7 @@ export default function Profile({
                             name="chevron-back-outline"
                             className="text-2xl"
                         ></ion-icon>
-                        <span className="ml-2 text-sm">Kembali</span>
+                        <span className="ml-2 text-base">Kembali</span>
                     </button>
                     <h1 className="text-lg font-semibold">Ubah Profil</h1>
                 </div>
