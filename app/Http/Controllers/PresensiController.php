@@ -331,13 +331,14 @@ class PresensiController extends Controller
         }
     }
 
-    // Histori Absensi
+    // Tampilkan Bulan dan Tahun
     public function histori(){
         $namabulan = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
         return Inertia::render('User/Histori',[
             'namabulan' => $namabulan,
     ]);
     }
+    // Tampilkan Histori
     public function getHistori(Request $request)
     {
         try {
