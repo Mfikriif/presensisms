@@ -45,8 +45,8 @@ class PresensiController extends Controller
     
         // -6.993411391499169, 110.42901558392305
         // Lokasi Kantor -7.023826563310556, 110.50695887209068 //artefak -7.059935504906368, 110.42837090396569 //arya : -6.990826334014022, 110.4610780394645 //kampus : -7.048106581965681, 110.44140750027846
-        $latitudekantor = -6.991042093179359;
-        $longitudekantor = 110.4609062818664;
+        $latitudekantor = -7.023826563310556;
+        $longitudekantor = 110.50695887209068;
 
     
         // Lokasi User
